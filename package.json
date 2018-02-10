@@ -1,0 +1,18 @@
+{
+  "name": "perspective-discord-bot",
+  "version": "0.1.0",
+  "description": "Automatic moderation of toxic chat messages with http://perspectiveapi.com.",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Tim Nunamaker",
+  "license": "ISC",
+  "dependencies": {
+    "discord.io": "github:woor/discord.io#gateway_v6",
+    "request": "^2.83.0",
+    "request-promise-native": "^1.0.5",
+    "winston": "^2.4.0"
+  }
+}
