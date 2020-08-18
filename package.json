@@ -11,10 +11,10 @@
   "license": "ISC",
   "dependencies": {
     "discord.io": "github:woor/discord.io#gateway_v6",
-    "lodash": "^4.17.5",
+    "lodash": "^4.17.20",
     "mongoose": "^5.0.4",
     "request": "^2.83.0",
     "request-promise-native": "^1.0.5",
-    "winston": "^2.4.0"
+    "winston": "^2.4.5"
   }
 }
