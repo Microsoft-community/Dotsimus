@@ -10,6 +10,7 @@
   "author": "Tim Nunamaker",
   "license": "ISC",
   "dependencies": {
+    "@sentry/node": "^5.20.1",
     "discord.io": "github:woor/discord.io#gateway_v6",
     "dotenv": "^8.2.0",
     "lodash": "^4.17.20",
