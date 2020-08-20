@@ -1,13 +1,13 @@
 {
   "name": "dotsimus",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Automatic moderation of toxic chat messages.",
   "main": "lib/index.js",
   "scripts": {
     "start": "node lib/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "Tim Nunamaker",
+  "author": "Mindaugas Jasiulis",
   "license": "MIT",
   "dependencies": {
     "@sentry/node": "^5.21.1",
