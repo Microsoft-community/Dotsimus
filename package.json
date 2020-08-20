@@ -1,16 +1,16 @@
 {
-  "name": "perspective-discord-bot",
+  "name": "dotsimus",
   "version": "0.1.0",
-  "description": "Automatic moderation of toxic chat messages with http://perspectiveapi.com.",
+  "description": "Automatic moderation of toxic chat messages.",
   "main": "lib/index.js",
   "scripts": {
     "start": "node lib/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Tim Nunamaker",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
-    "@sentry/node": "^5.20.1",
+    "@sentry/node": "^5.21.1",
     "discord.io": "github:woor/discord.io#gateway_v6",
     "dotenv": "^8.2.0",
     "lodash": "^4.17.20",
