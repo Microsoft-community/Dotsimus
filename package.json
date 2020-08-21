@@ -1,6 +1,7 @@
 {
   "name": "dotsimus",
   "version": "0.2.0",
+  "repository": "https://github.com/Microsoft-community/Dotsimus",
   "description": "Automatic moderation of toxic chat messages.",
   "main": "lib/index.js",
   "scripts": {
@@ -10,13 +11,13 @@
   "author": "Mindaugas Jasiulis",
   "license": "MIT",
   "dependencies": {
-    "@sentry/node": "^5.21.1",
-    "discord.io": "github:woor/discord.io#gateway_v6",
+    "@sentry/node": "^5.21.2",
+    "chalk": "^4.1.0",
+    "discord.js": "^12.3.1",
     "dotenv": "^8.2.0",
     "lodash": "^4.17.20",
-    "mongoose": "^5.0.4",
-    "request": "^2.83.0",
-    "request-promise-native": "^1.0.5",
-    "winston": "^2.4.5"
+    "mongoose": "^5.10.0",
+    "request": "^2.88.2",
+    "request-promise-native": "^1.0.9"
   }
 }
