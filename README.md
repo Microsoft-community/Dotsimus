@@ -3,11 +3,9 @@
 1. Create an auth.json and provide required tokens and keys as per example below.
 
 ```js
-{
-  "discordToken": String,
-  "perspectiveKey": String,
-  "mongoUri": String
-}
+BOT_TOKEN=TOKEN
+DB_HOST=DB
+PERSPECTIVE_KEY=KEY
 ```
 
 2. Add bot to your server https://discordapp.com/oauth2/authorize?&client_id=YOUR_CLIENT_ID_HERE&scope=bot&permissions=0
