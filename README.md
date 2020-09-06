@@ -1,6 +1,6 @@
 # Requirements
 
-1. Create an auth.json and provide required tokens and keys as per example below.
+1. Create an .env file and provide required tokens and keys as per example below.
 
 ```js
 BOT_TOKEN=TOKEN
