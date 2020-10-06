@@ -16,6 +16,7 @@ jobs:
           host: ${{ secrets.HOSTNAME }}
           username: ${{ secrets.USERNAME }}
           password: ${{ secrets.PASSWORD }}
+          command_timeout: 3m
           script: |
                   whoami
                   cd Dotsimus
