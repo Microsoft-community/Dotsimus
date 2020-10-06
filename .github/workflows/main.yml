@@ -18,7 +18,9 @@ jobs:
           password: ${{ secrets.PASSWORD }}
           command_timeout: 3m
           script: |
-                  whoami
                   cd Dotsimus
+                  pm2 stop lib/index.js
+                  echo app stopped
+                  git pull
                   pm2 start lib/index.js
                   echo done
