@@ -19,5 +19,6 @@ jobs:
           script: |
                   whoami
                   cd Dotsimus
-                  npm start
+                  CI=true npm start
+                  echo done
                   exit
