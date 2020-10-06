@@ -16,3 +16,4 @@ jobs:
           host: ${{ secrets.HOSTNAME }}
           username: ${{ secrets.USERNAME }}
           password: ${{ secrets.PASSWORD }}
+          script: whoami
