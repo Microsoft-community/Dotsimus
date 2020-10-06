@@ -20,6 +20,5 @@ jobs:
           script: |
                   whoami
                   cd Dotsimus
-                  CI=true npm start
+                  pm2 start lib/index.js
                   echo done
-                  exit
