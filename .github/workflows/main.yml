@@ -16,4 +16,7 @@ jobs:
           host: ${{ secrets.HOSTNAME }}
           username: ${{ secrets.USERNAME }}
           password: ${{ secrets.PASSWORD }}
-          script: whoami && cd Dotsimus && npm start && exit
+          script: whoami
+                  cd Dotsimus
+                  npm start
+                  exit
