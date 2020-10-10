@@ -6,6 +6,7 @@
 BOT_TOKEN=TOKEN
 DB_HOST=DB
 PERSPECTIVE_KEY=KEY
+DEVELOPMENT=false
 ```
 
 2. Add bot to your server https://discordapp.com/oauth2/authorize?&client_id=YOUR_CLIENT_ID_HERE&scope=bot&permissions=0
