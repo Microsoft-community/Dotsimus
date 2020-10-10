@@ -3,9 +3,6 @@ name: Deployment
   push:
     branches:
       - main
-  pull_request:
-    branches:
-      - main
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -16,7 +13,8 @@ jobs:
           host: ${{ secrets.HOSTNAME }}
           username: ${{ secrets.USERNAME }}
           password: ${{ secrets.PASSWORD }}
-          command_timeout: 3m
+          command_timeout: 5m
+          script_stop: true
           script: |
                   cd Dotsimus
                   pm2 stop lib/index.js
@@ -24,4 +22,4 @@ jobs:
                   git pull
                   npm install
                   pm2 start lib/index.js
-                  echo done
+                  echo deployment completed
