@@ -1,4 +1,4 @@
-name: Deployment
+name: Deployment announcement
 'on':
   push:
     branches:
@@ -10,6 +10,6 @@ jobs:
       - name: Discord Commits
         uses: Sniddl/discord-commits@v1.2
         with:
-          webhook: https://discordapp.com/api/webhooks/764767602093588501/GaQkgv0DNnfA9Td5s4uvdkAo4jepT_7sDb_Gzad-uvNfHF5RXVXKGwIr95gkM1OGhLHv
-          message: "Successful commit to **{{ github.context.payload.repository.owner.name }}/{{ github.context.payload.repository.name}}**.\nDiff: {{ github.context.payload.compare }}"
-          embed: '{ "title": "{{ commit.title }}", "description": "{{ commit.description }}", "url": "{{ commit.url }}", "author": { "name": "{{ commit.author.name }} ({{ commit.author.username }})", "icon_url": "https://avatars.io/gravatar/{{ commit.author.email }}"} }'
+          webhook: ${{ secrets.DISCORD_WEBHOOK }}
+          # message: "Successful commit to **{{ github.context.payload.repository.owner.name }}/{{ github.context.payload.repository.name}}**.\nDiff: {{ github.context.payload.compare }}"
+          embed: '{ "title": "{{ commit.title }}", "description": "{{ commit.description }}", "author": { "name": "Update deployed"} }'
