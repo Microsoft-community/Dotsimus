@@ -6,6 +6,7 @@
   "main": "lib/index.js",
   "scripts": {
     "start": "@powershell pm2 flush; pm2 start lib/index.js --log logs.log --log-date-format 'MM-DD HH:mm' --watch; pm2 logs",
+    "stop": "@powershell pm2 stop lib/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Mindaugas Jasiulis",
@@ -13,6 +14,7 @@
   "dependencies": {
     "@sentry/node": "^5.25.0",
     "chalk": "^4.1.0",
+    "discord-paginationembed": "^2.1.0",
     "discord.js": "^12.3.1",
     "dotenv": "^8.2.0",
     "lodash": "^4.17.20",
