@@ -18,6 +18,7 @@ jobs:
           script: |
                   cd Dotsimus
                   pm2 stop lib/index.js
+                  pm2 flush
                   echo app stopped
                   git pull
                   npm install
