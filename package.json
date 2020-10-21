@@ -5,7 +5,7 @@
   "description": "Automatic moderation of toxic chat messages.",
   "main": "lib/index.js",
   "scripts": {
-    "start": "@powershell pm2 flush; pm2 start lib/index.js --log logs.log --log-date-format 'MM-DD HH:mm' --watch; pm2 logs",
+    "start": "@powershell pm2 flush; pm2 start lib/index.js --log logs.log --log-date-format 'MM-DD HH:mm' --watch --restart-delay 10000; pm2 logs",
     "stop": "@powershell pm2 stop lib/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
