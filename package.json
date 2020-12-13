@@ -12,13 +12,13 @@
   "author": "Mindaugas Jasiulis",
   "license": "MIT",
   "dependencies": {
-    "@sentry/node": "^5.27.3",
+    "@sentry/node": "^5.29.0",
     "chalk": "^4.1.0",
     "discord-paginationembed": "^2.1.0",
     "discord.js": "^12.5.1",
     "dotenv": "^8.2.0",
     "lodash": "^4.17.20",
-    "mongoose": "^5.10.13",
+    "mongoose": "^5.11.7",
     "request": "^2.88.2",
     "request-promise-native": "^1.0.9"
   }
