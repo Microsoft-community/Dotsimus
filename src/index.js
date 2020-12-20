@@ -644,7 +644,29 @@ Reason: \`${reason}\``)
                 }
               }
             } else {
-              message.channel.send(`There are ${rules.length} rules in this server, you may want to try this again.`);
+              message.channel.send('Loading rules').then(embedMessage => {
+                const embeds = [];
+                for (let i = 1; i <= 5; ++i)
+                  embeds.push(new Discord.MessageEmbed().addField('Page', i));
+                let number = 1;
+                const Embeds = new PaginationEmbed.FieldsEmbed()
+                  .setArray(embeds)
+                  .setAuthorizedUsers([message.author.id])
+                  .setChannel(embedMessage.channel)
+                  .setPageIndicator(true)
+                  .setClientAssets({ message: embedMessage, prompt: 'Say page number {{user}}' })
+                  .setDisabledNavigationEmojis(['delete'])
+                  .setTimeout(180000)
+                  .setArray(rules.map(rule => ({ name: number++, description: rule.description })))
+                  .setPage(1)
+                  .setElementsPerPage(3)
+                  .formatField('Total rules ' + rules.length, rule => `**${rule.name}.** ${rule.description}\n`, false)
+                  .on('error', console.error);
+                Embeds.embed
+                  .setTitle('Microsoft Community rules')
+                  .setColor('#08d9d6');
+                Embeds.build();
+              })
             }
             break;
         }
