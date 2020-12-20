@@ -304,7 +304,7 @@ client.on('message', message => {
         }
         db.getRecord(userArgFormat, server.id).then(data => {
           if (data.length !== 0) {
-            message.channel.send('Flags record \n' + data[0].message.map(x => `${x.message} - ${x.toxicity} \n`).join(''))
+            message.channel.send('Flags record \n' + data[0].message.map(x => `||${x.message}|| - ${x.toxicity} \n`).join(''))
           } else {
             message.channel.send('No records found for this user.')
           }
