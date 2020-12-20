@@ -17,14 +17,8 @@ db.initialize.then(function (response) {
   client.login(process.env.BOT_TOKEN);
 })
 let serversConfig = []
-client.on('ready', () => {
-  console.log(chalk.green(`Logged in as ${client.user.tag}!`));
-  client.user.setActivity(`chat`, { type: 'WATCHING' });
-  let hours = 0;
-  setInterval(async () => {
-    hours += 1;
-    await client.user.setActivity(`chat for ${hours} hour(s)`, { type: 'WATCHING' });
-  }, 3600000);
+const refreshServersConfigListing = () => {
+  const serversConfigStore = []
   client.guilds.cache.forEach(server => {
     db.saveServerConfig(
       +new Date,
@@ -33,8 +27,19 @@ client.on('ready', () => {
       prefix,
       false,
       server.memberCount
-    ).then(data => serversConfig.push(data))
+    ).then(data => serversConfigStore.push(data))
   })
+  serversConfig = serversConfigStore;
+}
+client.on('ready', () => {
+  console.info(chalk.green(`Logged in as ${client.user.tag}!`));
+  client.user.setActivity(`chat`, { type: 'WATCHING' });
+  let hours = 0;
+  setInterval(async () => {
+    hours += 1;
+    await client.user.setActivity(`chat for ${hours} hour(s)`, { type: 'WATCHING' });
+  }, 3600000);
+  refreshServersConfigListing()
 });
 
 let watchedKeywordsCollection = db.getWatchedKeywords(),
@@ -45,8 +50,7 @@ const refreshWatchedCollection = () => (
 
 client.on('typingStart', (channel, user) => {
   if (channel.type === "dm") return;
-  activeUsersCollection = activeUsersCollection.filter(userActivity => (userActivity.userId !== user.id && userActivity.serverId !== channel.guild.id))
-  activeUsersCollection.push({
+  if (activeUsersCollection.filter(userActivity => (userActivity.userId === user.id && userActivity.serverId === channel.guild.id)).length === 0) activeUsersCollection.push({
     userId: user.id,
     serverId: channel.guild.id,
     timestamp: Date.now()
@@ -63,24 +67,38 @@ setInterval(function () {
 
 client.on('message', message => {
   if (message.author.bot || process.env.DEVELOPMENT === 'true' && !(message.author.id === '71270107371802624')) return;
-  if (message.channel.type === "dm") return console.info(`${getTime()} #DM ${message.author.username}: ${message.content}`);
-  const serverId = message.channel.guild.id,
-    serverName = message.channel.guild.name,
-    isAdmin = message.member.hasPermission("ADMINISTRATOR"),
-    isModerator = message.member.hasPermission("KICK_MEMBERS") || message.member.hasPermission("BAN_MEMBERS"),
-    isUserNew = message.guild.members.cache.get(message.author.id).roles.cache.map(r => `${r}`).length === 1;
-  prefix = serversConfig.filter(data => data?.serverId === serverId)[0]?.prefix ? serversConfig.filter(data => data.serverId === message.channel.guild.id)[0]?.prefix : '!';
+  if (message.channel.type === "dm") {
+    client.users.fetch('71270107371802624', false).then((user) =>
+      user.send(`<@${message.author.id}>: ${message.content}`)
+    )
+    return console.info(`${getTime()} #DM ${message.author.username}: ${message.content}`);
+  }
+
+  if (serversConfig.filter(data => data?.serverId === message.channel.guild.id).length === 0) return refreshServersConfigListing();
+  const server = {
+    name: message.channel.guild.name,
+    id: message.channel.guild.id,
+    prefix: serversConfig.filter(data => data?.serverId === message.channel.guild.id)[0]?.prefix ? serversConfig.filter(data => data?.serverId === message.channel.guild.id)[0]?.prefix : '!',
+    isPremium: serversConfig.filter(data => data?.serverId === message.channel.guild.id)[0]?.isSubscribed
+  },
+    user = {
+      id: message.author.id,
+      name: message.author.username,
+      isAdmin: message.member.hasPermission("ADMINISTRATOR"),
+      isModerator: message.member.hasPermission("KICK_MEMBERS") || message.member.hasPermission("BAN_MEMBERS"),
+      isNew: message.guild.members.cache.get(message.author.id).roles.cache.map(roles => `${roles}`).length === 1
+    };
   watchedKeywordsCollection.then(entireCollection => {
-    entireCollection.filter(watchedKeywordsCollection => watchedKeywordsCollection.serverId === serverId).map(watchedKeywordsGuild => {
+    entireCollection.filter(watchedKeywordsCollection => watchedKeywordsCollection.serverId === server.id).map(watchedKeywordsGuild => {
       const words = watchedKeywordsGuild.watchedWords;
       const isWatcherActive = activeUsersCollection.filter(userActivity => userActivity.userId === watchedKeywordsGuild.userId).filter(function (serverFilter) {
-        return (serverFilter.serverId === serverId);
+        return (serverFilter.serverId === server.id);
       }).length > 0;
       words.forEach(word => {
         if (message.content.toLowerCase().indexOf(word) != -1) client.users.fetch(watchedKeywordsGuild.userId, false).then((user) => {
-          const guild = client.guilds.cache.get(serverId);
+          const guild = client.guilds.cache.get(server.id);
           if (!guild.member(watchedKeywordsGuild.userId)) {
-            db.removeWatchedKeyword(watchedKeywordsGuild.userId, serverId).then(resp => {
+            db.removeWatchedKeyword(watchedKeywordsGuild.userId, server.id).then(resp => {
               refreshWatchedCollection()
               console.info('Removed watcher: ' + watchedKeywordsGuild.userId)
               return;
@@ -96,28 +114,29 @@ client.on('message', message => {
                 .addFields(
                   { name: 'Message Author', value: `<@${message.author.id}>`, inline: true },
                   { name: 'Author ID', value: message.author.id, inline: true },
-                  { name: 'Channel', value: `${serverName}/${message.channel.name} | 🔗 [Message link](https://discordapp.com/channels/${serverId}/${message.channel.id}/${message.id})` }
+                  { name: 'Channel', value: `${server.name}/${message.channel.name} | 🔗 [Message link](https://discordapp.com/channels/${server.id}/${message.channel.id}/${message.id})` }
                 )
                 .setTimestamp()
-                .setFooter(`Stop tracking with !unwatch command in ${serverName} server.`)
+                .setFooter(`Stop tracking with !unwatch command in ${server.name} server.`)
                 .setColor('#7289da'),
                 trackingNoticeUser = new Discord.MessageEmbed()
                   .setTitle(`❗ Tracked keyword triggered`)
-                  .setDescription(`**"${word}"** mentioned in [**${serverName}/${message.channel.name}**.](https://discordapp.com/channels/${serverId}/${message.channel.id}/${message.id})`)
+                  .setDescription(`**"${word}"** mentioned in [**${server.name}/${message.channel.name}**.](https://discordapp.com/channels/${server.id}/${message.channel.id}/${message.id})`)
                   .setTimestamp()
-                  .setFooter(`Stop tracking with !unwatch command in ${serverName} server.`)
+                  .setFooter(`Stop tracking with !unwatch command in ${server.name} server.`)
                   .setColor('#7289da');
               user.send((message.channel.permissionsFor(watchedKeywordsGuild.userId).serialize()['KICK_MEMBERS'] || message.channel.permissionsFor(watchedKeywordsGuild.userId).serialize()['BAN_MEMBERS']) ? trackingNoticeMod : trackingNoticeUser).catch(error => {
-                console.info(
-                  `Could not send DM to ${watchedKeywordsGuild.userId}.`
-                );
+                console.info(`Could not send DM to ${watchedKeywordsGuild.userId}, tracking is being disabled.`);
+                db.removeWatchedKeyword(watchedKeywordsGuild.userId, server.id).then(resp => {
+                  refreshWatchedCollection()
+                })
               });
             } catch (error) {
               console.error({
                 author: message.author.id,
                 message: message.content,
                 watcher: watchedKeywordsGuild.userId,
-                server: serverId,
+                server: server.id,
                 error: error
               })
             }
@@ -126,162 +145,164 @@ client.on('message', message => {
       });
     })
   })
-  getToxicity(message.content, message, false).then(toxicity => {
-    // console.info(`${getTime()} #${message.channel.name} ${message.author.username}: ${message.content} | ${chalk.red((Number(toxicity.toxicity) * 100).toFixed(2))} ${chalk.red((Number(toxicity.insult) * 100).toFixed(2))}`)
-    const messageToxicity = toxicity.toxicity,
-      messageTemplates = [`watch your language.`, `take a break.`, `surely you could pick some nicer words.`, `lets be nice to each other.`],
-      warningMessage = Math.floor(Math.random() * messageTemplates.length),
-      saveMessage = () => {
-        db.saveMessage(
-          +new Date,
-          serverId,
-          message.author.id,
-          message.author.username,
-          isUserNew,
-          message.content,
-          messageToxicity
-        )
-      };
-    const alerts = () => {
-      // alerts.filter(a => toxicity.toxicity >= a.threshold || toxicity.combined >= .80) removed filters temp
-      db.getAlerts(message.channel.guild.id).then(alerts => alerts.forEach(a => {
-        const investigationEmbed = new Discord.MessageEmbed()
-          .setColor('#ffbd2e')
-          .setDescription(`🔎 **Investigate user's message(${(Number(messageToxicity) * 100).toFixed(2)}, ${(Number(toxicity.insult) * 100).toFixed(2)})** \n ${message.content.slice(0, 1024)}`)
-          .addFields(
-            { name: 'User', value: `<@${message.author.id}>`, inline: true },
-            { name: 'User ID', value: message.author.id, inline: true },
-            { name: 'Is user new?', value: isUserNew ? "Yes" : "No", inline: true },
-            { name: 'Channel', value: `<#${message.channel.id}> | 🔗 [Message link](https://discordapp.com/channels/${serverId}/${message.channel.id}/${message.id})` }
-          );
-        const mention = a.mention.type === 'role' ? `<@&${a.mention.id}>` : `<@${a.mention.id}>`;
-        let notice = ('@here', investigationEmbed);
-        if (a.mention.type === 'role' && !a.channelId) {
-          notice = `${mention} members have been notified of potential toxicity.`
-        }
-        client.channels.cache.get(a.channelId).send('@here', investigationEmbed).then(function (embedMessage) {
-          embedMessage.react("👍")
-          embedMessage.react("👎")
-        })
-      }))
-    }
-    // Log both recent messages into the logs within embed
-    if ((((messageToxicity >= .75 || toxicity.insult >= .80) && isUserNew) || (messageToxicity >= .80 || toxicity.combined >= .80)) && serverId === '150662382874525696') {
-      console.info(`${getTime()} #${message.channel.name} ${message.author.username}: ${message.content} | ${chalk.red((Number(messageToxicity) * 100).toFixed(2))} ${chalk.red((Number(toxicity.insult) * 100).toFixed(2))}`)
-      const evaluatedMessages = [];
-      async function getLatestUserMessages (userId) {
-        await message.channel.messages.fetch({
-          limit: 30
-        }).then(message => {
-          const getLatestMessages = message.filter(function (message) {
-            if (this.count < 2 && message.author.id === userId) {
-              message => message.author.id === userId
-              this.count++;
-              return true;
-            }
-            return false;
-          }, { count: 0 })
-          getLatestMessages.forEach(message => {
-            evaluatedMessages.push({ content: message.content })
-          })
-        })
-
-        async function getEvaluatedMessages () {
-          let resolvedMessages = await Promise.all(evaluatedMessages.map(async (evaluationMessage) => {
-            console.log({ initmsg: evaluationMessage });
-            const result = await getToxicity(evaluationMessage.content, message, true);
-            output = result;
-            return output;
-          }));
-          return resolvedMessages
-        }
-        return getEvaluatedMessages()
-      }
-      getLatestUserMessages(message.author.id).then(function (result) {
-        console.log({ endResult: result })
-        const newInvestigationEmbed = new Discord.MessageEmbed()
-          .setColor('#ffbd2e')
-          .setDescription(`🔎 **Investigate **new user's** message(${(Number(messageToxicity) * 100).toFixed(2)}, ${(Number(toxicity.insult) * 100).toFixed(2)})** \n ${message.content.slice(0, 1024)}`)
-          .addFields(
-            { name: 'User', value: `<@${message.author.id}>`, inline: true },
-            { name: 'User ID', value: message.author.id, inline: true },
-            { name: 'Is user new?', value: isUserNew ? "Yes" : "No", inline: true },
-            { name: 'Channel', value: `<#${message.channel.id}> | 🔗 [Message link](https://discordapp.com/channels/${serverId}/${message.channel.id}/${message.id})` }
-          );
-        const role = message.guild.roles.cache.find(role => role.name === 'Muted'),
-          member = message.guild.members.cache.get(message.author.id);
-        if (result.length === 2) {
-          if (isNaN(result[1].toxicity)) return;
-          console.info({ result: result[0].toxicity, secondres: result[1].toxicity, total: ((result[0].toxicity + result[1].toxicity) / 2) >= .70 });
-          if (((result[0].toxicity + result[1].toxicity) / 2) >= .70) {
-            console.info({ amount: (result[0].toxicity + result[1].toxicity) / 2, lenght: result.length });
-            message.delete({ reason: "toxic message" }).catch(() => {
-              console.info(
-                `Could not delete message ${message.content} | ${message.id}.`
-              );
-            });
-            if (role) {
-              member.roles.add(role);
-              message.reply('has been flagged for review.')
-            } else {
-              message.channel.send('Failed to mute.')
-            }
-            saveMessage()
-            isUserNew ? client.channels.cache.get('745276933767430255').send('@here', newInvestigationEmbed).then(function (embedMessage) {
-              embedMessage.react("👍")
-              embedMessage.react("👎")
-            }) : alerts();
+  if (server.isPremium) {
+    getToxicity(message.content, message, false).then(toxicity => {
+      // console.info(`${getTime()} #${message.channel.name} ${message.author.username}: ${message.content} | ${chalk.red((Number(toxicity.toxicity) * 100).toFixed(2))} ${chalk.red((Number(toxicity.insult) * 100).toFixed(2))}`)
+      const messageToxicity = toxicity.toxicity,
+        messageTemplates = [`watch your language.`, `take a break.`, `surely you could pick some nicer words.`, `lets be nice to each other.`],
+        warningMessage = Math.floor(Math.random() * messageTemplates.length),
+        saveMessage = () => {
+          db.saveMessage(
+            +new Date,
+            server.id,
+            user.id,
+            user.name,
+            user.isNew,
+            message.content,
+            messageToxicity
+          )
+        };
+      const alerts = () => {
+        // alerts.filter(a => toxicity.toxicity >= a.threshold || toxicity.combined >= .80) removed filters temp
+        db.getAlerts(message.channel.guild.id).then(alerts => alerts.forEach(a => {
+          const investigationEmbed = new Discord.MessageEmbed()
+            .setColor('#ffbd2e')
+            .setDescription(`🔎 **Investigate user's message(${(Number(messageToxicity) * 100).toFixed(2)}, ${(Number(toxicity.insult) * 100).toFixed(2)})** \n ${message.content.slice(0, 1024)}`)
+            .addFields(
+              { name: 'User', value: `<@${message.author.id}>`, inline: true },
+              { name: 'User ID', value: message.author.id, inline: true },
+              { name: 'Is user new?', value: user.isNew ? "Yes" : "No", inline: true },
+              { name: 'Channel', value: `<#${message.channel.id}> | 🔗 [Message link](https://discordapp.com/channels/${server.id}/${message.channel.id}/${message.id})` }
+            );
+          const mention = a.mention.type === 'role' ? `<@&${a.mention.id}>` : `<@${a.mention.id}>`;
+          let notice = ('@here', investigationEmbed);
+          if (a.mention.type === 'role' && !a.channelId) {
+            notice = `${mention} members have been notified of potential toxicity.`
           }
-        } else {
-          if (!isUserNew) return;
-          try {
-            message.delete({ reason: "toxic message" }).catch(() => {
-              console.info(
-                `Could not delete message ${message.content} | ${message.id}.`
-              );
-            });
-            if (role) {
-              member.roles.add(role);
-              message.reply('has been flagged for review.')
-            } else {
-              message.channel.send('Failed to mute.')
-            }
-            try {
-              isUserNew ? saveMessage() : ''
-              isUserNew ? client.channels.cache.get('745276933767430255').send('@here', newInvestigationEmbed).then(function (embedMessage) {
+          client.channels.cache.get(a.channelId).send('@here', investigationEmbed).then(function (embedMessage) {
+            embedMessage.react("👍")
+            embedMessage.react("👎")
+          })
+        }))
+      }
+      // Log both recent messages into the logs within embed
+      if ((((messageToxicity >= .75 || toxicity.insult >= .80) && user.isNew) || (messageToxicity >= .80 || toxicity.combined >= .80)) && server.id === '150662382874525696') {
+        console.info(`${getTime()} #${message.channel.name} ${message.author.username}: ${message.content} | ${chalk.red((Number(messageToxicity) * 100).toFixed(2))} ${chalk.red((Number(toxicity.insult) * 100).toFixed(2))}`)
+        const evaluatedMessages = [];
+        async function getLatestUserMessages (userId) {
+          await message.channel.messages.fetch({
+            limit: 30
+          }).then(message => {
+            const getLatestMessages = message.filter(function (message) {
+              if (this.count < 2 && message.author.id === userId) {
+                message => message.author.id === userId
+                this.count++;
+                return true;
+              }
+              return false;
+            }, { count: 0 })
+            getLatestMessages.forEach(message => {
+              evaluatedMessages.push({ content: message.content })
+            })
+          })
+
+          async function getEvaluatedMessages () {
+            let resolvedMessages = await Promise.all(evaluatedMessages.map(async (evaluationMessage) => {
+              console.log({ initmsg: evaluationMessage });
+              const result = await getToxicity(evaluationMessage.content, message, true);
+              output = result;
+              return output;
+            }));
+            return resolvedMessages
+          }
+          return getEvaluatedMessages()
+        }
+        getLatestUserMessages(message.author.id).then(function (result) {
+          console.log({ endResult: result })
+          const newInvestigationEmbed = new Discord.MessageEmbed()
+            .setColor('#ffbd2e')
+            .setDescription(`🔎 **Investigate **new user's** message(${(Number(messageToxicity) * 100).toFixed(2)}, ${(Number(toxicity.insult) * 100).toFixed(2)})** \n ${message.content.slice(0, 1024)}`)
+            .addFields(
+              { name: 'User', value: `<@${message.author.id}>`, inline: true },
+              { name: 'User ID', value: message.author.id, inline: true },
+              { name: 'Is user new?', value: user.isNew ? "Yes" : "No", inline: true },
+              { name: 'Channel', value: `<#${message.channel.id}> | 🔗 [Message link](https://discordapp.com/channels/${server.id}/${message.channel.id}/${message.id})` }
+            );
+          const role = message.guild.roles.cache.find(role => role.name === 'Muted'),
+            member = message.guild.members.cache.get(message.author.id);
+          if (result.length === 2) {
+            if (isNaN(result[1].toxicity)) return;
+            console.info({ result: result[0].toxicity, secondres: result[1].toxicity, total: ((result[0].toxicity + result[1].toxicity) / 2) >= .70 });
+            if (((result[0].toxicity + result[1].toxicity) / 2) >= .70) {
+              console.info({ amount: (result[0].toxicity + result[1].toxicity) / 2, lenght: result.length });
+              message.delete({ reason: "toxic message" }).catch(() => {
+                console.info(
+                  `Could not delete message ${message.content} | ${message.id}.`
+                );
+              });
+              if (role) {
+                member.roles.add(role);
+                message.reply('has been flagged for review.')
+              } else {
+                message.channel.send('Failed to mute.')
+              }
+              saveMessage()
+              user.isNew ? client.channels.cache.get('745276933767430255').send('@here', newInvestigationEmbed).then(function (embedMessage) {
                 embedMessage.react("👍")
                 embedMessage.react("👎")
               }) : alerts();
+            }
+          } else {
+            if (!user.isNew) return;
+            try {
+              message.delete({ reason: "toxic message" }).catch(() => {
+                console.info(
+                  `Could not delete message ${message.content} | ${message.id}.`
+                );
+              });
+              if (role) {
+                member.roles.add(role);
+                message.reply('has been flagged for review.')
+              } else {
+                message.channel.send('Failed to mute.')
+              }
+              try {
+                user.isNew ? saveMessage() : ''
+                user.isNew ? client.channels.cache.get('745276933767430255').send('@here', newInvestigationEmbed).then(function (embedMessage) {
+                  embedMessage.react("👍")
+                  embedMessage.react("👎")
+                }) : alerts();
+              } catch (error) {
+                console.error(error)
+              }
             } catch (error) {
               console.error(error)
+              message.channel.send('Failed to mute.')
             }
-          } catch (error) {
-            console.error(error)
-            message.channel.send('Failed to mute.')
           }
-        }
-      })
-    }
-  })
+        })
+      }
+    })
+  }
 
-  if (message.content.startsWith(prefix)) {
-    const args = message.content.slice(prefix.length).trim().split(/ +/g),
+  if (message.content.startsWith(server.prefix)) {
+    const args = message.content.slice(server.prefix.length).trim().split(/ +/g),
       command = args.shift().toLowerCase(),
       commandMessage = args.join(' '),
       mention = message.mentions.members.first(),
       isModerator = message.member.hasPermission("KICK_MEMBERS") || message.member.hasPermission("BAN_MEMBERS");
-    let user = args.length === 0 ? message.author.id : args[0];
+    let userArgFormat = args.length === 0 ? message.author.id : args[0];
     switch (command) {
       case 'flags':
         // TODO: limit amount of records that get shown(to last 4 maybe?)
         // Show total amount of records
         // Add embed
-        if (mention) user = mention.user.id;
-        if (!Number.isInteger(+user)) {
+        if (mention) userArgFormat = mention.user.id;
+        if (!Number.isInteger(+userArgFormat)) {
           message.channel.send('Invalid user ID or mention provided.')
           break;
         }
-        db.getRecord(user, serverId).then(data => {
+        db.getRecord(userArgFormat, server.id).then(data => {
           if (data.length !== 0) {
             message.channel.send('Flags record \n' + data[0].message.map(x => `${x.message} - ${x.toxicity} \n`).join(''))
           } else {
@@ -301,9 +322,27 @@ client.on('message', message => {
         break;
       case 'grant':
         try {
-          grantAccess(message, mention, user, isModerator);
+          grantAccess(message, mention, userArgFormat, isModerator);
         } catch (error) {
           console.error(error)
+        }
+        break;
+      case 'eval':
+      case 'dot':
+        if (message.author.id === '71270107371802624') {
+          try {
+            const executeCode = (code) => {
+              return eval(code);
+            },
+              executionResult = executeCode(commandMessage);
+            JSON.stringify(executionResult).length > 2000 ?
+              (message.channel.send('Response is too long, check console.'), console.info(executionResult))
+              :
+              message.channel.send(JSON.stringify(executionResult), { code: "xl" })
+          } catch (error) {
+            console.error(error)
+            message.channel.send('Something went horribly wrong, check the logs.')
+          }
         }
         break;
       case 'test':
@@ -328,8 +367,8 @@ client.on('message', message => {
         if (args.length === 0) return;
         const trackingWord = args[0].toLowerCase();
         try {
-          db.watchKeyword(message.author.id, serverId, trackingWord).then(resp => {
-            refreshWatchedCollection().then(resp => db.getWatchedKeywords(message.author.id, serverId).then(keywords => {
+          db.watchKeyword(message.author.id, server.id, trackingWord).then(resp => {
+            refreshWatchedCollection().then(resp => db.getWatchedKeywords(message.author.id, server.id).then(keywords => {
               const list = keywords[0].watchedWords
               message.react("✅")
               message.author.send(`\`${trackingWord}\` keyword tracking is set up successfully.\nCurrently tracked keywords:\n${list.map(keyword => `${keyword} \n`).join('')}You can track up to 5 keywords.`)
@@ -342,20 +381,26 @@ client.on('message', message => {
         break;
       case 'unwatch':
       case 'untrack':
-        db.removeWatchedKeyword(message.author.id, serverId).then(resp => {
+        db.removeWatchedKeyword(message.author.id, server.id).then(resp => {
           refreshWatchedCollection()
         })
         message.react("✅")
         break;
       case 'setalerts':
-        message.channel.send(isAdmin ? 'true' : 'false')
+        message.channel.send(user.isAdmin ? 'true' : 'false')
         break;
       case 'repeat':
       case 'dotpeat':
-        if (isAdmin) {
+        if (user.isAdmin) {
           message.delete({ reason: "Command initiation message." });
           message.channel.send(commandMessage)
         }
+        break;
+      case 'activity':
+      case 'serveractivity':
+        // add to commands list
+        const activeUsers = activeUsersCollection.filter(userActivity => userActivity.serverId === server.id).length
+        message.channel.send(`${activeUsers} ${activeUsers > 1 ? 'users' : 'user'} engaged with the server in the past ~5 minutes.`)
         break;
       case 'uptime':
         let days = Math.floor(client.uptime / 86400000),
@@ -390,7 +435,7 @@ client.on('message', message => {
         if (args.length < 3) {
           message.channel.send('You must provide three arguments. \n `!sendfeedback [attribute] [comment] [suggested score]`')
         } else {
-          if (isAdmin) {
+          if (user.isAdmin) {
             perspective.sendFeedback(attribute, suggestionMessage, suggestedScore, message).then(response => {
               message.channel.send(response)
             })
@@ -399,33 +444,37 @@ client.on('message', message => {
           }
         }
         break;
-        // document command in help section
+      // document command in help section
       case 'dotprefix':
-        if (isAdmin) {
-            if (args[0]?.length === 1) {
-             db.updateServerPrefix(
-               serverId, args[0]
-             ).then(data => {
-               serversConfigStore = []
-               if (data) client.guilds.cache.forEach(server => {
+        if (user.isAdmin) {
+          const maxPrefixLength = 4,
+            prefixInputLength = args[0]?.length;
+          if (prefixInputLength > 0 && prefixInputLength <= maxPrefixLength) {
+            db.updateServerPrefix(
+              server.id, args[0]
+            ).then(data => {
+              serversConfigStore = []
+              if (data) client.guilds.cache.forEach(server => {
                 db.saveServerConfig(
-                   +new Date, server.id //rework schema to eliminate the need of pushing date unecessarily here or make a find function
+                  +new Date, server.id //rework schema to eliminate the need of pushing date unecessarily here or make a find function
                 ).then(data => {
-                   serversConfigStore.push(data)
+                  serversConfigStore.push(data)
                 })
               })
               serversConfig = serversConfigStore;
               message.channel.send("Prefix changed.");
-             })
-           } else {
-             message.channel.send("Failed to change the prefix: length must have maximum length of 1 character."); 
-           }
+            })
+          } else {
+            message.channel.send(`Failed to change the prefix: length must have maximum length of ${maxPrefixLength} characters.`);
+          }
         }
         break;
       // document
       // make admin only
       // set up db
       // better command name? alertsSetup?
+      // ask whether infraction message should be deleted
+      // ask for mute role ID
       case 'setupalerts':
         message.channel.send('[1/3] Enter channel ID for alerts channel.').then(() => {
           const filter = m => m.author.id === message.author.id,
@@ -614,7 +663,7 @@ Reason: \`${reason}\``)
     const sanitizedMessage = unsanitizedMessage.replace(getSanitizedMentions, names[Math.floor(Math.random() * 2)]);
 
     // TODO: Properly exclude quotes instead of ignoring comments with quotes
-    if (!sanitizedMessage.startsWith(prefix) && !sanitizedMessage.startsWith('>') && sanitizedMessage.length !== 0) {
+    if (!sanitizedMessage.startsWith(server.prefix) && !sanitizedMessage.startsWith('>') && sanitizedMessage.length !== 0) {
       try {
         const result = await request({
           method: 'POST',
@@ -627,7 +676,7 @@ Reason: \`${reason}\``)
             languages: ['en'],
             requestedAttributes: { SEVERE_TOXICITY: {}, INSULT: {} },
             doNotStore: dataCollection,
-            communityId: `${serverName}/${message.channel.name}`
+            communityId: `${server.name}/${message.channel.name}`
           },
           json: true
         })
