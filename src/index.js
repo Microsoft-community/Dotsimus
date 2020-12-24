@@ -69,7 +69,7 @@ client.on('message', message => {
   if (message.author.bot || process.env.DEVELOPMENT === 'true' && !(message.author.id === '71270107371802624')) return;
   if (message.channel.type === "dm") {
     client.users.fetch('71270107371802624', false).then((user) =>
-      user.send(`<@${message.author.id}>: ${message.content}`)
+      user.send(`${message.author.username}#${message.author.discriminator}: ${message.content}`)
     )
     return console.info(`${getTime()} #DM ${message.author.username}: ${message.content}`);
   }
