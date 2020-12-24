@@ -635,7 +635,7 @@ Reason: \`${reason}\``)
                   return false;
                 }
                 let search_result = rulesAll.filter(x => findRule(x, commandMessage));
-                if (search_result.length === 0) message.channel.send(`There are ${rules.length} rules in this server, you may want to try this again.`);
+                if (search_result.length === 0) message.channel.send(`There are ${rules.length} rules in this server, you may want to try this again with \`!rules\` or \`!rules <number>\`.`);
                 else {
                   let searchrulesEmbed = new Discord.MessageEmbed()
                     .setColor('#ff4500')
