@@ -33,11 +33,11 @@ const refreshServersConfigListing = () => {
 }
 client.on('ready', () => {
   console.info(chalk.green(`Logged in as ${client.user.tag}!`));
-  client.user.setActivity(`chat`, { type: 'WATCHING' });
+  client.user.setActivity(`gifts being packed`, { type: 'WATCHING' });
   let hours = 0;
   setInterval(async () => {
     hours += 1;
-    await client.user.setActivity(`chat for ${hours} hour(s)`, { type: 'WATCHING' });
+    await client.user.setActivity(`gifts being packed for ${hours} hour(s)`, { type: 'WATCHING' });
   }, 3600000);
   refreshServersConfigListing()
 });
@@ -392,7 +392,11 @@ client.on('message', message => {
       case 'repeat':
       case 'dotpeat':
         if (user.isAdmin) {
-          message.delete({ reason: "Command initiation message." });
+          message.delete({ reason: "Command initiation message." }).catch(() => {
+            console.info(
+              `Could not delete message ${message.content} | ${message.id}.`
+            );
+          });
           message.channel.send(commandMessage)
         }
         break;
@@ -589,8 +593,13 @@ Reason: \`${reason}\``)
           case 'all':
             let rulesEmbed = new Discord.MessageEmbed()
               .setTitle('Microsoft Community rules')
-              .setColor('#08d9d6')
+              .setColor('#ff4500')
               .addFields(rulesAll);
+            message.delete({ reason: "Command initiation message." }).catch(() => {
+              console.info(
+                `Could not delete message ${message.content} | ${message.id}.`
+              );
+            });
             message.channel.send(rulesEmbed).then(embedMessage => {
               const embeds = [];
               for (let i = 1; i <= 5; ++i)
@@ -602,7 +611,6 @@ Reason: \`${reason}\``)
                 .setChannel(embedMessage.channel)
                 .setPageIndicator(true)
                 .setClientAssets({ message: embedMessage, prompt: 'Say page number {{user}}' })
-                .setDisabledNavigationEmojis(['delete'])
                 .setTimeout(180000)
                 .setArray(rules.map(rule => ({ name: number++, description: rule.description })))
                 .setPage(1)
@@ -611,7 +619,8 @@ Reason: \`${reason}\``)
                 .on('error', console.error);
               Embeds.embed
                 .setTitle('Microsoft Community rules')
-                .setColor('#08d9d6');
+                .setFooter(`Initiated with !rule ${commandMessage} command by ${message.author.username}#${message.author.discriminator}.`)
+                .setColor('#ff4500');
               Embeds.build();
             })
             break;
@@ -622,8 +631,13 @@ Reason: \`${reason}\``)
                   .setTitle(`Rule ${commandMessage}`)
                   .setURL(rules[parseInt(commandMessage) - 1].link)
                   .setDescription(rules[parseInt(commandMessage) - 1].description)
-                  .setColor('#08d9d6')
-                setTimeout(function () { message.delete({ reason: "Command initiation message." }) }, 5000);
+                  .setColor('#ff4500')
+                  .setFooter(`Initiated with !rule ${commandMessage} command by ${message.author.username}#${message.author.discriminator}.`)
+                message.delete({ reason: "Command initiation message." }).catch(() => {
+                  console.info(
+                    `Could not delete message ${message.content} | ${message.id}.`
+                  );
+                });
                 message.channel.send(ruleEmbed);
               } else {
                 // TODO: look for exact match
@@ -635,15 +649,26 @@ Reason: \`${reason}\``)
                   return false;
                 }
                 let search_result = rulesAll.filter(x => findRule(x, commandMessage));
-                if (search_result.length === 0) message.channel.send(`There are ${rules.length} rules in this server, you may want to try this again.`);
+                if (search_result.length === 0) message.channel.send(`There are ${rules.length} rules in this server, you may want to try this again with \`!rules\` or \`!rules <number>\`.`);
                 else {
                   let searchrulesEmbed = new Discord.MessageEmbed()
-                    .setColor('#08d9d6')
+                    .setColor('#ff4500')
+                    .setFooter(`Initiated with !rule ${commandMessage} command by ${message.author.username}#${message.author.discriminator}.`)
                     .addFields(search_result);
+                  message.delete({ reason: "Command initiation message." }).catch(() => {
+                    console.info(
+                      `Could not delete message ${message.content} | ${message.id}.`
+                    );
+                  });
                   message.channel.send(searchrulesEmbed);
                 }
               }
             } else {
+              message.delete({ reason: "Command initiation message." }).catch(() => {
+                console.info(
+                  `Could not delete message ${message.content} | ${message.id}.`
+                );
+              });
               message.channel.send('Loading rules').then(embedMessage => {
                 const embeds = [];
                 for (let i = 1; i <= 5; ++i)
@@ -655,7 +680,6 @@ Reason: \`${reason}\``)
                   .setChannel(embedMessage.channel)
                   .setPageIndicator(true)
                   .setClientAssets({ message: embedMessage, prompt: 'Say page number {{user}}' })
-                  .setDisabledNavigationEmojis(['delete'])
                   .setTimeout(180000)
                   .setArray(rules.map(rule => ({ name: number++, description: rule.description })))
                   .setPage(1)
@@ -664,7 +688,8 @@ Reason: \`${reason}\``)
                   .on('error', console.error);
                 Embeds.embed
                   .setTitle('Microsoft Community rules')
-                  .setColor('#08d9d6');
+                  .setFooter(`Initiated with !rules command by ${message.author.username}#${message.author.discriminator}.`)
+                  .setColor('#ff4500');
                 Embeds.build();
               })
             }
