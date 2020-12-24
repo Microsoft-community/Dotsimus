@@ -242,7 +242,17 @@ client.on('message', message => {
               });
               if (role) {
                 member.roles.add(role);
-                message.reply('has been flagged for review.')
+                message.reply('has been flagged for review.').then(m => {
+                  newInvestigationEmbed = new Discord.MessageEmbed()
+            .setColor('#ffbd2e')
+            .setDescription(`🔎 **Investigate **new user's** message(${(Number(messageToxicity) * 100).toFixed(2)}, ${(Number(toxicity.insult) * 100).toFixed(2)})** \n ${message.content.slice(0, 1024)}`)
+            .addFields(
+              { name: 'User', value: `<@${message.author.id}>`, inline: true },
+              { name: 'User ID', value: message.author.id, inline: true },
+              { name: 'Is user new?', value: user.isNew ? "Yes" : "No", inline: true },
+              { name: 'Channel', value: `<#${message.channel.id}> | 🔗 [Message link](https://discordapp.com/channels/${server.id}/${message.channel.id}/${m.id})` }
+            );
+                })
               } else {
                 message.channel.send('Failed to mute.')
               }
@@ -262,7 +272,17 @@ client.on('message', message => {
               });
               if (role) {
                 member.roles.add(role);
-                message.reply('has been flagged for review.')
+                message.reply('has been flagged for review.').then(m => {
+                  newInvestigationEmbed = new Discord.MessageEmbed()
+            .setColor('#ffbd2e')
+            .setDescription(`🔎 **Investigate **new user's** message(${(Number(messageToxicity) * 100).toFixed(2)}, ${(Number(toxicity.insult) * 100).toFixed(2)})** \n ${message.content.slice(0, 1024)}`)
+            .addFields(
+              { name: 'User', value: `<@${message.author.id}>`, inline: true },
+              { name: 'User ID', value: message.author.id, inline: true },
+              { name: 'Is user new?', value: user.isNew ? "Yes" : "No", inline: true },
+              { name: 'Channel', value: `<#${message.channel.id}> | 🔗 [Message link](https://discordapp.com/channels/${server.id}/${message.channel.id}/${m.id})` }
+            );
+                })
               } else {
                 message.channel.send('Failed to mute.')
               }
