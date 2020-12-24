@@ -589,7 +589,7 @@ Reason: \`${reason}\``)
           case 'all':
             let rulesEmbed = new Discord.MessageEmbed()
               .setTitle('Microsoft Community rules')
-              .setColor('#08d9d6')
+              .setColor('#ff4500')
               .addFields(rulesAll);
             message.channel.send(rulesEmbed).then(embedMessage => {
               const embeds = [];
@@ -611,7 +611,7 @@ Reason: \`${reason}\``)
                 .on('error', console.error);
               Embeds.embed
                 .setTitle('Microsoft Community rules')
-                .setColor('#08d9d6');
+                .setColor('#ff4500');
               Embeds.build();
             })
             break;
@@ -622,7 +622,7 @@ Reason: \`${reason}\``)
                   .setTitle(`Rule ${commandMessage}`)
                   .setURL(rules[parseInt(commandMessage) - 1].link)
                   .setDescription(rules[parseInt(commandMessage) - 1].description)
-                  .setColor('#08d9d6')
+                  .setColor('#ff4500')
                 setTimeout(function () { message.delete({ reason: "Command initiation message." }) }, 5000);
                 message.channel.send(ruleEmbed);
               } else {
@@ -638,7 +638,7 @@ Reason: \`${reason}\``)
                 if (search_result.length === 0) message.channel.send(`There are ${rules.length} rules in this server, you may want to try this again.`);
                 else {
                   let searchrulesEmbed = new Discord.MessageEmbed()
-                    .setColor('#08d9d6')
+                    .setColor('#ff4500')
                     .addFields(search_result);
                   message.channel.send(searchrulesEmbed);
                 }
@@ -664,7 +664,7 @@ Reason: \`${reason}\``)
                   .on('error', console.error);
                 Embeds.embed
                   .setTitle('Microsoft Community rules')
-                  .setColor('#08d9d6');
+                  .setColor('#ff4500');
                 Embeds.build();
               })
             }
