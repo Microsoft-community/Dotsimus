@@ -595,6 +595,11 @@ Reason: \`${reason}\``)
               .setTitle('Microsoft Community rules')
               .setColor('#ff4500')
               .addFields(rulesAll);
+            message.delete({ reason: "Command initiation message." }).catch(() => {
+              console.info(
+                `Could not delete message ${message.content} | ${message.id}.`
+              );
+            });
             message.channel.send(rulesEmbed).then(embedMessage => {
               const embeds = [];
               for (let i = 1; i <= 5; ++i)
@@ -628,7 +633,11 @@ Reason: \`${reason}\``)
                   .setDescription(rules[parseInt(commandMessage) - 1].description)
                   .setColor('#ff4500')
                   .setFooter(`Initiated with !rule ${commandMessage} command by ${message.author.username}#${message.author.discriminator}.`)
-                setTimeout(function () { message.delete({ reason: "Command initiation message." }) }, 5000);
+                message.delete({ reason: "Command initiation message." }).catch(() => {
+                  console.info(
+                    `Could not delete message ${message.content} | ${message.id}.`
+                  );
+                });
                 message.channel.send(ruleEmbed);
               } else {
                 // TODO: look for exact match
@@ -646,10 +655,20 @@ Reason: \`${reason}\``)
                     .setColor('#ff4500')
                     .setFooter(`Initiated with !rule ${commandMessage} command by ${message.author.username}#${message.author.discriminator}.`)
                     .addFields(search_result);
+                  message.delete({ reason: "Command initiation message." }).catch(() => {
+                    console.info(
+                      `Could not delete message ${message.content} | ${message.id}.`
+                    );
+                  });
                   message.channel.send(searchrulesEmbed);
                 }
               }
             } else {
+              message.delete({ reason: "Command initiation message." }).catch(() => {
+                console.info(
+                  `Could not delete message ${message.content} | ${message.id}.`
+                );
+              });
               message.channel.send('Loading rules').then(embedMessage => {
                 const embeds = [];
                 for (let i = 1; i <= 5; ++i)
