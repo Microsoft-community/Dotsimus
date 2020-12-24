@@ -392,7 +392,11 @@ client.on('message', message => {
       case 'repeat':
       case 'dotpeat':
         if (user.isAdmin) {
-          message.delete({ reason: "Command initiation message." });
+          message.delete({ reason: "Command initiation message." }).catch(() => {
+            console.info(
+              `Could not delete message ${message.content} | ${message.id}.`
+            );
+          });
           message.channel.send(commandMessage)
         }
         break;
