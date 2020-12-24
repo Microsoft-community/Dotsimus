@@ -33,11 +33,11 @@ const refreshServersConfigListing = () => {
 }
 client.on('ready', () => {
   console.info(chalk.green(`Logged in as ${client.user.tag}!`));
-  client.user.setActivity(`chat`, { type: 'WATCHING' });
+  client.user.setActivity(`gifts being packed`, { type: 'WATCHING' });
   let hours = 0;
   setInterval(async () => {
     hours += 1;
-    await client.user.setActivity(`chat for ${hours} hour(s)`, { type: 'WATCHING' });
+    await client.user.setActivity(`gifts being packed for ${hours} hour(s)`, { type: 'WATCHING' });
   }, 3600000);
   refreshServersConfigListing()
 });
