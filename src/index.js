@@ -620,6 +620,7 @@ Reason: \`${reason}\``)
                 .on('error', console.error);
               Embeds.embed
                 .setTitle('Microsoft Community rules')
+                .setFooter(`Initiated with !rule ${commandMessage} command by ${message.author.username}#${message.author.discriminator}.`)
                 .setColor('#ff4500');
               Embeds.build();
             })
