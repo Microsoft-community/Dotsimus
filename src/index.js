@@ -623,6 +623,7 @@ Reason: \`${reason}\``)
                   .setURL(rules[parseInt(commandMessage) - 1].link)
                   .setDescription(rules[parseInt(commandMessage) - 1].description)
                   .setColor('#ff4500')
+                  .setFooter(`Initiated with !rule ${commandMessage} command by ${message.author.username}#${message.author.discriminator}.`)
                 setTimeout(function () { message.delete({ reason: "Command initiation message." }) }, 5000);
                 message.channel.send(ruleEmbed);
               } else {
@@ -639,6 +640,7 @@ Reason: \`${reason}\``)
                 else {
                   let searchrulesEmbed = new Discord.MessageEmbed()
                     .setColor('#ff4500')
+                    .setFooter(`Initiated with !rule ${commandMessage} command by ${message.author.username}#${message.author.discriminator}.`)
                     .addFields(search_result);
                   message.channel.send(searchrulesEmbed);
                 }
@@ -664,6 +666,7 @@ Reason: \`${reason}\``)
                   .on('error', console.error);
                 Embeds.embed
                   .setTitle('Microsoft Community rules')
+                  .setFooter(`Initiated with !rules command by ${message.author.username}#${message.author.discriminator}.`)
                   .setColor('#ff4500');
                 Embeds.build();
               })
