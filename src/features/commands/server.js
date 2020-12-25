@@ -8,7 +8,7 @@ module.exports = {
     name: 'server',
     description: 'server',
     execute (client, interaction, activeUsersCollection) {
-        const message = client.guilds.cache.get(interaction.guild_id)
+        const serverData = client.guilds.cache.get(interaction.guild_id)
         switch (interaction.data.options[0].name) {
             case 'activity':
                 const activeUsers = activeUsersCollection.filter(userActivity => userActivity.serverId === interaction.guild_id).length
@@ -22,20 +22,28 @@ module.exports = {
                 });
                 break;
             case 'info':
-                console.log(message);
                 const infoEmbed = new Discord.MessageEmbed()
-                    .setAuthor(message.name)
+                    .setTitle(serverData.name, serverData.iconURL())
                     .setColor('#e4717a')
-                    .setDescription(`Owner: <@${message.ownerID}> (${message.ownerID})`)
+                    .setDescription(`${serverData.description ? serverData.description : 'No description available.'} \n
+                    Owner: <@${serverData.ownerID}> \n
+                    ${serverData.vanityURLCode ? `Invite link: discord.gg/${serverData.vanityURLCode}` : ''}`)
+                    .setThumbnail(serverData.iconURL())
                     .addFields(
-                        { name: 'Members', value: `${message.memberCount}`, inline: true },
-                        { name: 'Emojis', value: `${message.emojis.cache.size} `, inline: true },
-                        { name: 'Channels', value: `${message.channels.cache.size}`, inline: true },
-                        { name: 'Roles', value: `${message.roles.cache.size}`, inline: true },
-                        { name: 'Location', value: capitalizeFirstLetter(message.region), inline: true },
-                        { name: 'Language', value: message.preferredLocale.toLowerCase(), inline: true },
-                        { name: 'Created', value: message.createdAt.toLocaleString(), inline: true },
-                        { name: 'Features', value: message.features.map(feature => `⦿ ${capitalizeFirstLetter(feature.toLowerCase())}`), inline: false }
+                        {
+                            name: 'By the numbers', value: `Members: **${serverData.memberCount}**
+                        Emojis: **${serverData.memberCount}**
+                        Channels: **${serverData.channels.cache.size}**
+                        Roles: **${serverData.roles.cache.size}**
+                        `, inline: false
+                        },
+                        { name: 'Location', value: `🌎 ${capitalizeFirstLetter(serverData.region)}`, inline: true },
+                        { name: 'Language', value: serverData.preferredLocale.toLowerCase(), inline: true },
+                        { name: 'Boosters', value: `🚀 ${serverData.premiumSubscriptionCount}`, inline: false },
+                        { name: 'Explicit content filtering', value: serverData.explicitContentFilter, inline: true },
+                        { name: 'Verification level', value: serverData.verificationLevel, inline: true },
+                        { name: 'Features', value: serverData.features.map(feature => `⦿ ${capitalizeFirstLetter(feature.toLowerCase())}`), inline: false },
+                        { name: 'Created', value: serverData.createdAt.toLocaleString(), inline: false }
                     )
                 client.api.interactions(interaction.id, interaction.token).callback.post({
                     data: {
