@@ -6,9 +6,16 @@ const Discord = require('discord.js'),
   db = require('./db'),
   perspective = require('./api/perspective'),
   PaginationEmbed = require('discord-paginationembed'),
-  DEFAULT_ALERT_THRESHOLD = 0.8,
-  { interactionsTracking } = require('./features/commands');
-const { getTime, toxicityReport } = require('./utils');
+  { getTime } = require('./utils'),
+  { interactionsTracking } = require('./features/commands'),
+  fs = require('fs'),
+  commandFiles = fs.readdirSync('./src/features/commands/').filter(file => file.endsWith('.js'));
+
+client.commands = new Discord.Collection();
+commandFiles.map(file => {
+  const command = require(`./features/commands/${file}`);
+  client.commands.set(command.name, command);
+})
 
 if (process.env.DEVELOPMENT !== 'true') Sentry.init({ dsn: process.env.SENTRY_DSN });
 
