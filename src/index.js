@@ -6,7 +6,8 @@ const Discord = require('discord.js'),
   db = require('./db'),
   perspective = require('./api/perspective'),
   PaginationEmbed = require('discord-paginationembed'),
-  DEFAULT_ALERT_THRESHOLD = 0.8;
+  DEFAULT_ALERT_THRESHOLD = 0.8,
+  { interactionsTracking } = require('./features/commands');
 const { getTime, toxicityReport } = require('./utils');
 
 if (process.env.DEVELOPMENT !== 'true') Sentry.init({ dsn: process.env.SENTRY_DSN });
@@ -40,6 +41,7 @@ client.on('ready', () => {
     await client.user.setActivity(`gifts being packed for ${hours} hour(s)`, { type: 'WATCHING' });
   }, 3600000);
   refreshServersConfigListing()
+  interactionsTracking(client)
 });
 
 let watchedKeywordsCollection = db.getWatchedKeywords(),
