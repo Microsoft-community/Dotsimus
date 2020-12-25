@@ -39,6 +39,9 @@ const refreshServersConfigListing = () => {
   })
   serversConfig = serversConfigStore;
 }
+let watchedKeywordsCollection = db.getWatchedKeywords(),
+  activeUsersCollection = [];
+
 client.on('ready', () => {
   console.info(chalk.green(`Logged in as ${client.user.tag}!`));
   client.user.setActivity(`gifts being packed`, { type: 'WATCHING' });
@@ -48,11 +51,9 @@ client.on('ready', () => {
     await client.user.setActivity(`gifts being packed for ${hours} hour(s)`, { type: 'WATCHING' });
   }, 3600000);
   refreshServersConfigListing()
-  interactionsTracking(client)
+  interactionsTracking(client, activeUsersCollection)
 });
 
-let watchedKeywordsCollection = db.getWatchedKeywords(),
-  activeUsersCollection = [];
 const refreshWatchedCollection = () => (
   watchedKeywordsCollection = db.getWatchedKeywords()
 )
