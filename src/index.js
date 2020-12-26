@@ -43,11 +43,11 @@ let watchedKeywordsCollection = db.getWatchedKeywords(),
 
 client.on('ready', () => {
   console.info(chalk.green(`Logged in as ${client.user.tag}!`));
-  client.user.setActivity(`gifts being packed`, { type: 'WATCHING' });
+  client.user.setActivity(`fireworks being packed`, { type: 'WATCHING' });
   let hours = 0;
   setInterval(async () => {
     hours += 1;
-    await client.user.setActivity(`gifts being packed for ${hours} hour(s)`, { type: 'WATCHING' });
+    await client.user.setActivity(`fireworks being packed for ${hours} hour(s)`, { type: 'WATCHING' });
   }, 3600000);
   refreshServersConfigListing()
   // client.api.applications('731190736996794420').guilds('553939036490956801').commands('792118637808058408').delete()
@@ -181,29 +181,90 @@ client.on('message', message => {
         };
       const alerts = () => {
         // alerts.filter(a => toxicity.toxicity >= a.threshold || toxicity.combined >= .80) removed filters temp
-        db.getAlerts(message.channel.guild.id).then(alerts => alerts.forEach(a => {
-          const investigationEmbed = new Discord.MessageEmbed()
-            .setColor('#ffbd2e')
-            .setDescription(`🔎 **Investigate user's message(${(Number(messageToxicity) * 100).toFixed(2)}, ${(Number(toxicity.insult) * 100).toFixed(2)})** \n ${message.content.slice(0, 1024)}`)
-            .addFields(
-              { name: 'User', value: `<@${message.author.id}>`, inline: true },
-              { name: 'User ID', value: message.author.id, inline: true },
-              { name: 'Is user new?', value: user.isNew ? "Yes" : "No", inline: true },
-              { name: 'Channel', value: `<#${message.channel.id}> | 🔗 [Message link](https://discordapp.com/channels/${server.id}/${message.channel.id}/${message.id})` }
+        // unecessary foreach
+        db.getAlerts(message.channel.guild.id).then(alerts => alerts.forEach(alert => {
+          console.info(alert);
+          const role = message.guild.roles.cache.find(role => role.name === 'Muted'),
+            member = message.guild.members.cache.get(message.author.id),
+            investigationEmbed = new Discord.MessageEmbed()
+              .setColor('#ffbd2e')
+              .setDescription(`🔎 Investigate user's message(${(Number(messageToxicity) * 100).toFixed(2)}, ${(Number(toxicity.insult) * 100).toFixed(2)}) \n ${message.content.slice(0, 1024)}`) //show probabilities in a separate field
+              .addFields(
+                { name: 'User', value: `<@${message.author.id}>`, inline: true },
+                { name: 'User ID', value: message.author.id, inline: true },
+                { name: 'Is user new?', value: user.isNew ? "Yes" : "No", inline: true },
+                { name: 'Channel', value: `<#${message.channel.id}> | 🔗 [Message link](https://discordapp.com/channels/${server.id}/${message.channel.id}/${message.id})` }
+              )
+              .setFooter('✅ marks report as valid, ❌ unmutes user and reinstates message where it was at the time of removal.');
+          message.delete({ reason: "Removed potentially toxic message." }).catch(() => {
+            console.info(
+              `Could not delete message ${message.content} | ${message.id}.`
             );
-          const mention = a.mention.type === 'role' ? `<@&${a.mention.id}>` : `<@${a.mention.id}>`;
-          let notice = ('@here', investigationEmbed);
-          if (a.mention.type === 'role' && !a.channelId) {
-            notice = `${mention} members have been notified of potential toxicity.`
-          }
-          client.channels.cache.get(a.channelId).send('@here', investigationEmbed).then(function (embedMessage) {
-            embedMessage.react("👍")
-            embedMessage.react("👎")
+          }).then(data => {
+            const removedMessage = data.content
+            if (role) member.roles.add(role);
+            const infractionMessageResponse = role ? 'Message has been flagged for review, awaiting moderation response.' : 'Message has been flagged for review, ⚠ user is not muted.'
+            message.channel.send(infractionMessageResponse).then(sentMessage => {
+              const filter = (reaction, user) => {
+                return ['✅', '❌'].includes(reaction.emoji.name);
+              };
+              // remove message from db if moderator reinstates
+              saveMessage()
+              alertRecipient = alert.channelId === '792393096020885524' ? '<@71270107371802624>' : '@here';
+              client.channels.cache.get(alert.channelId).send(alertRecipient, investigationEmbed).then(investigationMessage => {
+                const removeBotReactions = () => {
+                  const userReactions = investigationMessage.reactions.cache.filter(reaction => reaction.users.cache.has(client.user.id));
+                  try {
+                    for (const reaction of userReactions.values()) {
+                      reaction.users.remove(client.user.id);
+                    }
+                  } catch (error) {
+                    console.error('Failed to remove reactions.');
+                  }
+                }
+                investigationMessage.react('✅').then(() => investigationMessage.react('❌')).then(() => {
+                  investigationMessage.awaitReactions(filter, { max: 1, time: 10800000, errors: ['time'] })
+                    .then(collected => {
+                      const reaction = collected.first();
+                      const reinstatedMessage = new Discord.MessageEmbed()
+                        .setColor('#32CD32')
+                        .setAuthor(`${message.author.username}#${message.author.discriminator}`, `https://cdn.discordapp.com/avatars/${message.author.id}/${message.author.avatar}.png`, `https://discord.com/channels/@me/${message.author.id}`)
+                        .setDescription(removedMessage)
+                        .setFooter('Message reinstated by the moderation team.', `https://cdn.discordapp.com/icons/${message.guild.id}/${message.guild.icon}.webp`);
+                      if (reaction.emoji.name === '✅') {
+                        sentMessage.edit('Message removed, report verified by the moderation team.');
+                        investigationEmbed.setColor('#32CD32');
+                        investigationMessage.edit('Report approved.', investigationEmbed);
+                        removeBotReactions()
+                      } else {
+                        // dm user that their message was reinstated
+                        sentMessage.edit('', reinstatedMessage);
+                        investigationEmbed.setColor('#e91e63');
+                        removeBotReactions()
+                        member.roles.remove(role)
+                        investigationMessage.edit(`User is unmuted and message reinstated by <@${reaction.users.cache.find(reaction => reaction.bot === false).id}>.`, investigationEmbed);
+                      }
+                    })
+                    .catch(error => {
+                      removeBotReactions()
+                      investigationMessage.react('❓')
+                      investigationEmbed.setColor('#808080');
+                      investigationMessage.edit('Report expired.', investigationEmbed)
+                      console.error(error);
+                    });
+                })
+              })
+            })
           })
+          // const mention = a.mention.type === 'role' ? `<@&${a.mention.id}>` : `<@${a.mention.id}>`;
+          // let notice = ('@here', investigationEmbed);
+          // if (a.mention.type === 'role' && !a.channelId) {
+          //   notice = `${mention} members have been notified of potential toxicity.`
+          // }
         }))
       }
       // Log both recent messages into the logs within embed
-      if ((((messageToxicity >= .75 || toxicity.insult >= .80) && user.isNew) || (messageToxicity >= .80 || toxicity.combined >= .80)) && server.id === '150662382874525696') {
+      if ((((messageToxicity >= .75 || toxicity.insult >= .80) && user.isNew) || (messageToxicity >= .80 || toxicity.combined >= .80))) {
         console.info(`${getTime()} #${message.channel.name} ${message.author.username}: ${message.content} | ${chalk.red((Number(messageToxicity) * 100).toFixed(2))} ${chalk.red((Number(toxicity.insult) * 100).toFixed(2))}`)
         const evaluatedMessages = [];
         async function getLatestUserMessages (userId) {
@@ -225,7 +286,7 @@ client.on('message', message => {
 
           async function getEvaluatedMessages () {
             let resolvedMessages = await Promise.all(evaluatedMessages.map(async (evaluationMessage) => {
-              console.log({ initmsg: evaluationMessage });
+              console.info({ initmsg: evaluationMessage });
               const result = await getToxicity(evaluationMessage.content, message, true);
               output = result;
               return output;
@@ -235,66 +296,20 @@ client.on('message', message => {
           return getEvaluatedMessages()
         }
         getLatestUserMessages(message.author.id).then(function (result) {
-          console.log({ endResult: result })
-          const newInvestigationEmbed = new Discord.MessageEmbed()
-            .setColor('#ffbd2e')
-            .setDescription(`🔎 **Investigate **new user's** message(${(Number(messageToxicity) * 100).toFixed(2)}, ${(Number(toxicity.insult) * 100).toFixed(2)})** \n ${message.content.slice(0, 1024)}`)
-            .addFields(
-              { name: 'User', value: `<@${message.author.id}>`, inline: true },
-              { name: 'User ID', value: message.author.id, inline: true },
-              { name: 'Is user new?', value: user.isNew ? "Yes" : "No", inline: true },
-              { name: 'Channel', value: `<#${message.channel.id}> | 🔗 [Message link](https://discordapp.com/channels/${server.id}/${message.channel.id}/${message.id})` }
-            );
-          const role = message.guild.roles.cache.find(role => role.name === 'Muted'),
-            member = message.guild.members.cache.get(message.author.id);
+          console.info({ endResult: result })
           if (result.length === 2) {
             if (isNaN(result[1].toxicity)) return;
             console.info({ result: result[0].toxicity, secondres: result[1].toxicity, total: ((result[0].toxicity + result[1].toxicity) / 2) >= .70 });
             if (((result[0].toxicity + result[1].toxicity) / 2) >= .70) {
               console.info({ amount: (result[0].toxicity + result[1].toxicity) / 2, lenght: result.length });
-              message.delete({ reason: "toxic message" }).catch(() => {
-                console.info(
-                  `Could not delete message ${message.content} | ${message.id}.`
-                );
-              });
-              if (role) {
-                member.roles.add(role);
-                message.reply('has been flagged for review.')
-              } else {
-                message.channel.send('Failed to mute.')
-              }
-              saveMessage()
-              user.isNew ? client.channels.cache.get('745276933767430255').send('@here', newInvestigationEmbed).then(function (embedMessage) {
-                embedMessage.react("👍")
-                embedMessage.react("👎")
-              }) : alerts();
+              alerts()
             }
           } else {
             if (!user.isNew) return;
             try {
-              message.delete({ reason: "toxic message" }).catch(() => {
-                console.info(
-                  `Could not delete message ${message.content} | ${message.id}.`
-                );
-              });
-              if (role) {
-                member.roles.add(role);
-                message.reply('has been flagged for review.')
-              } else {
-                message.channel.send('Failed to mute.')
-              }
-              try {
-                user.isNew ? saveMessage() : ''
-                user.isNew ? client.channels.cache.get('745276933767430255').send('@here', newInvestigationEmbed).then(function (embedMessage) {
-                  embedMessage.react("👍")
-                  embedMessage.react("👎")
-                }) : alerts();
-              } catch (error) {
-                console.error(error)
-              }
+              alerts()
             } catch (error) {
               console.error(error)
-              message.channel.send('Failed to mute.')
             }
           }
         })
