@@ -32,7 +32,7 @@ module.exports = {
                     .addFields(
                         {
                             name: 'By the numbers', value: `Members: **${serverData.memberCount}**
-                        Emojis: **${serverData.memberCount}**
+                        Emojis: **${serverData.emojis.cache.size}**
                         Channels: **${serverData.channels.cache.size}**
                         Roles: **${serverData.roles.cache.size}**
                         `, inline: false
