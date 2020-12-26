@@ -43,11 +43,11 @@ let watchedKeywordsCollection = db.getWatchedKeywords(),
 
 client.on('ready', () => {
   console.info(chalk.green(`Logged in as ${client.user.tag}!`));
-  client.user.setActivity(`gifts being packed`, { type: 'WATCHING' });
+  client.user.setActivity(`fireworks being packed`, { type: 'WATCHING' });
   let hours = 0;
   setInterval(async () => {
     hours += 1;
-    await client.user.setActivity(`gifts being packed for ${hours} hour(s)`, { type: 'WATCHING' });
+    await client.user.setActivity(`fireworks being packed for ${hours} hour(s)`, { type: 'WATCHING' });
   }, 3600000);
   refreshServersConfigListing()
   // client.api.applications('731190736996794420').guilds('553939036490956801').commands('792118637808058408').delete()
