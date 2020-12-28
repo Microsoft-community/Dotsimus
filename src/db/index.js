@@ -7,10 +7,10 @@ const Sentry = require('@sentry/node'),
   saveMessageSchema = require('./schemas/saveMessageSchema'),
   watchKeywordSchema = require('./schemas/watchKeywordSchema');
 
-Sentry.init({ dsn: process.env.SENTRY_DSN });
+if (process.env.DEVELOPMENT !== 'true') Sentry.init({ dsn: process.env.SENTRY_DSN });
 
 const initialize = new Promise((resolve, reject) => {
-  mongoose.connect(process.env.DB_HOST, { useUnifiedTopology: true, useNewUrlParser: true, useFindAndModify: false }, function (error, response) {
+  mongoose.connect(process.env.DEVELOPMENT !== 'true' ? process.env.DB_HOST : process.env.DB_HOST_DEV, { useUnifiedTopology: true, useNewUrlParser: true, useFindAndModify: false }, function (error, response) {
     if (error) {
       throw new Error(`Error connecting to mongo database: ${error}`)
     } else {

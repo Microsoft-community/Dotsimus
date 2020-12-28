@@ -21,7 +21,7 @@ if (process.env.DEVELOPMENT !== 'true') Sentry.init({ dsn: process.env.SENTRY_DS
 let prefix = '!';
 db.initialize.then(function (response) {
   console.info(chalk.green(response))
-  client.login(process.env.BOT_TOKEN);
+  client.login(process.env.DEVELOPMENT !== 'true' ? process.env.BOT_TOKEN : process.env.BOT_TOKEN_DEV);
 })
 let serversConfig = []
 const refreshServersConfigListing = () => {
@@ -83,7 +83,7 @@ setInterval(function () {
 }, 30000);
 
 client.on('message', message => {
-  if (message.author.bot || process.env.DEVELOPMENT === 'true' && !(message.author.id === '71270107371802624')) return;
+  if (message.author.bot) return;
   if (message.channel.type === "dm") {
     client.users.fetch('71270107371802624', false).then((user) =>
       user.send(`${message.author.username}#${message.author.discriminator}: ${message.content}`)
