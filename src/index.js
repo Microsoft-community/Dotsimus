@@ -234,7 +234,7 @@ client.on('message', message => {
                       if (reaction.emoji.name === '✅') {
                         sentMessage.edit('Message removed, report verified by the moderation team.');
                         investigationEmbed.setColor('#32CD32');
-                        investigationMessage.edit('Report approved.', investigationEmbed);
+                        investigationMessage.edit(`Report approved by <@${reaction.users.cache.find(reaction => reaction.bot === false).id}>.`, investigationEmbed);
                         removeBotReactions()
                       } else {
                         // dm user that their message was reinstated
