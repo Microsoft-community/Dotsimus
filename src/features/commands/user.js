@@ -193,7 +193,7 @@ const sendWarningEmbed = (client, interaction, user) => {
                             inline: true
                         },
                         {
-                            name: 'This month',
+                            name: 'Past 30 days',
                             value: data[0]?.message?.length ?? '0',
                             inline: true
                         },
