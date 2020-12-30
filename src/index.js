@@ -566,7 +566,7 @@ Reason: \`${reason}\``)
             link: 'https://msft.chat/member/#_2-do-not-post-anything-that-is-nsfw-if-you-are-unsure-if-it-s-considered-nsfw-you-shouldn-t-post-it'
           },
           {
-            description: 'Do not ask for money or any other goods(such as games or Nitro). Likewise, do not advertise / sell your services, products, bots or servers.',
+            description: 'Do not ask for money or any other goods (such as games or Nitro), or offer money in exchange for receiving support. Furthermore, don\'t advertise/sell your bots, servers, services, products or anything else. If you\'re not sure if something is an advertisement, contact Moderators\' Mail.',
             link: 'https://msft.chat/member/#_3-do-not-ask-for-money-or-any-other-goods-such-as-games-or-nitro-likewise-do-not-advertise-sell-your-services-products-bots-or-servers'
           },
           {
