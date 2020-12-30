@@ -582,7 +582,7 @@ Reason: \`${reason}\``)
             link: 'https://msft.chat/member/#_6-refrain-from-using-too-many-special-characters-in-your-current-display-name-a-couple-of-special-symbols-are-fine-so-long-as-there-is-a-normal-alphanumeric-name-that-people-can-easily-type-for-example-examplename-%F0%9F%A7%85-is-fine-but-%F0%9F%91%8A%E2%99%99-%CE%B5%CF%87%F0%9D%95%92%D0%BC%F0%9D%90%A9%F0%9D%95%83%F0%9D%92%86n%F0%9D%90%80%F0%9D%93%B6%F0%9D%94%A2-%F0%9F%92%A2%F0%9F%98%BE-is-not'
           },
           {
-            description: 'Please be mindful of channels and their uses, failure to do so may result in loss of access to the channel. Bringing something up once is alright, however starting a long discussion about something that belongs in another channel, or posting the same thing across multiple channels, is not.',
+            description: 'Use the correct channels for your messages. If there is a better channel for the current conversation then use it, and don\'t post the same thing in multiple places. Furthermore, political content of any kind (including memes) belongs exclusively in #politics, unlocked at Tier 2.',
             link: 'https://msft.chat/member/#_7-please-be-mindful-of-channels-and-their-uses-failure-to-do-so-may-result-in-loss-of-access-to-the-channel-bringing-something-up-once-is-alright-however-starting-a-long-discussion-about-something-that-belongs-in-another-channel-or-posting-the-same-thing-across-multiple-channels-is-not'
           },
           {
