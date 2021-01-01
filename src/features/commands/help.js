@@ -6,7 +6,7 @@ module.exports = {
     execute(client, interaction) {
         const embedResponse = new Discord.MessageEmbed()
             .setTitle('Dotsimus and its functionality')
-            .setDescription('Dotsimus is a machine learning powered chat moderation bot, its primary goal is to help monitor, protect the server while it\'s secondary task is to enhance user experience.')
+            .setDescription('Dotsimus is a machine learning powered chat moderation bot, its primary goal is to help monitor, protect the server while its secondary goal is to enhance user experience.')
             .setColor('#ffbd2e')
             .addFields(
                 { name: '!toxic', value: 'Shows toxicity certainty for requested message. \n Usage: `!toxic <phrase>`' },
