@@ -84,10 +84,9 @@ setInterval(function () {
 client.on('message', message => {
   if (message.author.bot) return;
   if (message.channel.type === "dm") {
-    client.users.fetch('71270107371802624', false).then((user) =>
-      user.send(`${message.author.username}#${message.author.discriminator}: ${message.content}`)
-    )
-    return console.info(`${getTime()} #DM ${message.author.username}: ${message.content}`);
+    client.users.cache.get('71270107371802624')
+      .send(`${message.author.username}#${message.author.discriminator}(${message.author.id}): ${message.content}`);
+    return console.info(`${getTime()} #DM ${message.author.username}(${message.author.id}): ${message.content}`);
   }
 
   if (serversConfig.filter(data => data?.serverId === message.channel.guild.id).length === 0) return refreshServersConfigListing();
@@ -242,7 +241,7 @@ client.on('message', message => {
                         member.roles.remove(role)
                         // prettify this, make a separate embed for this instead of re-using
                         member.send(`You're now unmuted and your message is reinstated on **${server.name}** - <https://discordapp.com/channels/${server.id}/${message.channel.id}/${message.id}>`, reinstatedMessage).catch(error => {
-                          console.info({ message: `Could not send unmute notice to ${member.id}.`, error: error});
+                          console.info({ message: `Could not send unmute notice to ${member.id}.`, error: error });
                         });
                         investigationMessage.edit(`User is unmuted and message reinstated by <@${reaction.users.cache.find(reaction => reaction.bot === false).id}>.`, investigationEmbed);
                       }
