@@ -5,7 +5,6 @@ const Discord = require('discord.js'),
   fetch = require('request-promise-native'),
   db = require('./db'),
   perspective = require('./api/perspective'),
-  PaginationEmbed = require('discord-paginationembed'),
   { getTime } = require('./utils'),
   fs = require('fs'),
   commandFiles = fs.readdirSync('./src/features/commands/').filter(file => file.endsWith('.js'));
