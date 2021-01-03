@@ -1,4 +1,4 @@
-const request = require('request-promise-native');
+const fetch = require('request-promise-native');
 
 async function sendFeedback (attribute, comment, suggestedScore, messageContext) {
     const requestBody = {
@@ -39,7 +39,7 @@ async function sendFeedback (attribute, comment, suggestedScore, messageContext)
             break;
     }
     try {
-        const feedbackRequest = await request(requestBody)
+        const feedbackRequest = await fetch(requestBody)
         return 'Feedback submitted successfully.'
     } catch (e) {
         console.error(e)

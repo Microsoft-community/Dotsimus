@@ -2,7 +2,7 @@ const Discord = require('discord.js'),
   client = new Discord.Client(),
   Sentry = require('@sentry/node'),
   chalk = require('chalk'),
-  request = require('request-promise-native'),
+  fetch = require('request-promise-native'),
   db = require('./db'),
   perspective = require('./api/perspective'),
   PaginationEmbed = require('discord-paginationembed'),
@@ -569,7 +569,7 @@ Reason: \`${reason}\``)
     // TODO: Properly exclude quotes instead of ignoring comments with quotes
     if (!sanitizedMessage.startsWith(server.prefix) && !sanitizedMessage.startsWith('>') && sanitizedMessage.length !== 0) {
       try {
-        const result = await request({
+        const result = await fetch({
           method: 'POST',
           uri: `https://commentanalyzer.googleapis.com/v1alpha1/comments:analyze?key=${process.env.PERSPECTIVE_KEY}`,
           body: {
