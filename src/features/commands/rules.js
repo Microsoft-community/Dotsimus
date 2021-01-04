@@ -84,7 +84,7 @@ module.exports = {
                             .setTitle(`${client.guilds.cache.get(interaction.guild_id).name} rules`)
                             .setDescription(fetchedRules.description)
                             .setColor('#e4717a')
-                            .setFooter('Last updated: ' + fetchedRules.version)
+                            .setFooter('Last updated: ' + new Date(fetchedRules.version).toUTCString())
                             .addFields(rulesAll);
                     client.users.cache.get(interaction.member.user.id).send(rulesEmbed).catch(error => {
                         client.api.interactions(interaction.id, interaction.token).callback.post({
