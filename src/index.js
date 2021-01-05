@@ -433,12 +433,6 @@ client.on('message', message => {
           message.channel.send(commandMessage)
         }
         break;
-      case 'activity':
-      case 'serveractivity':
-        // add to commands list
-        const activeUsers = activeUsersCollection.filter(userActivity => userActivity.serverId === server.id).length
-        message.channel.send(`${activeUsers} ${activeUsers > 1 ? 'users' : 'user'} engaged with the server in the past ~5 minutes.`)
-        break;
       case 'uptime':
         let days = Math.floor(client.uptime / 86400000),
           hours = Math.floor(client.uptime / 3600000) % 24,
