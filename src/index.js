@@ -252,7 +252,7 @@ client.on('message', message => {
                         removeBotReactions()
                         member.roles.remove(role)
                         // prettify this, make a separate embed for this instead of re-using
-                        member.send(`You're now unmuted and your message is reinstated on **${server.name}** - <https://discordapp.com/channels/${server.id}/${message.channel.id}/${message.id}>`, reinstatedMessage).catch(error => {
+                        member.send(`You're now unmuted and your message is reinstated on **${server.name}** - <https://discordapp.com/channels/${server.id}/${message.channel.id}/${sentMessage.id}>`, reinstatedMessage).catch(error => {
                           console.info({ message: `Could not send unmute notice to ${member.id}.`, error: error });
                         });
                         investigationMessage.edit(`User is unmuted and message reinstated by <@${reaction.users.cache.find(reaction => reaction.bot === false).id}>.`, investigationEmbed);
