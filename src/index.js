@@ -101,7 +101,7 @@ client.on('message', message => {
       name: message.author.username,
       isAdmin: message.member.hasPermission("ADMINISTRATOR"),
       isModerator: message.member.hasPermission("KICK_MEMBERS") || message.member.hasPermission("BAN_MEMBERS"),
-      isNew: message.guild.members.cache.get(message.author.id).roles.cache.map(roles => `${roles}`).length === 1
+      isNew: Math.round(new Date() - message.member.joinedAt) / (1000 * 60 * 60 * 24) <= 7
     };
   watchedKeywordsCollection.then(entireCollection => {
     entireCollection.filter(watchedKeywordsCollection => watchedKeywordsCollection.serverId === server.id).map(watchedKeywordsGuild => {
