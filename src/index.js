@@ -389,7 +389,7 @@ client.on('message', message => {
               return eval(code);
             },
               executionResult = executeCode(commandMessage);
-            JSON.stringify(executionResult).length > 2000 ?
+            JSON.stringify(executionResult)?.length > 2000 ?
               (message.channel.send('Response is too long, check console.'), console.info(executionResult))
               :
               message.channel.send(JSON.stringify(executionResult), { code: "xl" })
