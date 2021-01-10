@@ -177,9 +177,9 @@ client.on('message', message => {
             messageToxicity
           )
         };
-      const alerts = () => {
+      const alerts = async () => {
         // alerts.filter(a => toxicity.toxicity >= a.threshold || toxicity.combined >= .80) removed filters temp
-        // unecessary foreach
+        const totalInfractions = await db.getRecord(user.id, message.guild.id).then(data => data[0]?.message?.length ?? '0')
         db.getAlerts(message.channel.guild.id).then(alerts => alerts.forEach(alert => {
           console.info(alert);
           const role = message.guild.roles.cache.find(role => role.name === 'Muted'),
@@ -191,6 +191,7 @@ client.on('message', message => {
                 { name: 'User', value: `<@${message.author.id}>`, inline: true },
                 { name: 'User ID', value: message.author.id, inline: true },
                 { name: 'Is user new?', value: user.isNew ? "Yes" : "No", inline: true },
+                { name: 'Total infractions', value: totalInfractions, inline: true },
                 { name: 'Channel', value: `<#${message.channel.id}> | 🔗 [Message link](https://discordapp.com/channels/${server.id}/${message.channel.id}/${message.id})` }
               )
               .setFooter('✅ marks report as valid, ❌ unmutes user and reinstates message where it was at the time of removal.');
