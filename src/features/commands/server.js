@@ -26,15 +26,15 @@ module.exports = {
                     .setTitle(serverData.name, serverData.iconURL())
                     .setColor('#e4717a')
                     .setDescription(`${serverData.description ? serverData.description : 'No description available.'} \n
-                    Owner: <@${serverData.ownerID}> \n
-                    ${serverData.vanityURLCode ? `Invite link: discord.gg/${serverData.vanityURLCode}` : ''}`)
+Owner: <@${serverData.ownerID}> \n
+${serverData.vanityURLCode ? `Invite link: discord.gg/${serverData.vanityURLCode}` : ''}`)
                     .setThumbnail(serverData.iconURL())
                     .addFields(
                         {
                             name: 'By the numbers', value: `Members: **${serverData.memberCount}**
-                        Emojis: **${serverData.emojis.cache.size}**
-                        Channels: **${serverData.channels.cache.size}**
-                        Roles: **${serverData.roles.cache.size}**
+Emojis: **${serverData.emojis.cache.size}**
+Channels: **${serverData.channels.cache.size}**
+Roles: **${serverData.roles.cache.size}**
                         `, inline: false
                         },
                         { name: 'Location', value: `🌎 ${capitalizeFirstLetter(serverData.region)}`, inline: true },

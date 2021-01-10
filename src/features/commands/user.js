@@ -1,40 +1,6 @@
 const Discord = require('discord.js'),
-    db = require('../../db');
-
-// move utils elsewhere
-
-const capitalizeFirstLetter = (string) => {
-    return string.charAt(0).toUpperCase() + string.slice(1);
-}
-
-const getDate = (timestamp, locale) => {
-    const date = new Date(timestamp);
-    const options = {
-        year: 'numeric',
-        month: 'numeric',
-        day: 'numeric',
-    };
-    return date.toLocaleDateString(locale, options);
-}
-
-const getStatusColor = (presenceStatus) => {
-    switch (presenceStatus) {
-        case 'online':
-            return '#43b581';
-            break;
-        case 'dnd':
-            return '#e4717a';
-            break;
-        case 'idle':
-            return '#faa61a';
-            break;
-        case 'offline':
-            return '#747f8d';
-            break;
-        default:
-            break;
-    }
-}
+    db = require('../../db'),
+    { getStatusColor, capitalizeFirstLetter, getDate, getDaysSince } = require('../../utils.js');
 
 const sendInfoEmbed = (client, interaction, user) => {
     const getMember = client.guilds.cache.get(interaction.guild_id).member(user);
@@ -121,14 +87,6 @@ const sendInfoEmbed = (client, interaction, user) => {
     })
 }
 
-const getDaysSince = (current, previous) => {
-    const msPerMinute = 60 * 1000,
-        msPerHour = msPerMinute * 60,
-        msPerDay = msPerHour * 24,
-        elapsed = current - previous;
-    return Math.round(elapsed / msPerDay);
-}
-
 const sendWarningEmbed = (client, interaction, user) => {
     const getMember = client.guilds.cache.get(interaction.guild_id).member(user);
     db.getRecord(user, interaction.guild_id).then(data => {
@@ -162,7 +120,7 @@ const sendWarningEmbed = (client, interaction, user) => {
                         },
                         {
                             name: 'Last 5 toxicity flags',
-                            value: data[0] ? data[0].message.slice(0, 5).map(infraction => `${infraction._id} • ${getDate(infraction.timestamp, 'en')}`) : 'No infractions found.',
+                            value: data[0] ? data[0].message.reverse().slice(0, 5).map(infraction => `${infraction._id} • ${getDate(infraction.timestamp, 'en')}`) : 'No infractions found.',
                             inline: false
                         }
                     );
@@ -204,7 +162,7 @@ const sendWarningEmbed = (client, interaction, user) => {
                         },
                         {
                             name: 'Last 5 toxicity flags',
-                            value: data[0] ? data[0].message.slice(0, 5).map(infraction => `${infraction._id} • ${getDate(infraction.timestamp, 'en')}`) : 'No infractions found.',
+                            value: data[0] ? data[0].message.reverse().slice(0, 5).map(infraction => `${infraction._id} • ${getDate(infraction.timestamp, 'en')}`) : 'No infractions found.',
                             inline: false
                         }
                     );

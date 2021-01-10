@@ -101,7 +101,7 @@ client.on('message', message => {
       name: message.author.username,
       isAdmin: message.member.hasPermission("ADMINISTRATOR"),
       isModerator: message.member.hasPermission("KICK_MEMBERS") || message.member.hasPermission("BAN_MEMBERS"),
-      isNew: message.guild.members.cache.get(message.author.id).roles.cache.map(roles => `${roles}`).length === 1
+      isNew: Math.round(new Date() - message.member.joinedAt) / (1000 * 60 * 60 * 24) <= 7
     };
   watchedKeywordsCollection.then(entireCollection => {
     entireCollection.filter(watchedKeywordsCollection => watchedKeywordsCollection.serverId === server.id).map(watchedKeywordsGuild => {
@@ -177,35 +177,47 @@ client.on('message', message => {
             messageToxicity
           )
         };
-      const alerts = () => {
+      const alerts = async (messages) => {
         // alerts.filter(a => toxicity.toxicity >= a.threshold || toxicity.combined >= .80) removed filters temp
-        // unecessary foreach
+        const totalInfractions = await db.getRecord(user.id, message.guild.id).then(data => data[0]?.message?.length ?? '0')
         db.getAlerts(message.channel.guild.id).then(alerts => alerts.forEach(alert => {
           console.info(alert);
           const role = message.guild.roles.cache.find(role => role.name === 'Muted'),
             member = message.guild.members.cache.get(message.author.id),
-            investigationEmbed = new Discord.MessageEmbed()
-              .setColor('#ffbd2e')
-              .setDescription(`🔎 Investigate user's message(${(Number(messageToxicity) * 100).toFixed(2)}, ${(Number(toxicity.insult) * 100).toFixed(2)}) \n ${message.content.slice(0, 1024)}`) //show probabilities in a separate field
-              .addFields(
-                { name: 'User', value: `<@${message.author.id}>`, inline: true },
-                { name: 'User ID', value: message.author.id, inline: true },
-                { name: 'Is user new?', value: user.isNew ? "Yes" : "No", inline: true },
-                { name: 'Channel', value: `<#${message.channel.id}> | 🔗 [Message link](https://discordapp.com/channels/${server.id}/${message.channel.id}/${message.id})` }
-              )
-              .setFooter('✅ marks report as valid, ❌ unmutes user and reinstates message where it was at the time of removal.');
+            previousMessage = messages[1] ? {
+              name: `Previous message (Toxicity: ${Math.round(Number(messages[1].values.toxicity) * 100)}%, Insult: ${Math.round(Number(messages[1].values.insult) * 100)}%)`,
+              value: messages[1].message, inline: false
+            } : { name: 'Previous message', value: 'No recent message found.' },
+            removedMessage = message.content;
           message.delete({ reason: "Removed potentially toxic message." }).catch(() => {
             console.info(
               `Could not delete message ${message.content} | ${message.id}.`
             );
-          }).then(data => {
-            const removedMessage = data.content
+          }).then(() => {
             if (role) member.roles.add(role);
             const infractionMessageResponse = role ? 'Message has been flagged for review, awaiting moderation response.' : 'Message has been flagged for review, ⚠ user is not muted.'
             message.channel.send(infractionMessageResponse).then(sentMessage => {
               const filter = (reaction, user) => {
                 return ['✅', '❌'].includes(reaction.emoji.name);
-              };
+              },
+                investigationEmbed = new Discord.MessageEmbed()
+                  .setColor('#ffbd2e')
+                  .setAuthor('Alert type: Toxicity')
+                  .setTitle(`🔎 Investigate user's message`)
+                  .addFields(
+                    previousMessage,
+                    {
+                      name: `Current message (Toxicity: ${Math.round(Number(messageToxicity) * 100)}%, Insult: ${Math.round(Number(toxicity.insult) * 100)}%)`,
+                      value: removedMessage,
+                      inline: false
+                    },
+                    { name: 'User', value: `<@${message.author.id}>`, inline: true },
+                    { name: 'User ID', value: message.author.id, inline: true },
+                    { name: 'Is user new?', value: user.isNew ? "Yes" : "No", inline: true },
+                    { name: 'Total infractions', value: totalInfractions, inline: true },
+                    { name: 'Channel', value: `<#${message.channel.id}> | 🔗 [Message link](https://discordapp.com/channels/${server.id}/${message.channel.id}/${sentMessage.id})` }
+                  )
+                  .setFooter('✅ marks report as valid, ❌ unmutes user and reinstates message where it was at the time of removal.');
               // remove message from db if moderator reinstates
               saveMessage()
               alertRecipient = alert.channelId === '792393096020885524' ? '<@71270107371802624>' : '@here';
@@ -240,7 +252,7 @@ client.on('message', message => {
                         removeBotReactions()
                         member.roles.remove(role)
                         // prettify this, make a separate embed for this instead of re-using
-                        member.send(`You're now unmuted and your message is reinstated on **${server.name}** - <https://discordapp.com/channels/${server.id}/${message.channel.id}/${message.id}>`, reinstatedMessage).catch(error => {
+                        member.send(`You're now unmuted and your message is reinstated on **${server.name}** - <https://discordapp.com/channels/${server.id}/${message.channel.id}/${sentMessage.id}>`, reinstatedMessage).catch(error => {
                           console.info({ message: `Could not send unmute notice to ${member.id}.`, error: error });
                         });
                         investigationMessage.edit(`User is unmuted and message reinstated by <@${reaction.users.cache.find(reaction => reaction.bot === false).id}>.`, investigationEmbed);
@@ -289,7 +301,10 @@ client.on('message', message => {
             let resolvedMessages = await Promise.all(evaluatedMessages.map(async (evaluationMessage) => {
               console.info({ initmsg: evaluationMessage });
               const result = await getToxicity(evaluationMessage.content, message, true);
-              output = result;
+              output = { 
+                message: evaluationMessage.content, 
+                values: result 
+              };
               return output;
             }));
             return resolvedMessages
@@ -297,18 +312,24 @@ client.on('message', message => {
           return getEvaluatedMessages()
         }
         getLatestUserMessages(message.author.id).then(function (result) {
-          console.info({ endResult: result })
+          console.info(result)
           if (result.length === 2) {
-            if (isNaN(result[1].toxicity)) return;
-            console.info({ result: result[0].toxicity, secondres: result[1].toxicity, total: ((result[0].toxicity + result[1].toxicity) / 2) >= .70 });
-            if (((result[0].toxicity + result[1].toxicity) / 2) >= .70) {
-              console.info({ amount: (result[0].toxicity + result[1].toxicity) / 2, lenght: result.length });
-              alerts()
+            if (isNaN(result[1].values.toxicity)) return;
+            console.info({ 
+              result: result[0].values.toxicity, 
+              secondres: result[1].values.toxicity, 
+              total: ((result[0].values.toxicity + result[1].values.toxicity) / 2) >= .70 });
+            if (((result[0].values.toxicity + result[1].values.toxicity) / 2) >= .70) {
+              console.info({
+                amount: (result[0].values.toxicity + result[1].values.toxicity) / 2,
+                lenght: result.length
+              });
+              alerts(result)
             }
           } else {
             if (!user.isNew) return;
             try {
-              alerts()
+              alerts(result)
             } catch (error) {
               console.error(error)
             }
