@@ -301,7 +301,10 @@ client.on('message', message => {
             let resolvedMessages = await Promise.all(evaluatedMessages.map(async (evaluationMessage) => {
               console.info({ initmsg: evaluationMessage });
               const result = await getToxicity(evaluationMessage.content, message, true);
-              output = result;
+              output = { 
+                message: evaluationMessage.content, 
+                values: result 
+              };
               return output;
             }));
             return resolvedMessages
@@ -309,18 +312,24 @@ client.on('message', message => {
           return getEvaluatedMessages()
         }
         getLatestUserMessages(message.author.id).then(function (result) {
-          console.info({ endResult: result })
+          console.info(result)
           if (result.length === 2) {
-            if (isNaN(result[1].toxicity)) return;
-            console.info({ result: result[0].toxicity, secondres: result[1].toxicity, total: ((result[0].toxicity + result[1].toxicity) / 2) >= .70 });
-            if (((result[0].toxicity + result[1].toxicity) / 2) >= .70) {
-              console.info({ amount: (result[0].toxicity + result[1].toxicity) / 2, lenght: result.length });
-              alerts()
+            if (isNaN(result[1].values.toxicity)) return;
+            console.info({ 
+              result: result[0].values.toxicity, 
+              secondres: result[1].values.toxicity, 
+              total: ((result[0].values.toxicity + result[1].values.toxicity) / 2) >= .70 });
+            if (((result[0].values.toxicity + result[1].values.toxicity) / 2) >= .70) {
+              console.info({
+                amount: (result[0].values.toxicity + result[1].values.toxicity) / 2,
+                lenght: result.length
+              });
+              alerts(result)
             }
           } else {
             if (!user.isNew) return;
             try {
-              alerts()
+              alerts(result)
             } catch (error) {
               console.error(error)
             }
