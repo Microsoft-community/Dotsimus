@@ -210,6 +210,23 @@ client.on('message', message => {
               // remove message from db if moderator reinstates
               saveMessage()
               alertRecipient = alert.channelId === '792393096020885524' ? '<@71270107371802624>' : '@here';
+              const investigationEmbed = new Discord.MessageEmbed()
+                .setColor('#ffbd2e')
+                .setTitle(`🔎 Investigate user's message`)
+                .addFields(
+                  pastMessage,
+                  {
+                    name: `Current message (Toxicity: ${Math.round(Number(messageToxicity) * 100)}%, Insult: ${Math.round(Number(toxicity.insult) * 100)}%)`,
+                    value: removedMessage,
+                    inline: false
+                  },
+                  { name: 'User', value: `<@${message.author.id}>`, inline: true },
+                  { name: 'User ID', value: message.author.id, inline: true },
+                  { name: 'Is user new?', value: user.isNew ? "Yes" : "No", inline: true },
+                  { name: 'Total infractions', value: totalInfractions, inline: true },
+                  { name: 'Channel', value: `<#${message.channel.id}> | 🔗 [Message link](https://discordapp.com/channels/${server.id}/${message.channel.id}/${sentMessage.id})` }
+                )
+                .setFooter('✅ marks report as valid, ❌ unmutes user and reinstates message where it was at the time of removal.');
               client.channels.cache.get(alert.channelId).send(alertRecipient, investigationEmbed).then(investigationMessage => {
                 const removeBotReactions = () => {
                   const userReactions = investigationMessage.reactions.cache.filter(reaction => reaction.users.cache.has(client.user.id));
