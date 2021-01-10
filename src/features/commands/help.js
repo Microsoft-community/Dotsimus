@@ -7,7 +7,8 @@ module.exports = {
         const embedResponse = new Discord.MessageEmbed()
             .setTitle('Dotsimus and its functionality')
             .setDescription(`Dotsimus is a machine learning powered chat moderation bot, its primary goal is to help monitor, protect the server while its secondary goal is to enhance user experience. \n
-Support server: https://discord.gg/XAFXecKFRG`)
+Support server: https://discord.gg/XAFXecKFRG
+Add Dotsimus to your server: http://add-bot.dotsimus.com`)
             .setColor('#ffbd2e')
             .addFields(
                 { name: 'Slash commands', value: 'You can see available slash commands and their use by typing `/` in the chat.', inline: false},
