@@ -77,7 +77,7 @@ setInterval(function () {
   // cleanup task: executes every 5 minutes
   let timestamp = Date.now();
   activeUsersCollection = activeUsersCollection.filter(function (userActivity) {
-    return timestamp < userActivity.timestamp + (5000 * 60);
+    return timestamp < userActivity.timestamp + (3000 * 60);
   });
 }, 30000);
 
