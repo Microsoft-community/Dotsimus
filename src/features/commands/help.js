@@ -2,7 +2,7 @@ const Discord = require('discord.js')
 
 module.exports = {
     name: 'help',
-    description: 'help!',
+    description: 'Shows general information about bot and its commands.',
     execute(client, interaction) {
         const embedResponse = new Discord.MessageEmbed()
             .setTitle('Dotsimus and its functionality')
