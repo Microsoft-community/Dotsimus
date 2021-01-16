@@ -14,7 +14,11 @@ const fetchRules = async (guildID) => {
         if (JSON.parse(error.error).message !== 'Unknown Guild') console.error(error.error);
         return 0;
     });
-    return await JSON.parse(response)
+    if (response) {
+        return JSON.parse(response)
+    } else {
+        return 0;
+    }
 }
 
 module.exports = { fetchRules }

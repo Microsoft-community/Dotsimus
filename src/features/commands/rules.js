@@ -9,8 +9,9 @@ module.exports = {
         if (fetchedRules === 0) {
             client.api.interactions(interaction.id, interaction.token).callback.post({
                 data: {
-                    type: 4,
+                    type: 2,
                     data: {
+                        flags: 64,
                         content: `This community doesn't have rules defined in **Settings** > **Membership Screening** section.`
                     },
                 },
@@ -70,8 +71,9 @@ module.exports = {
                     } else {
                         client.api.interactions(interaction.id, interaction.token).callback.post({
                             data: {
-                                type: 4,
+                                type: 2,
                                 data: {
+                                    flags: 64,
                                     content: `Unable to find any rules that contain \`${interaction.data.options[0].options[0].value}\` keyword.`
                                 },
                             },
@@ -89,8 +91,9 @@ module.exports = {
                     client.users.cache.get(interaction.member.user.id).send(rulesEmbed).catch(error => {
                         client.api.interactions(interaction.id, interaction.token).callback.post({
                             data: {
-                                type: 4,
+                                type: 2,
                                 data: {
+                                    flags: 64,
                                     content: 'Failed to send community rules to you, please enable direct messaging in this server by **right clicking the server icon** and going to **privacy settings**.'
                                 },
                             },
@@ -100,6 +103,7 @@ module.exports = {
                         data: {
                             type: 4,
                             data: {
+                                flags: 64,
                                 content: 'Sent community rules to your direct messages!'
                             },
                         },

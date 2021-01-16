@@ -74,10 +74,10 @@ client.on('typingStart', (channel, user) => {
 })
 
 setInterval(function () {
-  // cleanup task: executes every 5 minutes
+  // cleanup task: executes every 3 minutes
   let timestamp = Date.now();
   activeUsersCollection = activeUsersCollection.filter(function (userActivity) {
-    return timestamp < userActivity.timestamp + (5000 * 60);
+    return timestamp < userActivity.timestamp + (3000 * 60);
   });
 }, 30000);
 
@@ -238,7 +238,7 @@ client.on('message', message => {
                       const reaction = collected.first();
                       const reinstatedMessage = new Discord.MessageEmbed()
                         .setColor('#32CD32')
-                        .setAuthor(`${message.author.username}#${message.author.discriminator}`, `https://cdn.discordapp.com/avatars/${message.author.id}/${message.author.avatar}.png`, `https://discord.com/channels/@me/${message.author.id}`)
+                        .setAuthor(`${message.author.username}#${message.author.discriminator}`, `https://cdn.discordapp.com/avatars/${message.author.id}/${message.author.avatar}.png`, `https://discord.com/users/${message.author.id}`)
                         .setDescription(removedMessage)
                         .setFooter('Message reinstated by the moderation team.', `https://cdn.discordapp.com/icons/${message.guild.id}/${message.guild.icon}.webp`);
                       if (reaction.emoji.name === '✅') {
@@ -389,7 +389,7 @@ client.on('message', message => {
               return eval(code);
             },
               executionResult = executeCode(commandMessage);
-            JSON.stringify(executionResult).length > 2000 ?
+            JSON.stringify(executionResult)?.length > 2000 ?
               (message.channel.send('Response is too long, check console.'), console.info(executionResult))
               :
               message.channel.send(JSON.stringify(executionResult), { code: "xl" })
