@@ -238,7 +238,7 @@ client.on('message', message => {
                       const reaction = collected.first();
                       const reinstatedMessage = new Discord.MessageEmbed()
                         .setColor('#32CD32')
-                        .setAuthor(`${message.author.username}#${message.author.discriminator}`, `https://cdn.discordapp.com/avatars/${message.author.id}/${message.author.avatar}.png`, `https://discord.com/channels/@me/${message.author.id}`)
+                        .setAuthor(`${message.author.username}#${message.author.discriminator}`, `https://cdn.discordapp.com/avatars/${message.author.id}/${message.author.avatar}.png`, `https://discord.com/users/${message.author.id}`)
                         .setDescription(removedMessage)
                         .setFooter('Message reinstated by the moderation team.', `https://cdn.discordapp.com/icons/${message.guild.id}/${message.guild.icon}.webp`);
                       if (reaction.emoji.name === '✅') {
