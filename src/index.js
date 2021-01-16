@@ -74,7 +74,7 @@ client.on('typingStart', (channel, user) => {
 })
 
 setInterval(function () {
-  // cleanup task: executes every 5 minutes
+  // cleanup task: executes every 3 minutes
   let timestamp = Date.now();
   activeUsersCollection = activeUsersCollection.filter(function (userActivity) {
     return timestamp < userActivity.timestamp + (3000 * 60);
