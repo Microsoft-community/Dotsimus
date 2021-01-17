@@ -16,7 +16,7 @@ module.exports = {
                     data: {
                         type: 4,
                         data: {
-                            content: `${activeUsers} ${activeUsers > 1 ? 'users' : 'user'} engaged with the server in the past ~3 minutes.`
+                            content: `${activeUsers} ${activeUsers > 1 || activeUsers == 0 ? 'users' : 'user'} engaged with the server in the past ~3 minutes.`
                         },
                     },
                 });
