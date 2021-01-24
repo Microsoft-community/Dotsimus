@@ -84,7 +84,7 @@ setInterval(function () {
 client.on('message', message => {
   if (message.author.bot) return;
   if (message.channel.type === "dm") {
-    client.users.cache.get('71270107371802624')
+    client.users.cache.get(process.env.OWNER)
       .send(`${message.author.username}#${message.author.discriminator}(${message.author.id}): ${message.content}`);
     return console.info(`${getTime()} #DM ${message.author.username}(${message.author.id}): ${message.content}`);
   }
@@ -220,7 +220,7 @@ client.on('message', message => {
                   .setFooter('✅ marks report as valid, ❌ unmutes user and reinstates message where it was at the time of removal.');
               // remove message from db if moderator reinstates
               saveMessage()
-              alertRecipient = alert.channelId === '792393096020885524' ? '<@71270107371802624>' : '@here';
+              alertRecipient = alert.channelId === '792393096020885524' ? `<@${process.env.OWNER}>` : '@here';
               client.channels.cache.get(alert.channelId).send(alertRecipient, investigationEmbed).then(investigationMessage => {
                 const removeBotReactions = () => {
                   const userReactions = investigationMessage.reactions.cache.filter(reaction => reaction.users.cache.has(client.user.id));
@@ -383,7 +383,7 @@ client.on('message', message => {
         break;
       case 'eval':
       case 'dot':
-        if (message.author.id === '71270107371802624') {
+        if (message.author.id === process.env.OWNER) {
           try {
             const executeCode = (code) => {
               return eval(code);
