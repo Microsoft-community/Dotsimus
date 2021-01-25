@@ -1,5 +1,5 @@
 const Discord = require('discord.js'),
-  client = new Discord.Client(),
+  client = new Discord.Client({ partials: ['MESSAGE', "USER", 'REACTION'] }),
   Sentry = require('@sentry/node'),
   chalk = require('chalk'),
   fetch = require('request-promise-native'),
@@ -80,6 +80,14 @@ setInterval(function () {
     return timestamp < userActivity.timestamp + (3000 * 60);
   });
 }, 30000);
+
+// client.on('messageReactionAdd', (reaction, user) => {
+//   console.log(`${user.username}: added "${reaction.emoji.name}".`);
+// });
+
+// client.on('messageReactionRemove', (reaction, user) => {
+//   console.log(`${user.username}: removed "${reaction.emoji.name}".`);
+// });
 
 client.on('message', message => {
   if (message.author.bot) return;
