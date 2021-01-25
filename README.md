@@ -4,9 +4,13 @@
 
 ```js
 BOT_TOKEN=TOKEN
+BOT_TOKEN_DEV=STAGING_TOKEN
 DB_HOST=DB
+DB_HOST_DEV=STAGING_DB
 PERSPECTIVE_KEY=KEY
 DEVELOPMENT=false
+SENTRY_DSN=SENTRY_KEY
+OWNER=BOT_OWNER_ID
 ```
 
 2. Add bot to your server https://discordapp.com/oauth2/authorize?&client_id=YOUR_CLIENT_ID_HERE&scope=bot&permissions=0
@@ -14,6 +18,18 @@ DEVELOPMENT=false
 3. Run `npm install && npm start`.
 
 # Features
+## Automated moderation (Premium feature)
+Machine learning powered moderation brings misbehaving, toxic users to moderators attention quicker than you can say hop.
 
-* The bot responds to `!toxic <phrase>` with an assessment about whether the phrase is toxic.
-* The bot automatically warns a user when it is sufficiently confident that they have sent a toxic message.
+## Track topics, names or keywords,stay in the loop of things!
+Keywords tracking will make sure that you know whenever you're mentioned and missed! It can also be used to track topics that you find interesting.
+
+!track \<word>
+  
+!watch \<word>
+
+## Point users to rules easily!
+Dotsimus allows you to guide new users through rules without hitting them with a wall of text.
+
+## One of the very first public bots to support slash commands.
+What more there is to say? Slash commands makes our lives a lot easier.
