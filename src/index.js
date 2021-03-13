@@ -309,9 +309,9 @@ client.on('message', message => {
             let resolvedMessages = await Promise.all(evaluatedMessages.map(async (evaluationMessage) => {
               console.info({ initmsg: evaluationMessage });
               const result = await getToxicity(evaluationMessage.content, message, true);
-              output = { 
-                message: evaluationMessage.content, 
-                values: result 
+              output = {
+                message: evaluationMessage.content,
+                values: result
               };
               return output;
             }));
@@ -323,10 +323,11 @@ client.on('message', message => {
           console.info(result)
           if (result.length === 2) {
             if (isNaN(result[1].values.toxicity)) return;
-            console.info({ 
-              result: result[0].values.toxicity, 
-              secondres: result[1].values.toxicity, 
-              total: ((result[0].values.toxicity + result[1].values.toxicity) / 2) >= .70 });
+            console.info({
+              result: result[0].values.toxicity,
+              secondres: result[1].values.toxicity,
+              total: ((result[0].values.toxicity + result[1].values.toxicity) / 2) >= .70
+            });
             if (((result[0].values.toxicity + result[1].values.toxicity) / 2) >= .70) {
               console.info({
                 amount: (result[0].values.toxicity + result[1].values.toxicity) / 2,
