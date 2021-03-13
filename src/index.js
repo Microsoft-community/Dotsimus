@@ -426,18 +426,23 @@ client.on('message', message => {
         break;
       case 'watch':
       case 'track':
-        if (args.length === 0) return;
-        const trackingWord = args[0].toLowerCase();
-        try {
-          db.watchKeyword(message.author.id, server.id, trackingWord).then(resp => {
-            refreshWatchedCollection().then(resp => db.getWatchedKeywords(message.author.id, server.id).then(keywords => {
+        if (args[0]?.length < 3) {
+          message.react("❌")
+          message.author.send('❌ Keyword must be longer than 2 characters.')
+        } else {
+          const trackingWord = args[0].toLowerCase();
+          try {
+            db.watchKeyword(message.author.id, server.id, trackingWord).then(resp => {
+              refreshWatchedCollection().then(resp => db.getWatchedKeywords(message.author.id, server.id).then(keywords => {
                 const list = keywords[0].watchedWords.length === 6 ? keywords[0].watchedWords.slice(1) : keywords[0].watchedWords
-              message.author.send(`\`${trackingWord}\` keyword tracking is set up successfully on **${server.name}** server.\nCurrently tracked server keywords:\n${list.map((keyword, index) => `${index+1}. ${keyword} \n`).join('')}\nYou can track up to 5 keywords.`)
-            }))
-          })
+                message.react("✅")
+                message.author.send(`\`${trackingWord}\` keyword tracking is set up successfully on **${server.name}** server.\nCurrently tracked server keywords:\n${list.map((keyword, index) => `${index + 1}. ${keyword} \n`).join('')}\nYou can track up to 5 keywords.`)
+              }))
+            })
 
-        } catch (error) {
-          message.reply('allow direct messages from server members in this server for this feature to work.')
+          } catch (error) {
+            message.reply('allow direct messages from server members in this server for this feature to work.')
+          }
         }
         break;
       case 'unwatch':
