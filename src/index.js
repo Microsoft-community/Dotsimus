@@ -43,11 +43,11 @@ let watchedKeywordsCollection = db.getWatchedKeywords(),
 client.on('ready', () => {
   console.info(chalk.green(`Logged in as ${client.user.tag}!`));
   client.user.setActivity(`Dotsimus.com traffic`, { type: 'WATCHING' });
-  // let hours = 0;
-  // setInterval(async () => {
-  //   hours += 1;
-  //   await client.user.setActivity(`chat for ${hours} hour(s)`, { type: 'WATCHING' });
-  // }, 3600000);
+  let hours = 0;
+  setInterval(async () => {
+    hours += 1;
+    await client.user.setActivity(`Dotsimus.com for ${hours} hour(s)`, { type: 'WATCHING' });
+  }, 3600000);
   refreshServersConfigListing()
   // client.api.applications('731190736996794420').guilds('553939036490956801').commands('792118637808058408').delete()
   // client.api.applications('731190736996794420').guilds('553939036490956801').commands.get().then(data => console.log(data))
