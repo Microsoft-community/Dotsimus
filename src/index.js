@@ -433,7 +433,7 @@ client.on('message', message => {
             refreshWatchedCollection().then(resp => db.getWatchedKeywords(message.author.id, server.id).then(keywords => {
               const list = keywords[0].watchedWords
               message.react("✅")
-              message.author.send(`\`${trackingWord}\` keyword tracking is set up successfully.\nCurrently tracked keywords:\n${list.map(keyword => `${keyword} \n`).join('')}You can track up to 5 keywords.`)
+              message.author.send(`\`${trackingWord}\` keyword tracking is set up successfully on **${server.name}** server.\nCurrently tracked server keywords:\n${list.map((keyword, index) => `${index+1}. ${keyword} \n`).join('')}\nYou can track up to 5 keywords.`)
             }))
           })
 
