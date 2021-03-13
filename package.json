@@ -5,9 +5,8 @@
   "description": "Automatic moderation of toxic chat messages.",
   "main": "src/index.js",
   "scripts": {
-    "start": "@powershell pm2 flush; pm2 start src/index.js --log logs.log --log-date-format 'MM-DD HH:mm' --watch --watch-delay 10000 --restart-delay 10000; pm2 logs",
-    "stop": "@powershell pm2 stop src/index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "pm2 flush; pm2 start src/index.js --log logs.log --log-date-format 'MM-DD HH:mm' --watch --watch-delay 10000 --restart-delay 10000; pm2 logs",
+    "stop": "pm2 stop src/index.js"
   },
   "author": "Mindaugas Jasiulis",
   "license": "MIT",
