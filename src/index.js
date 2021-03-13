@@ -92,8 +92,19 @@ setInterval(function () {
 client.on('message', message => {
   if (message.author.bot) return;
   if (message.channel.type === "dm") {
+    if (message.author.id === process.env.OWNER && message.reference !== null) {
+      message.channel.messages.fetch(message.reference.messageID)
+        .then(referenceMessage => {
+          client.users.cache.get(referenceMessage.content.split(/ +/g)[1])
+            .send(message.content);
+        }).catch(error => {
+          console.error(error)
+          client.users.cache.get(process.env.OWNER).send(`❌ Failed to send the message.`);
+        })
+      return;
+    }
     client.users.cache.get(process.env.OWNER)
-      .send(`${message.author.username}#${message.author.discriminator}(${message.author.id}): ${message.content}`);
+      .send(`${message.author.username}#${message.author.discriminator} ${message.author.id} \n${message.content}`);
     return console.info(`${getTime()} #DM ${message.author.username}(${message.author.id}): ${message.content}`);
   }
 
