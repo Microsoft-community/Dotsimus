@@ -438,7 +438,7 @@ client.on('message', message => {
         break;
       case 'watch':
       case 'track':
-        if (args[0]?.length < 3) {
+        if (!args[0] || args[0]?.length < 3) {
           message.react("❌")
           message.author.send('❌ Keyword must be longer than 2 characters.')
         } else {
