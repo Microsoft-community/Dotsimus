@@ -396,7 +396,7 @@ client.on('message', message => {
         break;
       case 'grant':
         try {
-          grantAccess(message, mention, userArgFormat, isModerator);
+          grantAccess(message, mention, userArgFormat, server, isModerator);
         } catch (error) {
           console.error(error)
         }
@@ -611,8 +611,8 @@ Reason: \`${reason}\``)
   }
 })
 
-const grantAccess = (message, mention, user, isModerator) => {
-  if (!isModerator) return;
+const grantAccess = (message, mention, user, server, isModerator) => {
+  if (!isModerator || server.id !== '150662382874525696') return;
   const role = message.guild.roles.cache.find(role => role.id === '191569917542268928'),
     member = message.guild.members.cache.get(user);
   if (mention && role) {
