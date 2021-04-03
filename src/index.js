@@ -485,25 +485,6 @@ client.on('message', message => {
           seconds = Math.floor(client.uptime / 1000) % 60;
         message.channel.send(`Uptime: ${days}d ${hours}h ${minutes}m ${seconds}s`);
         break;
-      // case 'help':
-      // case 'dothelp':
-      //   // TODO: Make prefixes dynamic whenever prefix override will be introduced
-      //   const embedResponse = new Discord.MessageEmbed()
-      //     .setTitle('Dotsimus and its functionality')
-      //     .setDescription('Dotsimus is a machine learning powered chat moderation bot, its goal is to help monitor and protect the server.')
-      //     .setColor('#ffbd2e')
-      //     .addFields(
-      //       { name: '!setAlerts', value: 'Allows to set up alerts to notify moderators whenever user reaches the threshold. \n Usage: `!setAlerts <user or role> <threshold> <channel>`' },
-      //       { name: '!toxic', value: 'Shows toxicity certainty for requested message. \n Usage: `!toxic <phrase>`' },
-      //       { name: '!debug', value: 'Shows raw toxicity values for requested message. \n Usage: `!debug <phrase>`' },
-      //       { name: '!repeat', value: 'Repeats what is said by the user. \n Usage: `!repeat <phrase>`' },
-      //       { name: '!rule', value: 'Shows defined rules. \n Usage: `!rule <rule number or all or phrase>`' },
-      //       { name: '!uptime', value: 'Shows uptime of the bot. \n Usage: `!uptime`' },
-      //       { name: '!flags', value: 'Shows recent messages that were flagged with their values. \n Usage: `!flags <@User or none>`' },
-      //       { name: '!watch', value: 'Sends a direct message to you whenever keyword that you track gets mentioned. \n Usage: `!watch <keyword>`' }
-      //     );
-      //   message.channel.send(embedResponse);
-      //   break;
       case 'sendfeedback':
         const attribute = args.slice(0, 1)[0],
           suggestedScore = args.slice(args.length - 1, args.length)[0],
@@ -520,7 +501,6 @@ client.on('message', message => {
           }
         }
         break;
-      // document command in help section
       case 'dotprefix':
         if (user.isAdmin) {
           const maxPrefixLength = 4,
@@ -603,7 +583,6 @@ Reason: \`${reason}\``)
     unsanitizedMessage = unsanitizedMessage.replace(getSanitizedChannels, '#' + message.channel.name);
     const sanitizedMessage = unsanitizedMessage.replace(getSanitizedMentions, names[Math.floor(Math.random() * 2)]);
 
-    // TODO: Properly exclude quotes instead of ignoring comments with quotes
     if (!sanitizedMessage.startsWith(server.prefix) && !sanitizedMessage.startsWith('>') && sanitizedMessage.length !== 0) {
       try {
         const result = await fetch({
