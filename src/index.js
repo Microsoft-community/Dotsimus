@@ -205,7 +205,7 @@ client.on('message', message => {
             member = message.guild.members.cache.get(message.author.id),
             previousMessage = messages[1] ? {
               name: `Previous message (Toxicity: ${Math.round(Number(messages[1].values.toxicity) * 100)}%, Insult: ${Math.round(Number(messages[1].values.insult) * 100)}%)`,
-              value: messages[1].message, inline: false
+              value: messages[1].message.length > 1024 ? messages[1].message.slice(0, 1021).padEnd(1024, '.') : messages[1].message, inline: false
             } : { name: 'Previous message', value: 'No recent message found.' },
             removedMessage = message.content;
           message.delete({ reason: "Removed potentially toxic message." }).catch(() => {
@@ -227,7 +227,7 @@ client.on('message', message => {
                     previousMessage,
                     {
                       name: `Current message (Toxicity: ${Math.round(Number(messageToxicity) * 100)}%, Insult: ${Math.round(Number(toxicity.insult) * 100)}%)`,
-                      value: removedMessage,
+                      value: removedMessage.length > 1024 ? removedMessage.slice(0, 1021).padEnd(1024, '.') : removedMessage,
                       inline: false
                     },
                     { name: 'User', value: `<@${message.author.id}>`, inline: true },
