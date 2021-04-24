@@ -39,6 +39,7 @@ module.exports = {
                             data: {
                                 type: 4,
                                 data: {
+                                    flags: 64,
                                     content: `Rule ${interaction.data.options[0].options[0].value} does not exist, there are ${fetchedRules.form_fields[0].values.length} rules defined in this community.`
                                 },
                             },
