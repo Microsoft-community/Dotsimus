@@ -25,7 +25,6 @@ module.exports = {
                             .setTitle(`Rule ${interaction.data.options[0].options[0].value}`)
                             .setDescription(fetchedRules.form_fields[0].values[interaction.data.options[0].options[0].value - 1])
                             .setColor('#e4717a')
-                            .setFooter(`Initiated with /rules rule number:${interaction.data.options[0].options[0].value} command by ${interaction.member.user.username}#${interaction.member.user.discriminator}.`)
                         client.api.interactions(interaction.id, interaction.token).callback.post({
                             data: {
                                 type: 4,
@@ -59,7 +58,6 @@ module.exports = {
                     if (getSearchResults.length !== 0) {
                         const foundRules = new Discord.MessageEmbed()
                             .setColor('#e4717a')
-                            .setFooter(`Initiated with /rules rule keyword:${interaction.data.options[0].options[0].value} command by ${interaction.member.user.username}#${interaction.member.user.discriminator}.`)
                             .addFields(getSearchResults);
                         client.api.interactions(interaction.id, interaction.token).callback.post({
                             data: {
