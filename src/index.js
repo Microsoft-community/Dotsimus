@@ -53,7 +53,7 @@ client.on('ready', () => {
   // client.api.applications('731190736996794420').guilds('553939036490956801').commands.get().then(data => console.log(data))
   client.ws.on("INTERACTION_CREATE", async (interaction) => {
     try {
-      client.commands.get(interaction.data.name).execute(client, interaction, activeUsersCollection);
+      client.commands.get(interaction.data.name)?.execute(client, interaction, activeUsersCollection);
     } catch (error) {
       console.error(error);
     }
