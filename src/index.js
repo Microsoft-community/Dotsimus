@@ -388,16 +388,6 @@ client.on('message', message => {
           }
         })
         break;
-      case 'toxic':
-        getToxicity(commandMessage, message, true).then(toxicity => {
-          const messageToxicity = toxicity.toxicity
-          if (!isNaN(messageToxicity)) {
-            message.channel.send(`I am **${(Number(messageToxicity) * 100).toFixed(2)}%** certain that this is a negative message.`);
-          } else {
-            message.reply('message cannot be analyzed.')
-          }
-        })
-        break;
       case 'grant':
         try {
           grantAccess(message, mention, userArgFormat, server, isModerator);
@@ -422,23 +412,6 @@ client.on('message', message => {
             message.channel.send('Something went horribly wrong, check the logs.')
           }
         }
-        break;
-      case 'test':
-      case 'debug':
-        getToxicity(commandMessage, message, true).then(toxicity => {
-          if (!isNaN(toxicity.toxicity)) {
-            const embedResponse = new Discord.MessageEmbed()
-              .setColor('#ffbd2e')
-              .addFields(
-                { name: 'Message', value: commandMessage.slice(0, 1024) },
-                { name: 'Probability', value: `**Toxicity:** ${toxicity.toxicity} \n **Insult:** ${toxicity.insult}` },
-                { name: 'Combined probability', value: toxicity.combined }
-              );
-            message.channel.send(embedResponse);
-          } else {
-            message.reply('message cannot be analyzed.')
-          }
-        })
         break;
       case 'watch':
       case 'track':
