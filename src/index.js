@@ -296,7 +296,7 @@ client.on('message', message => {
         }))
       }
       // Log both recent messages into the logs within embed
-      if ((((messageToxicity >= .75 || toxicity.insult >= .80) && user.isNew) || (messageToxicity >= .80 || toxicity.combined >= .80))) {
+      if ((((messageToxicity >= .75 || toxicity.insult >= .90) && user.isNew) || (messageToxicity >= .80 || toxicity.combined >= .80))) {
         console.info(`${getTime()} #${message.channel.name} ${message.author.username}: ${message.content} | ${chalk.red((Number(messageToxicity) * 100).toFixed(2))} ${chalk.red((Number(toxicity.insult) * 100).toFixed(2))}`)
         message.channel.startTyping();
         setTimeout(function () {
