@@ -204,10 +204,14 @@ client.on('message', message => {
           console.info(alert);
           const role = message.guild.roles.cache.find(role => role.name === 'Muted'),
             member = message.guild.members.cache.get(message.author.id),
-            previousMessage = messages[1] ? {
-              name: `Previous message (Toxicity: ${Math.round(Number(messages[1].values.toxicity) * 100)}%, Insult: ${Math.round(Number(messages[1].values.insult) * 100)}%)`,
+            secondMessage = messages[1] ? {
+              name: `Second message (Toxicity: ${Math.round(Number(messages[1].values.toxicity) * 100)}%, Insult: ${Math.round(Number(messages[1].values.insult) * 100)}%)`,
               value: messages[1].message.length > 1024 ? messages[1].message.slice(0, 1021).padEnd(1024, '.') : messages[1].message, inline: false
-            } : { name: 'Previous message', value: 'No recent message found.' },
+            } : { name: 'Second message', value: 'No recent message found.' },
+            thirdMessage = messages[2] ? {
+              name: `Third message (Toxicity: ${Math.round(Number(messages[2].values.toxicity) * 100)}%, Insult: ${Math.round(Number(messages[2].values.insult) * 100)}%)`,
+              value: messages[2].message.length > 1024 ? messages[2].message.slice(0, 1021).padEnd(1024, '.') : messages[2].message, inline: false
+            } : { name: 'Third message', value: 'No recent message found.' },
             removedMessage = message.content;
           message.delete({ reason: "Removed potentially toxic message." }).catch(() => {
             console.info(
@@ -225,7 +229,8 @@ client.on('message', message => {
                   .setAuthor('Alert type: Toxicity')
                   .setTitle(`🔎 Investigate user's message`)
                   .addFields(
-                    previousMessage,
+                    secondMessage,
+                    thirdMessage,
                     {
                       name: `Trigger message (Toxicity: ${Math.round(Number(messageToxicity) * 100)}%, Insult: ${Math.round(Number(toxicity.insult) * 100)}%)`,
                       value: removedMessage.length > 1024 ? removedMessage.slice(0, 1021).padEnd(1024, '.') : removedMessage,
