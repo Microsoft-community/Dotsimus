@@ -120,7 +120,8 @@ client.on('message', message => {
       name: message.author.username,
       isAdmin: message.member.hasPermission("ADMINISTRATOR"),
       isModerator: message.member.hasPermission("KICK_MEMBERS") || message.member.hasPermission("BAN_MEMBERS"),
-      isNew: Math.round(new Date() - message.member.joinedAt) / (1000 * 60 * 60 * 24) <= 7
+      isNew: Math.round(new Date() - message.member.joinedAt) / (1000 * 60 * 60 * 24) <= 7,
+      isRegular: Math.round(new Date() - message.member.joinedAt) / (1000 * 60 * 60 * 24) >= 30,
     };
   watchedKeywordsCollection.then(entireCollection => {
     entireCollection.filter(watchedKeywordsCollection => watchedKeywordsCollection.serverId === server.id).map(watchedKeywordsGuild => {
@@ -203,10 +204,14 @@ client.on('message', message => {
           console.info(alert);
           const role = message.guild.roles.cache.find(role => role.name === 'Muted'),
             member = message.guild.members.cache.get(message.author.id),
-            previousMessage = messages[1] ? {
-              name: `Previous message (Toxicity: ${Math.round(Number(messages[1].values.toxicity) * 100)}%, Insult: ${Math.round(Number(messages[1].values.insult) * 100)}%)`,
+            secondMessage = messages[1] ? {
+              name: `Second message (Toxicity: ${Math.round(Number(messages[1].values.toxicity) * 100)}%, Insult: ${Math.round(Number(messages[1].values.insult) * 100)}%)`,
               value: messages[1].message.length > 1024 ? messages[1].message.slice(0, 1021).padEnd(1024, '.') : messages[1].message, inline: false
-            } : { name: 'Previous message', value: 'No recent message found.' },
+            } : { name: 'Second message', value: 'No recent message found.' },
+            thirdMessage = messages[2] ? {
+              name: `Third message (Toxicity: ${Math.round(Number(messages[2].values.toxicity) * 100)}%, Insult: ${Math.round(Number(messages[2].values.insult) * 100)}%)`,
+              value: messages[2].message.length > 1024 ? messages[2].message.slice(0, 1021).padEnd(1024, '.') : messages[2].message, inline: false
+            } : { name: 'Third message', value: 'No recent message found.' },
             removedMessage = message.content;
           message.delete({ reason: "Removed potentially toxic message." }).catch(() => {
             console.info(
@@ -224,9 +229,10 @@ client.on('message', message => {
                   .setAuthor('Alert type: Toxicity')
                   .setTitle(`🔎 Investigate user's message`)
                   .addFields(
-                    previousMessage,
+                    secondMessage,
+                    thirdMessage,
                     {
-                      name: `Current message (Toxicity: ${Math.round(Number(messageToxicity) * 100)}%, Insult: ${Math.round(Number(toxicity.insult) * 100)}%)`,
+                      name: `Trigger message (Toxicity: ${Math.round(Number(messageToxicity) * 100)}%, Insult: ${Math.round(Number(toxicity.insult) * 100)}%)`,
                       value: removedMessage.length > 1024 ? removedMessage.slice(0, 1021).padEnd(1024, '.') : removedMessage,
                       inline: false
                     },
@@ -295,8 +301,7 @@ client.on('message', message => {
           // }
         }))
       }
-      // Log both recent messages into the logs within embed
-      if ((((messageToxicity >= .75 || toxicity.insult >= .90) && user.isNew) || (messageToxicity >= .80 || toxicity.combined >= .80))) {
+      if ((((messageToxicity >= .80 || toxicity.insult >= .90) && user.isNew) || (messageToxicity >= .80 || toxicity.combined >= .80))) {
         console.info(`${getTime()} #${message.channel.name} ${message.author.username}: ${message.content} | ${chalk.red((Number(messageToxicity) * 100).toFixed(2))} ${chalk.red((Number(toxicity.insult) * 100).toFixed(2))}`)
         message.channel.startTyping();
         setTimeout(function () {
@@ -308,7 +313,7 @@ client.on('message', message => {
             limit: 30
           }).then(message => {
             const getLatestMessages = message.filter(function (message) {
-              if (this.count < 2 && message.author.id === userId) {
+              if (this.count < 3 && message.author.id === userId) {
                 message => message.author.id === userId
                 this.count++;
                 return true;
@@ -322,7 +327,6 @@ client.on('message', message => {
 
           async function getEvaluatedMessages () {
             let resolvedMessages = await Promise.all(evaluatedMessages.map(async (evaluationMessage) => {
-              console.info({ initmsg: evaluationMessage });
               const result = await getToxicity(evaluationMessage.content, message, true);
               output = {
                 message: evaluationMessage.content,
@@ -343,9 +347,25 @@ client.on('message', message => {
               secondres: result[1].values.toxicity,
               total: ((result[0].values.toxicity + result[1].values.toxicity) / 2) >= .70
             });
-            if (((result[0].values.toxicity + result[1].values.toxicity) / 2) >= .70) {
+            if (((result[0].values.toxicity + result[1].values.toxicity) / 2) >= .70 && !user.isRegular) {
               console.info({
                 amount: (result[0].values.toxicity + result[1].values.toxicity) / 2,
+                lenght: result.length
+              });
+              alerts(result)
+            }
+          }
+          if (result.length === 3) {
+            if ((isNaN(result[1].values.toxicity)) || (isNaN(result[2].values.toxicity)))  return;
+            console.info({
+              result: result[0].values.toxicity,
+              secondres: result[1].values.toxicity,
+              thirdres: result[2].values.toxicity,
+              total: ((result[0].values.toxicity + result[1].values.toxicity + result[2].values.toxicity) / 3) >= .70
+            });
+            if (((result[0].values.toxicity + result[1].values.toxicity + result[2].values.toxicity) / 3) >= .70) {
+              console.info({
+                amount: (result[0].values.toxicity + result[1].values.toxicity + result[2].values.toxicity) / 3,
                 lenght: result.length
               });
               alerts(result)
