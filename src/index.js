@@ -120,7 +120,8 @@ client.on('message', message => {
       name: message.author.username,
       isAdmin: message.member.hasPermission("ADMINISTRATOR"),
       isModerator: message.member.hasPermission("KICK_MEMBERS") || message.member.hasPermission("BAN_MEMBERS"),
-      isNew: Math.round(new Date() - message.member.joinedAt) / (1000 * 60 * 60 * 24) <= 7
+      isNew: Math.round(new Date() - message.member.joinedAt) / (1000 * 60 * 60 * 24) <= 7,
+      isRegular: Math.round(new Date() - message.member.joinedAt) / (1000 * 60 * 60 * 24) >= 30,
     };
   watchedKeywordsCollection.then(entireCollection => {
     entireCollection.filter(watchedKeywordsCollection => watchedKeywordsCollection.serverId === server.id).map(watchedKeywordsGuild => {
