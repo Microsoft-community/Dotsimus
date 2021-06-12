@@ -42,7 +42,7 @@ Roles: **${serverData.roles.cache.size}**
                         { name: 'Boosters', value: `🚀 ${serverData.premiumSubscriptionCount}`, inline: false },
                         { name: 'Explicit content filtering', value: serverData.explicitContentFilter, inline: true },
                         { name: 'Verification level', value: serverData.verificationLevel, inline: true },
-                        { name: 'Features', value: serverData.features.length > 1 ? serverData.features.map(feature => `⦿ ${capitalizeFirstLetter(feature.toLowerCase())}`) : "No features available.", inline: false },
+                        { name: 'Features', value: serverData.features.length >= 1 ? serverData.features.map(feature => `⦿ ${capitalizeFirstLetter(feature.toLowerCase())}`) : "No features available.", inline: false },
                         { name: 'Created', value: serverData.createdAt.toLocaleString(), inline: false }
                     )
                 client.api.interactions(interaction.id, interaction.token).callback.post({
