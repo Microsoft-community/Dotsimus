@@ -12,11 +12,9 @@ Add Dotsimus to your server: http://add-bot.dotsimus.com`)
             .setColor('#ffbd2e')
             .addFields(
                 { name: 'Slash commands', value: 'You can see available slash commands and their use by typing `/` in the chat.', inline: false},
-                { name: '!toxic', value: 'Shows toxicity certainty for requested message. \n Usage: `!toxic <phrase>`' },
                 { name: '!watch', value: 'Sends a direct message to you whenever keyword that you track gets mentioned. \n Usage: `!watch <keyword>`' },
                 { name: '!uptime', value: 'Shows uptime of the bot. \n Usage: `!uptime`' },
                 { name: '!flags', value: 'Shows recent messages that were flagged with their values. \n Usage: `!flags <@User, user ID or none>`' },
-                { name: '!test', value: 'Shows raw toxicity values for requested message. \n Usage: `!test <phrase>`' },
                 { name: '!repeat', value: 'Admin only command which repeats what you say. \n Usage: `!repeat <phrase>`' },
                 { name: '!dotprefix', value: 'Changes bot prefix. \n Usage: `!dotprefix <prefix>`' }
             );
