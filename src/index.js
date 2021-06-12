@@ -307,7 +307,7 @@ client.on('message', message => {
             limit: 30
           }).then(message => {
             const getLatestMessages = message.filter(function (message) {
-              if (this.count < 2 && message.author.id === userId) {
+              if (this.count < 3 && message.author.id === userId) {
                 message => message.author.id === userId
                 this.count++;
                 return true;
@@ -321,7 +321,6 @@ client.on('message', message => {
 
           async function getEvaluatedMessages () {
             let resolvedMessages = await Promise.all(evaluatedMessages.map(async (evaluationMessage) => {
-              console.info({ initmsg: evaluationMessage });
               const result = await getToxicity(evaluationMessage.content, message, true);
               output = {
                 message: evaluationMessage.content,
@@ -342,9 +341,25 @@ client.on('message', message => {
               secondres: result[1].values.toxicity,
               total: ((result[0].values.toxicity + result[1].values.toxicity) / 2) >= .70
             });
-            if (((result[0].values.toxicity + result[1].values.toxicity) / 2) >= .70) {
+            if (((result[0].values.toxicity + result[1].values.toxicity) / 2) >= .70 && !user.isRegular) {
               console.info({
                 amount: (result[0].values.toxicity + result[1].values.toxicity) / 2,
+                lenght: result.length
+              });
+              alerts(result)
+            }
+          }
+          if (result.length === 3) {
+            if ((isNaN(result[1].values.toxicity)) || (isNaN(result[2].values.toxicity)))  return;
+            console.info({
+              result: result[0].values.toxicity,
+              secondres: result[1].values.toxicity,
+              thirdres: result[2].values.toxicity,
+              total: ((result[0].values.toxicity + result[1].values.toxicity + result[2].values.toxicity) / 3) >= .70
+            });
+            if (((result[0].values.toxicity + result[1].values.toxicity + result[2].values.toxicity) / 3) >= .70) {
+              console.info({
+                amount: (result[0].values.toxicity + result[1].values.toxicity + result[2].values.toxicity) / 3,
                 lenght: result.length
               });
               alerts(result)
