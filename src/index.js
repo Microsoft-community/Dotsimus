@@ -226,7 +226,7 @@ client.on('message', message => {
                   .addFields(
                     previousMessage,
                     {
-                      name: `Current message (Toxicity: ${Math.round(Number(messageToxicity) * 100)}%, Insult: ${Math.round(Number(toxicity.insult) * 100)}%)`,
+                      name: `Trigger message (Toxicity: ${Math.round(Number(messageToxicity) * 100)}%, Insult: ${Math.round(Number(toxicity.insult) * 100)}%)`,
                       value: removedMessage.length > 1024 ? removedMessage.slice(0, 1021).padEnd(1024, '.') : removedMessage,
                       inline: false
                     },
