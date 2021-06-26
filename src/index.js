@@ -302,7 +302,7 @@ client.on('message', message => {
           // }
         }))
       }
-      if ((((messageToxicity >= .80 || toxicity.insult >= .90) && user.isNew) || (messageToxicity >= .80 || toxicity.combined >= .80))) {
+      if ((((messageToxicity >= .85 || toxicity.insult >= .95) && user.isNew) || (messageToxicity >= .85 || toxicity.combined >= .80))) {
         console.info(`${getTime()} #${message.channel.name} ${message.author.username}: ${message.content} | ${chalk.red((Number(messageToxicity) * 100).toFixed(2))} ${chalk.red((Number(toxicity.insult) * 100).toFixed(2))}`)
         message.channel.startTyping();
         setTimeout(function () {
