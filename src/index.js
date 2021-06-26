@@ -160,7 +160,8 @@ client.on('message', message => {
                   .setTimestamp()
                   .setFooter(`Stop tracking with !unwatch command in ${server.name} server.`)
                   .setColor('#7289da');
-              user.send((message.channel.permissionsFor(watchedKeywordsGuild.userId).serialize()['KICK_MEMBERS'] || message.channel.permissionsFor(watchedKeywordsGuild.userId).serialize()['BAN_MEMBERS']) ? trackingNoticeMod : trackingNoticeUser).catch(error => {
+                  // enabled informative tracking for everyone
+              user.send((message.channel.permissionsFor(watchedKeywordsGuild.userId).serialize()['KICK_MEMBERS'] || message.channel.permissionsFor(watchedKeywordsGuild.userId).serialize()['BAN_MEMBERS']) ? trackingNoticeMod : trackingNoticeMod).catch(error => {
                 console.info(`Could not send DM to ${watchedKeywordsGuild.userId}, tracking is being disabled.`);
                 db.removeWatchedKeyword(watchedKeywordsGuild.userId, server.id).then(resp => {
                   refreshWatchedCollection()
