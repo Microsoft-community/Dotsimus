@@ -230,13 +230,13 @@ client.on('message', message => {
                   .setAuthor('Alert type: Toxicity')
                   .setTitle(`🔎 Investigate user's message`)
                   .addFields(
-                    secondMessage,
-                    thirdMessage,
                     {
                       name: `Trigger message (Toxicity: ${Math.round(Number(messageToxicity) * 100)}%, Insult: ${Math.round(Number(toxicity.insult) * 100)}%)`,
                       value: removedMessage.length > 1024 ? removedMessage.slice(0, 1021).padEnd(1024, '.') : removedMessage,
                       inline: false
                     },
+                    secondMessage,
+                    thirdMessage,
                     { name: 'User', value: `<@${message.author.id}>`, inline: true },
                     { name: 'User ID', value: message.author.id, inline: true },
                     { name: 'Is user new?', value: user.isNew ? "Yes" : "No", inline: true },
