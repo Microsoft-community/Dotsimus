@@ -1,6 +1,14 @@
-const Discord = require('discord.js'),
-  client = new Discord.Client({ partials: ['MESSAGE', "USER", 'REACTION'] }),
-  Sentry = require('@sentry/node'),
+const {
+  Client,
+  Intents,
+  Collection,
+  MessageEmbed,
+  MessageActionRow,
+  MessageButton
+} = require('discord.js'),
+  client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES] });
+//   client = new Discord.Client({ partials: ['MESSAGE', "USER", 'REACTION'], intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES] }),
+const Sentry = require('@sentry/node'),
   chalk = require('chalk'),
   fetch = require('request-promise-native'),
   db = require('./db'),
@@ -9,7 +17,7 @@ const Discord = require('discord.js'),
   fs = require('fs'),
   commandFiles = fs.readdirSync('./src/features/commands/').filter(file => file.endsWith('.js'));
 
-client.commands = new Discord.Collection();
+client.commands = new Collection();
 commandFiles.map(file => {
   const command = require(`./features/commands/${file}`);
   client.commands.set(command.name, command);
