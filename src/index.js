@@ -226,35 +226,53 @@ client.on('message', message => {
               `Could not delete message ${message.content} | ${message.id}.`
             );
           }).then(() => {
-            if (role) member.roles.add(role);
-            const infractionMessageResponse = role ? 'Message has been flagged for review, awaiting moderation response.' : 'Message has been flagged for review, ⚠ user is not muted.'
+            // port this to v13 reportapproval
+            const infractionMessageResponse = role ? 'Message has been flagged for review, awaiting moderation response.' : 'Message has been flagged for a review, ⚠ user is not muted.'
             message.channel.send(infractionMessageResponse).then(sentMessage => {
               const filter = (reaction, user) => {
                 return ['✅', '❌'].includes(reaction.emoji.name);
               },
-                investigationEmbed = new Discord.MessageEmbed()
+                investigationEmbed = new MessageEmbed()
                   .setColor('#ffbd2e')
                   .setAuthor('Alert type: Toxicity')
                   .setTitle(`🔎 Investigate user's message`)
                   .addFields(
                     {
                       name: `Trigger message (Toxicity: ${Math.round(Number(messageToxicity) * 100)}%, Insult: ${Math.round(Number(toxicity.insult) * 100)}%)`,
-                      value: removedMessage.length > 1024 ? removedMessage.slice(0, 1021).padEnd(1024, '.') : removedMessage,
+                      value: removedMessage.length > 1024 ? removedMessage.slice(0, 1021).padEnd(1024, '.') ?? 'No recent message found.' : removedMessage ?? 'No recent message found.',
                       inline: false
                     },
                     secondMessage,
                     thirdMessage,
                     { name: 'User', value: `<@${message.author.id}>`, inline: true },
-                    { name: 'User ID', value: message.author.id, inline: true },
-                    { name: 'Is user new?', value: user.isNew ? "Yes" : "No", inline: true },
-                    { name: 'Total infractions', value: totalInfractions, inline: true },
+                    { name: 'User ID', value: `${message.author.id}`, inline: true },
+                    { name: 'Is user new?', value: `${user.isNew ? "Yes" : "No"}`, inline: true },
+                    { name: 'Total infractions', value: `${totalInfractions}`, inline: true },
                     { name: 'Channel', value: `<#${message.channel.id}> | 🔗 [Message link](https://discordapp.com/channels/${server.id}/${message.channel.id}/${sentMessage.id})` }
                   )
-                  .setFooter('✅ marks report as valid, ❌ unmutes user and reinstates message where it was at the time of removal.');
+                  .setFooter(`${message.channel.id} ${sentMessage.id}`);
+              const row = new MessageActionRow()
+                .addComponents(
+                  new MessageButton()
+                    .setCustomId('reportApprovalAction')
+                    .setLabel('Approve')
+                    .setStyle('SUCCESS'),
+                  new MessageButton()
+                    .setCustomId('reportRejectionAction')
+                    .setLabel('Reject & unmute')
+                    .setStyle('SECONDARY'),
+                  new MessageButton()
+                    .setCustomId('reportApprovalActionBan')
+                    .setLabel('Approve & ban')
+                    .setStyle('DANGER')
+                );
+
               // remove message from db if moderator reinstates
-              saveMessage()
+              // respond to shut up dotsimus
+              // saveMessage()
               alertRecipient = alert.channelId === '792393096020885524' ? `<@${process.env.OWNER}>` : '@here';
-              client.channels.cache.get(alert.channelId).send(alertRecipient, investigationEmbed).then(investigationMessage => {
+              client.channels.cache.get(alert.channelId).send({ content: alertRecipient, embeds: [investigationEmbed], components: [row] }).then(investigationMessage => {
+
                 const removeBotReactions = () => {
                   const userReactions = investigationMessage.reactions.cache.filter(reaction => reaction.users.cache.has(client.user.id));
                   try {
@@ -265,21 +283,17 @@ client.on('message', message => {
                     console.error('Failed to remove reactions.');
                   }
                 }
+                // approval part
                 investigationMessage.react('✅').then(() => investigationMessage.react('❌')).then(() => {
                   investigationMessage.awaitReactions(filter, { max: 1, time: 10800000, errors: ['time'] })
                     .then(collected => {
                       const reaction = collected.first();
-                      const reinstatedMessage = new Discord.MessageEmbed()
+                      const reinstatedMessage = new MessageEmbed()
                         .setColor('#32CD32')
                         .setAuthor(`${message.author.username}#${message.author.discriminator}`, `https://cdn.discordapp.com/avatars/${message.author.id}/${message.author.avatar}.png`, `https://discord.com/users/${message.author.id}`)
                         .setDescription(removedMessage)
                         .setFooter('Message reinstated by the moderation team.', `https://cdn.discordapp.com/icons/${message.guild.id}/${message.guild.icon}.webp`);
-                      if (reaction.emoji.name === '✅') {
-                        sentMessage.edit('Message removed, report verified by the moderation team.');
-                        investigationEmbed.setColor('#32CD32');
-                        investigationMessage.edit(`Report approved by <@${reaction.users.cache.find(reaction => reaction.bot === false).id}>.`, investigationEmbed);
-                        removeBotReactions()
-                      } else {
+                      if (reaction.emoji.name === '✅') {} else {
                         sentMessage.edit('', reinstatedMessage);
                         investigationEmbed.setColor('#e91e63');
                         removeBotReactions()
