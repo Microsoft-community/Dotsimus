@@ -150,7 +150,7 @@ client.on('message', message => {
               if (watchedKeywordsGuild.userId === message.author.id
                 || isWatcherActive
                 || !message.channel.permissionsFor(watchedKeywordsGuild.userId).serialize()['VIEW_CHANNEL']) return;
-              const trackingNoticeMod = new Discord.MessageEmbed()
+              const trackingNoticeMod = new MessageEmbed()
                 .setTitle(`❗ Tracked keyword "${word}" triggered`)
                 .setDescription(message.content)
                 .addFields(
@@ -161,13 +161,13 @@ client.on('message', message => {
                 .setTimestamp()
                 .setFooter(`Stop tracking with !unwatch command in ${server.name} server.`)
                 .setColor('#7289da'),
-                trackingNoticeUser = new Discord.MessageEmbed()
+                trackingNoticeUser = new MessageEmbed()
                   .setTitle(`❗ Tracked keyword triggered`)
                   .setDescription(`**"${word}"** mentioned in [**${server.name}/${message.channel.name}**.](https://discordapp.com/channels/${server.id}/${message.channel.id}/${message.id})`)
                   .setTimestamp()
                   .setFooter(`Stop tracking with !unwatch command in ${server.name} server.`)
                   .setColor('#7289da');
-                  // enabled informative tracking for everyone
+              // enabled informative tracking for everyone
               user.send((message.channel.permissionsFor(watchedKeywordsGuild.userId).serialize()['KICK_MEMBERS'] || message.channel.permissionsFor(watchedKeywordsGuild.userId).serialize()['BAN_MEMBERS']) ? trackingNoticeMod : trackingNoticeMod).catch(error => {
                 console.info(`Could not send DM to ${watchedKeywordsGuild.userId}, tracking is being disabled.`);
                 db.removeWatchedKeyword(watchedKeywordsGuild.userId, server.id).then(resp => {
