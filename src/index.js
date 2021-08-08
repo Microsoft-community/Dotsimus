@@ -304,10 +304,7 @@ client.on('message', message => {
       }
       if ((((messageToxicity >= .85 || toxicity.insult >= .95) && user.isNew) || (messageToxicity >= .85 || toxicity.combined >= .85))) {
         console.info(`${getTime()} #${message.channel.name} ${message.author.username}: ${message.content} | ${chalk.red((Number(messageToxicity) * 100).toFixed(2))} ${chalk.red((Number(toxicity.insult) * 100).toFixed(2))}`)
-        message.channel.startTyping();
-        setTimeout(function () {
-          message.channel.stopTyping();
-        }, 8000);
+        if (Math.random() < 0.5) message.channel.sendTyping();
         const evaluatedMessages = [];
         async function getLatestUserMessages (userId) {
           await message.channel.messages.fetch({
