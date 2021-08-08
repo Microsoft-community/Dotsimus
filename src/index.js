@@ -125,8 +125,8 @@ client.on('message', message => {
     user = {
       id: message.author.id,
       name: message.author.username,
-      isAdmin: message.member.hasPermission("ADMINISTRATOR"),
-      isModerator: message.member.hasPermission("KICK_MEMBERS") || message.member.hasPermission("BAN_MEMBERS"),
+      isAdmin: message.member.permissions.serialize().ADMINISTRATOR,
+      isModerator: message.member.permissions.serialize().KICK_MEMBERS || message.member.permissions.serialize().BAN_MEMBERS,
       isNew: Math.round(new Date() - message.member.joinedAt) / (1000 * 60 * 60 * 24) <= 7,
       isRegular: Math.round(new Date() - message.member.joinedAt) / (1000 * 60 * 60 * 24) >= 30,
     };
