@@ -55,13 +55,18 @@ client.on('ready', () => {
   // client.api.applications('731190736996794420').guilds('553939036490956801').commands('792118637808058408').delete()
   // client.api.applications('731190736996794420').guilds('553939036490956801').commands.get().then(data => console.log(data))
 });
-      client.commands.get(interaction.data.name)?.execute(client, interaction, activeUsersCollection);
-    } catch (error) {
-      console.error(error);
-    }
-  });
-});
+// manually add muted roles to premium servers to db
+client.on('interactionCreate', async interaction => {
+  console.log(interaction);
+  try {
+    !interaction.isButton() ? client.commands.get(interaction.commandName)?.execute(client, interaction, activeUsersCollection) : client.commands.get(interaction.customId)?.execute(client, interaction, activeUsersCollection);
+  } catch (error) {
+    console.error(error);
+  }
+  if (!interaction.isButton()) return;
+  // console.log(interaction);
 
+});
 const refreshWatchedCollection = () => (
   watchedKeywordsCollection = db.getWatchedKeywords()
 )
