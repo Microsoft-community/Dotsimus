@@ -375,7 +375,7 @@ client.on('message', message => {
             }
           }
           if (result.length === 3) {
-            if ((isNaN(result[1].values.toxicity)) || (isNaN(result[2].values.toxicity)))  return;
+            if ((isNaN(result[1].values.toxicity)) || (isNaN(result[2].values.toxicity))) return;
             console.info({
               result: result[0].values.toxicity,
               secondres: result[1].values.toxicity,
