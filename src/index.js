@@ -407,7 +407,7 @@ client.on('message', message => {
       command = args.shift().toLowerCase(),
       commandMessage = args.join(' '),
       mention = message.mentions.members.first(),
-      isModerator = message.member.hasPermission("KICK_MEMBERS") || message.member.hasPermission("BAN_MEMBERS");
+      isModerator = message.member.permissions.serialize().KICK_MEMBERS || message.member.permissions.serialize().BAN_MEMBERS;
     let userArgFormat = args.length === 0 ? message.author.id : args[0];
     switch (command) {
       case 'flags':
