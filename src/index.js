@@ -191,20 +191,7 @@ client.on('messageCreate', message => {
   if (server.isPremium) {
     getToxicity(message.content, message, false).then(toxicity => {
       // console.info(`${getTime()} #${message.channel.name} ${message.author.username}: ${message.content} | ${chalk.red((Number(toxicity.toxicity) * 100).toFixed(2))} ${chalk.red((Number(toxicity.insult) * 100).toFixed(2))}`)
-      const messageToxicity = toxicity.toxicity,
-        messageTemplates = [`watch your language.`, `take a break.`, `surely you could pick some nicer words.`, `lets be nice to each other.`],
-        warningMessage = Math.floor(Math.random() * messageTemplates.length),
-        saveMessage = () => {
-          db.saveMessage(
-            +new Date,
-            server.id,
-            user.id,
-            user.name,
-            user.isNew,
-            message.content,
-            messageToxicity
-          )
-        };
+      const messageToxicity = toxicity.toxicity;
       const alerts = async (messages) => {
         // alerts.filter(a => toxicity.toxicity >= a.threshold || toxicity.combined >= .80) removed filters temp
         const totalInfractions = await db.getRecord(user.id, message.guild.id).then(data => data[0]?.message?.length ?? '0')
@@ -227,30 +214,28 @@ client.on('messageCreate', message => {
             );
           }).then(() => {
             // port this to v13 reportapproval
+            if (role) member.roles.add(role);
             const infractionMessageResponse = role ? 'Message has been flagged for review, awaiting moderation response.' : 'Message has been flagged for a review, ⚠ user is not muted.'
             message.channel.send(infractionMessageResponse).then(sentMessage => {
-              const filter = (reaction, user) => {
-                return ['✅', '❌'].includes(reaction.emoji.name);
-              },
-                investigationEmbed = new MessageEmbed()
-                  .setColor('#ffbd2e')
-                  .setAuthor('Alert type: Toxicity')
-                  .setTitle(`🔎 Investigate user's message`)
-                  .addFields(
-                    {
-                      name: `Trigger message (Toxicity: ${Math.round(Number(messageToxicity) * 100)}%, Insult: ${Math.round(Number(toxicity.insult) * 100)}%)`,
-                      value: removedMessage.length > 1024 ? removedMessage.slice(0, 1021).padEnd(1024, '.') ?? 'No recent message found.' : removedMessage ?? 'No recent message found.',
-                      inline: false
-                    },
-                    secondMessage,
-                    thirdMessage,
-                    { name: 'User', value: `<@${message.author.id}>`, inline: true },
-                    { name: 'User ID', value: `${message.author.id}`, inline: true },
-                    { name: 'Is user new?', value: `${user.isNew ? "Yes" : "No"}`, inline: true },
-                    { name: 'Total infractions', value: `${totalInfractions}`, inline: true },
-                    { name: 'Channel', value: `<#${message.channel.id}> | 🔗 [Message link](https://discordapp.com/channels/${server.id}/${message.channel.id}/${sentMessage.id})` }
-                  )
-                  .setFooter(`${message.channel.id} ${sentMessage.id}`);
+              const investigationEmbed = new MessageEmbed()
+                .setColor('#ffbd2e')
+                .setAuthor('Alert type: Toxicity')
+                .setTitle(`🔎 Investigate user's message`)
+                .addFields(
+                  {
+                    name: `Trigger message (Toxicity: ${Math.round(Number(messageToxicity) * 100)}%, Insult: ${Math.round(Number(toxicity.insult) * 100)}%)`,
+                    value: removedMessage.length > 1024 ? removedMessage.slice(0, 1021).padEnd(1024, '.') ?? 'No recent message found.' : removedMessage ?? 'No recent message found.',
+                    inline: false
+                  },
+                  secondMessage,
+                  thirdMessage,
+                  { name: 'User', value: `<@${message.author.id}>`, inline: true },
+                  { name: 'User ID', value: `${message.author.id}`, inline: true },
+                  { name: 'Is user new?', value: `${user.isNew ? "Yes" : "No"}`, inline: true },
+                  { name: 'Total infractions', value: `${totalInfractions}`, inline: true },
+                  { name: 'Channel', value: `<#${message.channel.id}> | 🔗 [Message link](https://discordapp.com/channels/${server.id}/${message.channel.id}/${sentMessage.id})` }
+                )
+                .setFooter(`${message.channel.id} ${sentMessage.id}`);
               const row = new MessageActionRow()
                 .addComponents(
                   new MessageButton()
@@ -265,62 +250,14 @@ client.on('messageCreate', message => {
                     .setCustomId('reportApprovalActionBan')
                     .setLabel('Approve & ban')
                     .setStyle('DANGER')
+                    .setDisabled(true)
                 );
-
-              // remove message from db if moderator reinstates
+              // exclude moderators
               // respond to shut up dotsimus
-              // saveMessage()
               alertRecipient = alert.channelId === '792393096020885524' ? `<@${process.env.OWNER}>` : '@here';
-              client.channels.cache.get(alert.channelId).send({ content: alertRecipient, embeds: [investigationEmbed], components: [row] }).then(investigationMessage => {
-
-                const removeBotReactions = () => {
-                  const userReactions = investigationMessage.reactions.cache.filter(reaction => reaction.users.cache.has(client.user.id));
-                  try {
-                    for (const reaction of userReactions.values()) {
-                      reaction.users.remove(client.user.id);
-                    }
-                  } catch (error) {
-                    console.error('Failed to remove reactions.');
-                  }
-                }
-                // approval part
-                investigationMessage.react('✅').then(() => investigationMessage.react('❌')).then(() => {
-                  investigationMessage.awaitReactions(filter, { max: 1, time: 10800000, errors: ['time'] })
-                    .then(collected => {
-                      const reaction = collected.first();
-                      const reinstatedMessage = new MessageEmbed()
-                        .setColor('#32CD32')
-                        .setAuthor(`${message.author.username}#${message.author.discriminator}`, `https://cdn.discordapp.com/avatars/${message.author.id}/${message.author.avatar}.png`, `https://discord.com/users/${message.author.id}`)
-                        .setDescription(removedMessage)
-                        .setFooter('Message reinstated by the moderation team.', `https://cdn.discordapp.com/icons/${message.guild.id}/${message.guild.icon}.webp`);
-                      if (reaction.emoji.name === '✅') {} else {
-                        sentMessage.edit('', reinstatedMessage);
-                        investigationEmbed.setColor('#e91e63');
-                        removeBotReactions()
-                        member.roles.remove(role)
-                        // prettify this, make a separate embed for this instead of re-using
-                        member.send(`You're now unmuted and your message is reinstated on **${server.name}** - <https://discordapp.com/channels/${server.id}/${message.channel.id}/${sentMessage.id}>`, reinstatedMessage).catch(error => {
-                          console.info({ message: `Could not send unmute notice to ${member.id}.`, error: error });
-                        });
-                        investigationMessage.edit(`User is unmuted and message reinstated by <@${reaction.users.cache.find(reaction => reaction.bot === false).id}>.`, investigationEmbed);
-                      }
-                    })
-                    .catch(error => {
-                      removeBotReactions()
-                      investigationMessage.react('❓')
-                      investigationEmbed.setColor('#808080');
-                      investigationMessage.edit('Report expired.', investigationEmbed)
-                      console.error(error);
-                    });
-                })
-              })
+              client.channels.cache.get(alert.channelId).send({ content: alertRecipient, embeds: [investigationEmbed], components: [row] })
             })
           })
-          // const mention = a.mention.type === 'role' ? `<@&${a.mention.id}>` : `<@${a.mention.id}>`;
-          // let notice = ('@here', investigationEmbed);
-          // if (a.mention.type === 'role' && !a.channelId) {
-          //   notice = `${mention} members have been notified of potential toxicity.`
-          // }
         }))
       }
       if ((((messageToxicity >= .85 || toxicity.insult >= .95) && user.isNew) || (messageToxicity >= .85 || toxicity.combined >= .85))) {
