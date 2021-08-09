@@ -96,7 +96,7 @@ setInterval(function () {
 //   console.log(`${user.username}: removed "${reaction.emoji.name}".`);
 // });
 
-client.on('message', message => {
+client.on('messageCreate', message => {
   if (message.author.bot) return;
   if (message.channel.type === "dm") {
     if (message.author.id === process.env.OWNER && message.reference !== null) {
