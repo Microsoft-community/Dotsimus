@@ -1,48 +1,33 @@
-const Discord = require('discord.js'),
+const { MessageEmbed } = require('discord.js'),
     { fetchRules } = require('./../../api/discord-gating');
 
 module.exports = {
     name: 'rules',
     description: 'Allows you to guide new users through rules without hitting them with a wall of text.',
     execute: async function (client, interaction) {
-        const fetchedRules = await fetchRules(interaction.guild_id).then(data => data)
+        const fetchedRules = await fetchRules(interaction.guildId).then(data => data)
         if (fetchedRules === 0) {
-            client.api.interactions(interaction.id, interaction.token).callback.post({
-                data: {
-                    type: 4,
-                    data: {
-                        flags: 64,
-                        content: `This community doesn't have rules defined in **Settings** > **Membership Screening** section.`
-                    },
-                },
-            });
+            interaction.reply({
+                type: 4,
+                ephemeral: true,
+                content: `This community doesn't have rules defined in **Settings** > **Membership Screening** section.`
+            })
             return;
         } else {
-            switch (interaction.data.options[0].name) {
+            switch (interaction.options._subcommand) {
                 case 'rule':
-                    if (interaction.data.options[0].options[0].value > 0 && interaction.data.options[0].options[0].value <= fetchedRules.form_fields[0].values.length) {
-                        const ruleEmbed = new Discord.MessageEmbed()
-                            .setTitle(`Rule ${interaction.data.options[0].options[0].value}`)
-                            .setDescription(fetchedRules.form_fields[0].values[interaction.data.options[0].options[0].value - 1])
+                    if (interaction.options._hoistedOptions[0].value > 0 && interaction.options._hoistedOptions[0].value <= fetchedRules.form_fields[0].values.length) {
+                        const ruleEmbed = new MessageEmbed()
+                            .setTitle(`Rule ${interaction.options._hoistedOptions[0].value}`)
+                            .setDescription(fetchedRules.form_fields[0].values[interaction.options._hoistedOptions[0].value - 1])
                             .setColor('#e4717a')
-                        client.api.interactions(interaction.id, interaction.token).callback.post({
-                            data: {
-                                type: 4,
-                                data: {
-                                    embeds: [ruleEmbed]
-                                },
-                            },
-                        });
+                        interaction.reply({ type: 4, embeds: [ruleEmbed] })
                     } else {
-                        client.api.interactions(interaction.id, interaction.token).callback.post({
-                            data: {
-                                type: 4,
-                                data: {
-                                    flags: 64,
-                                    content: `Rule ${interaction.data.options[0].options[0].value} does not exist, there are ${fetchedRules.form_fields[0].values.length} rules defined in this community.`
-                                },
-                            },
-                        });
+                        interaction.reply({
+                            type: 4,
+                            ephemeral: true,
+                            content: `Rule ${interaction.options._hoistedOptions[0].value} does not exist, there are ${fetchedRules.form_fields[0].values.length} rules defined in this community.`
+                        })
                     }
                     break;
                 case 'search':
@@ -52,61 +37,47 @@ module.exports = {
                             return true;
                         }
                         return false;
-                    }
-                    const embedCollection = fetchedRules.form_fields[0].values.map((rule, index) => ({ name: 'Rule ' + (index + 1), value: rule })),
-                        getSearchResults = embedCollection.filter(rule => findRule(rule, interaction.data.options[0].options[0].value));
+                    },
+                        embedCollection = fetchedRules.form_fields[0].values.map((rule, index) => ({ name: 'Rule ' + (index + 1), value: rule })),
+                        getSearchResults = embedCollection.filter(rule => findRule(rule, interaction.options._hoistedOptions[0].value));
                     if (getSearchResults.length !== 0) {
-                        const foundRules = new Discord.MessageEmbed()
+                        const foundRules = new MessageEmbed()
                             .setColor('#e4717a')
                             .addFields(getSearchResults);
-                        client.api.interactions(interaction.id, interaction.token).callback.post({
-                            data: {
-                                type: 4,
-                                data: {
-                                    embeds: [foundRules]
-                                },
-                            },
-                        });
+                        interaction.reply({
+                            type: 4,
+                            ephemeral: true,
+                            embeds: [foundRules]
+                        })
                     } else {
-                        client.api.interactions(interaction.id, interaction.token).callback.post({
-                            data: {
-                                type: 4,
-                                data: {
-                                    flags: 64,
-                                    content: `Unable to find any rules that contain \`${interaction.data.options[0].options[0].value}\` keyword.`
-                                },
-                            },
-                        });
+                        interaction.reply({
+                            type: 4,
+                            ephemeral: true,
+                            content: `Unable to find any rules that contain \`${interaction.options._hoistedOptions[0].value}\` keyword.`
+                        })
                     }
                     break;
                 case 'all':
                     const rulesAll = fetchedRules.form_fields[0].values.map((rule, index) => ({ name: 'Rule ' + (index + 1), value: rule })),
-                        rulesEmbed = new Discord.MessageEmbed()
-                            .setTitle(`${client.guilds.cache.get(interaction.guild_id).name} rules`)
+                        rulesEmbed = new MessageEmbed()
+                            .setTitle(`${client.guilds.cache.get(interaction.guildId).name} rules`)
                             .setDescription(fetchedRules.description)
                             .setColor('#e4717a')
                             .setFooter('Last updated: ' + new Date(fetchedRules.version).toUTCString())
                             .addFields(rulesAll);
-                    client.users.cache.get(interaction.member.user.id).send(rulesEmbed).catch(error => {
-                        client.api.interactions(interaction.id, interaction.token).callback.post({
-                            data: {
-                                type: 4,
-                                data: {
-                                    flags: 64,
-                                    content: 'Failed to send community rules to you, please enable direct messaging in this server by **right clicking the server icon** and going to **privacy settings**.'
-                                },
-                            },
-                        });
-                        throw 'DMs are disabled.';
-                    }).then(() => client.api.interactions(interaction.id, interaction.token).callback.post({
-                        data: {
-                            type: 4,
-                            data: {
-                                flags: 64,
-                                content: 'Sent community rules to your direct messages!'
-                            },
-                        },
+                    client.users.cache.get(interaction.member.user.id).send({ embeds: [rulesEmbed] }).catch(error => {
+                        interaction.reply({
+                            ephemeral: true,
+                            content: 'Failed to send community rules to you, please enable direct messaging in this server by **right clicking the server icon** and going to **privacy settings**.'
+
+                        })
+                        throw 'DMs are disabled.' + error;
+                    }).then(() => interaction.reply({
+                        ephemeral: true,
+                        content: 'Sent community rules to your direct messages!'
+
                     }))
+
                     break;
                 default:
                     break;
