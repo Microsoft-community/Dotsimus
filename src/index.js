@@ -123,6 +123,7 @@ client.on('message', message => {
       isNew: Math.round(new Date() - message.member.joinedAt) / (1000 * 60 * 60 * 24) <= 7,
       isRegular: Math.round(new Date() - message.member.joinedAt) / (1000 * 60 * 60 * 24) >= 30,
     };
+  module.exports.server = server;
   watchedKeywordsCollection.then(entireCollection => {
     entireCollection.filter(watchedKeywordsCollection => watchedKeywordsCollection.serverId === server.id).map(watchedKeywordsGuild => {
       const words = watchedKeywordsGuild.watchedWords;
@@ -625,5 +626,3 @@ const grantAccess = (message, mention, user, server, isModerator) => {
     message.channel.send('Invalid user ID or mention provided.');
   }
 }
-
-module.exports(server.prefix);
