@@ -625,3 +625,5 @@ const grantAccess = (message, mention, user, server, isModerator) => {
     message.channel.send('Invalid user ID or mention provided.');
   }
 }
+
+module.exports(server.prefix);
