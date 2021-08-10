@@ -152,13 +152,13 @@ client.on('message', message => {
                   { name: 'Channel', value: `${server.name}/${message.channel.name} | 🔗 [Message link](https://discordapp.com/channels/${server.id}/${message.channel.id}/${message.id})` }
                 )
                 .setTimestamp()
-                .setFooter(`Stop tracking with !unwatch command in ${server.name} server.`)
+                .setFooter(`Stop tracking with ${server.prefix}unwatch command in ${server.name} server.`)
                 .setColor('#7289da'),
                 trackingNoticeUser = new Discord.MessageEmbed()
                   .setTitle(`❗ Tracked keyword triggered`)
                   .setDescription(`**"${word}"** mentioned in [**${server.name}/${message.channel.name}**.](https://discordapp.com/channels/${server.id}/${message.channel.id}/${message.id})`)
                   .setTimestamp()
-                  .setFooter(`Stop tracking with !unwatch command in ${server.name} server.`)
+                  .setFooter(`Stop tracking with ${server.prefix}unwatch command in ${server.name} server.`)
                   .setColor('#7289da');
                   // enabled informative tracking for everyone
               user.send((message.channel.permissionsFor(watchedKeywordsGuild.userId).serialize()['KICK_MEMBERS'] || message.channel.permissionsFor(watchedKeywordsGuild.userId).serialize()['BAN_MEMBERS']) ? trackingNoticeMod : trackingNoticeMod).catch(error => {
