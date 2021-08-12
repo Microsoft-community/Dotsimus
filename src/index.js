@@ -137,9 +137,10 @@ client.on('messageCreate', message => {
         return (serverFilter.serverId === server.id);
       }).length > 0;
       words.forEach(word => {
+        // change to contains?
         if (message.content.toLowerCase().indexOf(word) != -1) client.users.fetch(watchedKeywordsGuild.userId, false).then((user) => {
           const guild = client.guilds.cache.get(server.id);
-          if (!guild.member(watchedKeywordsGuild.userId)) {
+          if (!guild.members.cache.get(watchedKeywordsGuild.userId)) { 
             db.removeWatchedKeyword(watchedKeywordsGuild.userId, server.id).then(resp => {
               refreshWatchedCollection()
               console.info('Removed watcher: ' + watchedKeywordsGuild.userId)
@@ -168,7 +169,7 @@ client.on('messageCreate', message => {
                   .setFooter(`Stop tracking with !unwatch command in ${server.name} server.`)
                   .setColor('#7289da');
               // enabled informative tracking for everyone
-              user.send((message.channel.permissionsFor(watchedKeywordsGuild.userId).serialize()['KICK_MEMBERS'] || message.channel.permissionsFor(watchedKeywordsGuild.userId).serialize()['BAN_MEMBERS']) ? trackingNoticeMod : trackingNoticeMod).catch(error => {
+              user.send((message.channel.permissionsFor(watchedKeywordsGuild.userId).serialize()['KICK_MEMBERS'] || message.channel.permissionsFor(watchedKeywordsGuild.userId).serialize()['BAN_MEMBERS']) ? { embeds: [trackingNoticeMod]} : {embeds: [trackingNoticeMod]}).catch(error => {
                 console.info(`Could not send DM to ${watchedKeywordsGuild.userId}, tracking is being disabled.`);
                 db.removeWatchedKeyword(watchedKeywordsGuild.userId, server.id).then(resp => {
                   refreshWatchedCollection()
