@@ -63,9 +63,6 @@ client.on('interactionCreate', async interaction => {
   } catch (error) {
     console.error(error);
   }
-  if (!interaction.isButton()) return;
-  // console.log(interaction);
-
 });
 const refreshWatchedCollection = () => (
   watchedKeywordsCollection = db.getWatchedKeywords()
