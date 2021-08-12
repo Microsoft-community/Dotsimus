@@ -8,18 +8,14 @@ module.exports = {
     name: 'server',
     description: 'server',
     execute (client, interaction, activeUsersCollection) {
-        const serverData = client.guilds.cache.get(interaction.guild_id)
-        switch (interaction.data.options[0].name) {
+        const serverData = client.guilds.cache.get(interaction.guildId)
+        switch (interaction.options._subcommand) {
             case 'activity':
-                const activeUsers = activeUsersCollection.filter(userActivity => userActivity.serverId === interaction.guild_id).length
-                client.api.interactions(interaction.id, interaction.token).callback.post({
-                    data: {
-                        type: 4,
-                        data: {
-                            content: `${activeUsers} ${activeUsers > 1 || activeUsers == 0 ? 'users' : 'user'} engaged with the server in the past ~3 minutes.`
-                        },
-                    },
-                });
+                const activeUsers = activeUsersCollection.filter(userActivity => userActivity.serverId === interaction.guildId).length
+                interaction.reply({
+                    type: 4,
+                    content: `${activeUsers} ${activeUsers > 1 || activeUsers == 0 ? 'users' : 'user'} engaged with the server in the past ~3 minutes.`
+                })
                 break;
             case 'info':
                 const infoEmbed = new Discord.MessageEmbed()
@@ -45,14 +41,10 @@ Roles: **${serverData.roles.cache.size}**
                         { name: 'Features', value: serverData.features.length >= 1 ? serverData.features.map(feature => `⦿ ${capitalizeFirstLetter(feature.toLowerCase())}`) : "No features available.", inline: false },
                         { name: 'Created', value: serverData.createdAt.toLocaleString(), inline: false }
                     )
-                client.api.interactions(interaction.id, interaction.token).callback.post({
-                    data: {
-                        type: 4,
-                        data: {
-                            embeds: [infoEmbed]
-                        },
-                    },
-                });
+                interaction.reply({
+                    type: 4,
+                    embeds: [infoEmbed]
+                })
                 break;
             default:
                 break;
