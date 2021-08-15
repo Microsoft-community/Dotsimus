@@ -32,4 +32,4 @@ Keywords tracking will make sure that you know whenever you're mentioned and mis
 Dotsimus allows you to guide new users through rules without hitting them with a wall of text.
 
 ## One of the very first public bots to support slash commands.
-What more there is to say? Slash commands makes our lives a lot easier.
+What more there is to say? Slash commands make our lives a lot easier.
