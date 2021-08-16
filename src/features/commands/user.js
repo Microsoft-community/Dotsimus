@@ -13,7 +13,6 @@ const Discord = require('discord.js'),
 
         db.getRecord(user, interaction.guildId).then(async data => {
             if (getMember) {
-                console.log(await getMember._roles);
                 const guildMember = await getMember,
                     infoEmbed = new Discord.MessageEmbed()
                         .setTitle(`${guildMember.user.username}#${guildMember.user.discriminator}`)
@@ -43,8 +42,7 @@ const Discord = require('discord.js'),
                                 inline: false
                             }
                         );
-                console.log('bruh', infoEmbed)
-interaction.reply({
+                interaction.reply({
                     type: 4,
                     embeds: [infoEmbed]
                 })
@@ -68,11 +66,10 @@ interaction.reply({
                                 inline: true
                             }
                         );
-                    console.log('bruh', infoEmbed)
-// interaction.reply({
-//                         type: 4,
-//                         embeds: [infoEmbed]
-//                     })
+                    interaction.reply({
+                        type: 4,
+                        embeds: [infoEmbed]
+                    })
                 }
                 )
             }
@@ -118,11 +115,10 @@ const sendWarningEmbed = (client, interaction, user) => {
                             inline: false
                         }
                     );
-            console.log('bruh', infoEmbed)
-// interaction.reply({
-//                 type: 4,
-//                 embeds: [infoEmbed]
-//             })
+            interaction.reply({
+                type: 4,
+                embeds: [infoEmbed]
+            })
         } else {
             client.users.fetch(user).then((user) => {
                 const infoEmbed = new Discord.MessageEmbed()
@@ -157,11 +153,10 @@ const sendWarningEmbed = (client, interaction, user) => {
                             inline: false
                         }
                     );
-                console.log('bruh', infoEmbed)
-// interaction.reply({
-//                     type: 4,
-//                     embeds: [infoEmbed]
-//                 })
+                interaction.reply({
+                    type: 4,
+                    embeds: [infoEmbed]
+                })
             }
             )
         }
@@ -172,7 +167,7 @@ module.exports = {
     name: 'user',
     description: 'Provides user related information.',
     execute (client, interaction, activeUsersCollection) {
-        switch (interaction.options._subcommand) { 
+        switch (interaction.options._subcommand) {
             case 'info':
                 switch (interaction.options._hoistedOptions[0]?.name) {
                     case 'user-name':
