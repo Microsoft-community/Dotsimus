@@ -6,7 +6,7 @@ const {
   MessageActionRow,
   MessageButton
 } = require('discord.js'),
-  client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES] });
+  client = new Client({ intents: ["GUILDS", "GUILD_MESSAGES", "DIRECT_MESSAGES", "GUILD_MESSAGE_TYPING", "GUILD_PRESENCES"], partials: ["CHANNEL"] });
 //   client = new Discord.Client({ partials: ['MESSAGE', "USER", 'REACTION'], intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES] }),
 const Sentry = require('@sentry/node'),
   chalk = require('chalk'),
@@ -57,7 +57,7 @@ client.on('ready', () => {
 });
 // manually add muted roles to premium servers to db
 client.on('interactionCreate', async interaction => {
-  console.log(interaction);
+  // console.log(interaction);
   try {
     !interaction.isButton() ? client.commands.get(interaction.commandName)?.execute(client, interaction, activeUsersCollection) : client.commands.get(interaction.customId)?.execute(client, interaction, activeUsersCollection);
   } catch (error) {
@@ -68,7 +68,7 @@ const refreshWatchedCollection = () => (
   watchedKeywordsCollection = db.getWatchedKeywords()
 )
 
-client.on('typingStart', (channel, user) => {
+client.on('typingStart', ({ channel, user }) => {
   if (channel.type === "dm") return;
   if (activeUsersCollection.filter(userActivity => (userActivity.userId === user.id && userActivity.serverId === channel.guild.id)).length === 0) activeUsersCollection.push({
     userId: user.id,
@@ -95,9 +95,9 @@ setInterval(function () {
 
 client.on('messageCreate', message => {
   if (message.author.bot) return;
-  if (message.channel.type === "dm") {
+  if (message.channel.type === "DM") {
     if (message.author.id === process.env.OWNER && message.reference !== null) {
-      message.channel.messages.fetch(message.reference.messageID)
+      message.channel.messages.fetch(message.reference.messageId)
         .then(referenceMessage => {
           client.users.cache.get(referenceMessage.content.split(/ +/g)[0])
             .send(message.content);
@@ -109,7 +109,7 @@ client.on('messageCreate', message => {
     }
     client.users.cache.get(process.env.OWNER)
       .send(`${message.author.id} ${message.author.username}#${message.author.discriminator} \n${message.content}`);
-    return console.info(`${getTime()} #DM ${message.author.username}(${message.author.id}): ${message.content}`);
+    return;
   }
 
   if (serversConfig.filter(data => data?.serverId === message.channel.guild.id).length === 0) return refreshServersConfigListing();
@@ -137,7 +137,7 @@ client.on('messageCreate', message => {
         // change to contains?
         if (message.content.toLowerCase().indexOf(word) != -1) client.users.fetch(watchedKeywordsGuild.userId, false).then((user) => {
           const guild = client.guilds.cache.get(server.id);
-          if (!guild.members.cache.get(watchedKeywordsGuild.userId)) { 
+          if (!guild.members.cache.get(watchedKeywordsGuild.userId)) {
             db.removeWatchedKeyword(watchedKeywordsGuild.userId, server.id).then(resp => {
               refreshWatchedCollection()
               console.info('Removed watcher: ' + watchedKeywordsGuild.userId)
@@ -166,7 +166,7 @@ client.on('messageCreate', message => {
                   .setFooter(`Stop tracking with !unwatch command in ${server.name} server.`)
                   .setColor('#7289da');
               // enabled informative tracking for everyone
-              user.send((message.channel.permissionsFor(watchedKeywordsGuild.userId).serialize()['KICK_MEMBERS'] || message.channel.permissionsFor(watchedKeywordsGuild.userId).serialize()['BAN_MEMBERS']) ? { embeds: [trackingNoticeMod]} : {embeds: [trackingNoticeMod]}).catch(error => {
+              user.send((message.channel.permissionsFor(watchedKeywordsGuild.userId).serialize()['KICK_MEMBERS'] || message.channel.permissionsFor(watchedKeywordsGuild.userId).serialize()['BAN_MEMBERS']) ? { embeds: [trackingNoticeMod] } : { embeds: [trackingNoticeMod] }).catch(error => {
                 console.info(`Could not send DM to ${watchedKeywordsGuild.userId}, tracking is being disabled.`);
                 db.removeWatchedKeyword(watchedKeywordsGuild.userId, server.id).then(resp => {
                   refreshWatchedCollection()
@@ -186,7 +186,8 @@ client.on('messageCreate', message => {
       });
     })
   })
-  if (server.isPremium) {
+  
+  if (server.isPremium && !(message.member.permissions.serialize().KICK_MEMBERS || message.member.permissions.serialize().BAN_MEMBERS)) {
     getToxicity(message.content, message, false).then(toxicity => {
       // console.info(`${getTime()} #${message.channel.name} ${message.author.username}: ${message.content} | ${chalk.red((Number(toxicity.toxicity) * 100).toFixed(2))} ${chalk.red((Number(toxicity.insult) * 100).toFixed(2))}`)
       const messageToxicity = toxicity.toxicity;
@@ -194,7 +195,6 @@ client.on('messageCreate', message => {
         // alerts.filter(a => toxicity.toxicity >= a.threshold || toxicity.combined >= .80) removed filters temp
         const totalInfractions = await db.getRecord(user.id, message.guild.id).then(data => data[0]?.message?.length ?? '0')
         db.getAlerts(message.channel.guild.id).then(alerts => alerts.forEach(alert => {
-          console.info(alert);
           const role = message.guild.roles.cache.find(role => role.name === 'Muted'),
             member = message.guild.members.cache.get(message.author.id),
             secondMessage = messages[1] ? {
@@ -210,11 +210,18 @@ client.on('messageCreate', message => {
             console.info(
               `Could not delete message ${message.content} | ${message.id}.`
             );
-          }).then(() => {
-            // port this to v13 reportapproval
+          }).then(async () => {
             if (role) member.roles.add(role);
-            const infractionMessageResponse = role ? 'Message has been flagged for review, awaiting moderation response.' : 'Message has been flagged for a review, ⚠ user is not muted.'
-            message.channel.send(infractionMessageResponse).then(sentMessage => {
+            const infractionMessageResponse = role ? 'Message has been flagged for review, awaiting moderation response.' : 'Message has been flagged for a review, ⚠ user is not muted.',
+              channelMembersWithAccess = await client.guilds.cache.get(server.id).channels.fetch(alert.channelId).then(channel => (channel.members.filter((member) => (member.permissions.serialize().KICK_MEMBERS && member.presence.status !== 'offline')))),
+              serverThreads = await client.guilds.cache.get(server.id).channels.fetch(alert.channelId).then((threads) => threads.threads),
+              matchingThread = await serverThreads.fetchArchived().then(x => x.threads.filter(y => y.name.split(/ +/g).slice(-1)[0] === member.id).first());
+            // console.log(serverThreads.fetchArchived().then(x => console.log('bruh', x.threads.filter(y => y.name.split(/ +/g)[1] === member.id).first())));
+            // console.log(serverThreads);
+            console.log(matchingThread);
+
+
+            message.channel.send(infractionMessageResponse).then(async sentMessage => {
               const investigationEmbed = new MessageEmbed()
                 .setColor('#ffbd2e')
                 .setAuthor('Alert type: Toxicity')
@@ -252,14 +259,32 @@ client.on('messageCreate', message => {
                 );
               // exclude moderators
               // respond to shut up dotsimus
-              alertRecipient = alert.channelId === '792393096020885524' ? `<@${process.env.OWNER}>` : '@here';
-              client.channels.cache.get(alert.channelId).send({ content: alertRecipient, embeds: [investigationEmbed], components: [row] })
+              // alertRecipient = alert.channelId === '792393096020885524' ? `<@${process.env.OWNER}>` : '@here';
+              let thread;
+              if (matchingThread !== null) {
+                await matchingThread.setArchived(false)
+                thread = matchingThread
+                channelMembersWithAccess.forEach(moderator => thread.members.add(moderator))
+                await thread.send({ content: '@here', embeds: [investigationEmbed], components: [row] })
+
+              } else {
+                serverThreads.create({
+                  name: `${message.author.username} ${message.author.id}`,
+                  autoArchiveDuration: 1440,
+                  reason: `Infraction received for user ${message.author.id}`,
+                }).then(newThread => {
+                  thread = newThread
+                  channelMembersWithAccess.forEach(moderator => newThread.members.add(moderator));
+                  thread.send({ content: '@here', embeds: [investigationEmbed], components: [row] })
+                })
+              }
             })
           })
         }))
       }
+
       if ((((messageToxicity >= .85 || toxicity.insult >= .95) && user.isNew) || (messageToxicity >= .85 || toxicity.combined >= .85))) {
-        console.info(`${getTime()} #${message.channel.name} ${message.author.username}: ${message.content} | ${chalk.red((Number(messageToxicity) * 100).toFixed(2))} ${chalk.red((Number(toxicity.insult) * 100).toFixed(2))}`)
+        // console.info(`${getTime()} #${message.channel.name} ${message.author.username}: ${message.content} | ${chalk.red((Number(messageToxicity) * 100).toFixed(2))} ${chalk.red((Number(toxicity.insult) * 100).toFixed(2))}`)
         if (Math.random() < 0.5) message.channel.sendTyping();
         const evaluatedMessages = [];
         async function getLatestUserMessages (userId) {
@@ -293,35 +318,16 @@ client.on('messageCreate', message => {
           return getEvaluatedMessages()
         }
         getLatestUserMessages(message.author.id).then(function (result) {
-          console.info(result)
+          // console.info(result)
           if (result.length === 2) {
             if (isNaN(result[1].values.toxicity)) return;
-            console.info({
-              result: result[0].values.toxicity,
-              secondres: result[1].values.toxicity,
-              total: ((result[0].values.toxicity + result[1].values.toxicity) / 2) >= .70
-            });
             if (((result[0].values.toxicity + result[1].values.toxicity) / 2) >= .70 && !user.isRegular) {
-              console.info({
-                amount: (result[0].values.toxicity + result[1].values.toxicity) / 2,
-                lenght: result.length
-              });
               alerts(result)
             }
           }
           if (result.length === 3) {
             if ((isNaN(result[1].values.toxicity)) || (isNaN(result[2].values.toxicity))) return;
-            console.info({
-              result: result[0].values.toxicity,
-              secondres: result[1].values.toxicity,
-              thirdres: result[2].values.toxicity,
-              total: ((result[0].values.toxicity + result[1].values.toxicity + result[2].values.toxicity) / 3) >= .70
-            });
             if (((result[0].values.toxicity + result[1].values.toxicity + result[2].values.toxicity) / 3) >= .70) {
-              console.info({
-                amount: (result[0].values.toxicity + result[1].values.toxicity + result[2].values.toxicity) / 3,
-                lenght: result.length
-              });
               alerts(result)
             }
           } else {
