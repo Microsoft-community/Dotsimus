@@ -260,8 +260,7 @@ client.on('messageCreate', message => {
               // exclude moderators
               // respond to shut up dotsimus
               // alertRecipient = alert.channelId === '792393096020885524' ? `<@${process.env.OWNER}>` : '@here';
-              let thread;
-              if (matchingThread !== null) {
+              if (matchingThread !== undefined) {
                 await matchingThread.setArchived(false)
                 thread = matchingThread
                 channelMembersWithAccess.forEach(moderator => thread.members.add(moderator))
