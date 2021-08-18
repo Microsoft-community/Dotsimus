@@ -268,7 +268,12 @@ client.on('messageCreate', message => {
                 } else {
                   channelMembersWithAccessAll.forEach(moderator => thread.members.add(moderator))
                 }
-                await thread.send({ content: '@here', embeds: [investigationEmbed], components: [row] })
+                // const checkPinsAmount
+                await thread.send({ content: '@here', embeds: [investigationEmbed], components: [row] }).then(async sentReport => { 
+                  const pinsAmount = await thread.messages.fetchPinned().then(pinned => { return pinned.size })
+                  if (pinsAmount => 49) await thread.messages.fetchPinned().then(pinned => { return pinned.last().unpin() });
+                  sentReport.pin(true)
+                }).catch(console.error);
 
               } else {
                 serverThreads.create({
@@ -282,7 +287,11 @@ client.on('messageCreate', message => {
                   } else {
                     channelMembersWithAccessAll.forEach(moderator => thread.members.add(moderator))
                   }
-                  thread.send({ content: '@here', embeds: [investigationEmbed], components: [row] })
+                  thread.send({ content: '@here', embeds: [investigationEmbed], components: [row] }).then(async sentReport => {
+                    const pinsAmount = await thread.messages.fetchPinned().then(pinned => { return pinned.size })
+                    if (pinsAmount => 49) await thread.messages.fetchPinned().then(pinned => { return pinned.last().unpin() });
+                    sentReport.pin(true)
+                  }).catch(console.error);
                 })
               }
             })
