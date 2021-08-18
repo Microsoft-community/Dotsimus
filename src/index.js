@@ -196,7 +196,7 @@ client.on('messageCreate', message => {
         // alerts.filter(a => toxicity.toxicity >= a.threshold || toxicity.combined >= .80) removed filters temp
         const totalInfractions = await db.getRecord(user.id, message.guild.id).then(data => data[0]?.message?.length ?? '0')
         db.getAlerts(message.channel.guild.id).then(alerts => alerts.forEach(alert => {
-          const role = message.guild.roles.cache.find(role => role.name === 'Muted'),
+          const role = alerts[0].mutedRoleId,
             member = message.guild.members.cache.get(message.author.id),
             secondMessage = messages[1] ? {
               name: `Second message (Toxicity: ${Math.round(Number(messages[1].values.toxicity) * 100)}%, Insult: ${Math.round(Number(messages[1].values.insult) * 100)}%)`,
@@ -212,7 +212,6 @@ client.on('messageCreate', message => {
               `Could not delete message ${message.content} | ${message.id}.`
             );
           }).then(async () => {
-            // change this
             if (role) member.roles.add(role);
             const infractionMessageResponse = role ? 'Message has been flagged for review, awaiting moderation response.' : 'Message has been flagged for a review, ⚠ user is not muted.',
               channelMembersWithAccess = await client.guilds.cache.get(server.id).channels.fetch(alert.channelId).then(channel => (channel.members.filter((member) => (member.permissions.serialize().KICK_MEMBERS && member.presence !== null && member.presence?.status !== 'offline' && member.user?.bot === false)))),
@@ -293,7 +292,7 @@ client.on('messageCreate', message => {
 
       if ((((messageToxicity >= .85 || toxicity.insult >= .95) && user.isNew) || (messageToxicity >= .85 || toxicity.combined >= .85))) {
         // console.info(`${getTime()} #${message.channel.name} ${message.author.username}: ${message.content} | ${chalk.red((Number(messageToxicity) * 100).toFixed(2))} ${chalk.red((Number(toxicity.insult) * 100).toFixed(2))}`)
-        if (Math.random() < 0.5) message.channel.sendTyping();
+        if (Math.random() < 0.8) message.channel.sendTyping();
         const evaluatedMessages = [];
         async function getLatestUserMessages (userId) {
           await message.channel.messages.fetch({

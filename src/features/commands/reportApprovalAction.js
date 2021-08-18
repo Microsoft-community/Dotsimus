@@ -7,15 +7,8 @@ module.exports = {
     description: 'Keeps user muted and updates removed message with moderator notice.',
     async execute (client, interaction) {
         if (interaction.member.permissions.serialize().KICK_MEMBERS || interaction.member.permissions.serialize().BAN_MEMBERS) {
-            const removedMessageInfo = interaction.message.embeds[0].footer.text.split(/ +/g)
-            let reportApprovalEphemeralMsg = 'Report approved, user is notified & muted.'
-            client.guilds.cache.get(interaction.guildId).members.fetch(interaction.message.embeds[0].fields[4].value).then(async member => {
-                member.roles.add(await db.getAlerts(interaction.guildId).then(alerts => {
-                    return alerts[0].mutedRoleId
-                }));
-            }).catch(err => {
-                reportApprovalEphemeralMsg = 'Report approved, user is notified, but not muted. Please set up muted role.'
-            })
+            const removedMessageInfo = interaction.message.embeds[0].footer.text.split(/ +/g),
+                reportApprovalEphemeralMsg = 'Report approved, user is notified & muted.';
             db.saveMessage(
                 +new Date,
                 interaction.guildId,
