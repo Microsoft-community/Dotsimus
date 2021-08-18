@@ -1,4 +1,4 @@
-const { MessageEmbed } = require('discord.js'),
+const { MessageEmbed, MessageActionRow, MessageButton } = require('discord.js'),
     db = require('../../db');
 
 module.exports = {
@@ -18,7 +18,18 @@ module.exports = {
                 member.roles.remove(await db.getAlerts(interaction.guildId).then(alerts => {
                     return alerts[0].mutedRoleId
                 }));
-                member.send({ content: `You're now unmuted and your message is reinstated on **${interaction.guild.name}** - <https://discordapp.com/channels/${interaction.guildId}/${removedMessageInfo[0]}/${removedMessageInfo[1]}>`, embeds: [reinstatedMessage]}).catch(error => {
+                const buttonsRow = new MessageActionRow()
+                    .addComponents(
+                        new MessageButton()
+                            .setLabel('Go to message')
+                            .setURL(`https://discordapp.com/channels/${interaction.guildId}/${removedMessageInfo[0]}/${removedMessageInfo[1]}`)
+                            .setStyle('LINK')
+                    );
+                member.send({
+                    content: `Hooray! Your infraction is removed and your message reinstated on **${interaction.guild.name}** by the moderation team.`,
+                    embeds: [reinstatedMessage],
+                    components: [buttonsRow]
+                }).catch(error => {
                     console.info({ message: `Could not send unmute notice to ${member.id}.`, error: error });
                 });
             }).catch(err => {
