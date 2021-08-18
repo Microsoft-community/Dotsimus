@@ -186,8 +186,9 @@ client.on('messageCreate', message => {
       });
     })
   })
-  
-  if (server.isPremium && !(message.member.permissions.serialize().KICK_MEMBERS || message.member.permissions.serialize().BAN_MEMBERS)) {
+
+  // if (server.isPremium && !(message.member.permissions.serialize().KICK_MEMBERS || message.member.permissions.serialize().BAN_MEMBERS)) {
+  if (server.isPremium) {
     getToxicity(message.content, message, false).then(toxicity => {
       // console.info(`${getTime()} #${message.channel.name} ${message.author.username}: ${message.content} | ${chalk.red((Number(toxicity.toxicity) * 100).toFixed(2))} ${chalk.red((Number(toxicity.insult) * 100).toFixed(2))}`)
       const messageToxicity = toxicity.toxicity;
@@ -211,15 +212,16 @@ client.on('messageCreate', message => {
               `Could not delete message ${message.content} | ${message.id}.`
             );
           }).then(async () => {
+            // change this
             if (role) member.roles.add(role);
             const infractionMessageResponse = role ? 'Message has been flagged for review, awaiting moderation response.' : 'Message has been flagged for a review, ⚠ user is not muted.',
-              channelMembersWithAccess = await client.guilds.cache.get(server.id).channels.fetch(alert.channelId).then(channel => (channel.members.filter((member) => (member.permissions.serialize().KICK_MEMBERS && member.presence.status !== 'offline')))),
+              channelMembersWithAccess = await client.guilds.cache.get(server.id).channels.fetch(alert.channelId).then(channel => (channel.members.filter((member) => (member.permissions.serialize().KICK_MEMBERS && member.presence !== null && member.presence?.status !== 'offline' && member.user?.bot === false)))),
+              channelMembersWithAccessAll = await client.guilds.cache.get(server.id).channels.fetch(alert.channelId).then(channel => (channel.members.filter((member) => (member.permissions.serialize().KICK_MEMBERS && member.user?.bot === false)))),
               serverThreads = await client.guilds.cache.get(server.id).channels.fetch(alert.channelId).then((threads) => threads.threads),
-              matchingThread = await serverThreads.fetchArchived().then(x => x.threads.filter(y => y.name.split(/ +/g).slice(-1)[0] === member.id).first());
-            // console.log(serverThreads.fetchArchived().then(x => console.log('bruh', x.threads.filter(y => y.name.split(/ +/g)[1] === member.id).first())));
+              matchingThread = await serverThreads.fetchArchived().then(thread => thread.threads.filter(y => y.name.split(/ +/g).slice(-1)[0] === member.id).first());
             // console.log(serverThreads);
-            console.log(matchingThread);
-
+            // console.log(matchingThread);
+            console.log(channelMembersWithAccess.map(user => user).length);
 
             message.channel.send(infractionMessageResponse).then(async sentMessage => {
               const investigationEmbed = new MessageEmbed()
@@ -257,23 +259,30 @@ client.on('messageCreate', message => {
                     .setStyle('DANGER')
                     .setDisabled(true)
                 );
-              // exclude moderators
               // respond to shut up dotsimus
               // alertRecipient = alert.channelId === '792393096020885524' ? `<@${process.env.OWNER}>` : '@here';
               if (matchingThread !== undefined) {
                 await matchingThread.setArchived(false)
                 thread = matchingThread
-                channelMembersWithAccess.forEach(moderator => thread.members.add(moderator))
+                if (channelMembersWithAccess.map(user => user).length > 0) {
+                  channelMembersWithAccess.forEach(moderator => thread.members.add(moderator))
+                } else {
+                  channelMembersWithAccessAll.forEach(moderator => thread.members.add(moderator))
+                }
                 await thread.send({ content: '@here', embeds: [investigationEmbed], components: [row] })
 
               } else {
                 serverThreads.create({
-                  name: `${message.author.username} ${message.author.id}`,
+                  name: `${message.author.username.slice(0, 10)} ${message.author.id}`,
                   autoArchiveDuration: 1440,
                   reason: `Infraction received for user ${message.author.id}`,
-                }).then(newThread => {
+                }).then(async newThread => {
                   thread = newThread
-                  channelMembersWithAccess.forEach(moderator => newThread.members.add(moderator));
+                  if (channelMembersWithAccess.map(user => user).length > 0) {
+                    channelMembersWithAccess.forEach(moderator => thread.members.add(moderator))
+                  } else {
+                    channelMembersWithAccessAll.forEach(moderator => thread.members.add(moderator))
+                  }
                   thread.send({ content: '@here', embeds: [investigationEmbed], components: [row] })
                 })
               }
