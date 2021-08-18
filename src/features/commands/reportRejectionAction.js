@@ -18,7 +18,7 @@ module.exports = {
                 member.roles.remove(await db.getAlerts(interaction.guildId).then(alerts => {
                     return alerts[0].mutedRoleId
                 }));
-                member.send(`You're now unmuted and your message is reinstated on **${interaction.guild.name}** - <https://discordapp.com/channels/${interaction.guildId}/${removedMessageInfo[0]}/${removedMessageInfo[1]}>`, reinstatedMessage).catch(error => {
+                member.send({ content: `You're now unmuted and your message is reinstated on **${interaction.guild.name}** - <https://discordapp.com/channels/${interaction.guildId}/${removedMessageInfo[0]}/${removedMessageInfo[1]}>`, embeds: [reinstatedMessage]}).catch(error => {
                     console.info({ message: `Could not send unmute notice to ${member.id}.`, error: error });
                 });
             }).catch(err => {
@@ -43,7 +43,7 @@ module.exports = {
                 .setFooter('');
             interaction.message.edit(
                 {
-                    content: 'Report rejected by',
+                    content: `Report rejected by <@${interaction.member.id}>`,
                     embeds: [updatedEmbed],
                     components: []
                 }).then(() => {

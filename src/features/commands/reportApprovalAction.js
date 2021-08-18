@@ -45,7 +45,7 @@ module.exports = {
                 .setFooter('');
             interaction.message.edit(
                 {
-                    content: 'Report approved by',
+                    content: `Report approved by <@${interaction.member.id}>`,
                     embeds: [updatedEmbed],
                     components: []
                 }).then(() => {
