@@ -5,7 +5,7 @@ module.exports = {
     name: 'reportRejectionAction',
     description: 'Unmutes user, reinstates removed message and notifies affected user.',
     async execute (client, interaction) {
-        if (interaction.member.permissions.serialize().KICK_MEMBERS || interaction.member.permissions.serialize().BAN_MEMBERS) {
+        if (interaction.member.permissions.serialize().KICK_MEMBERS || interaction.member.permissions.serialize().BAN_MEMBERS || interaction.member.roles.cache.some(role => role.id === '332343869163438080')) {
             const removedMessageInfo = interaction.message.embeds[0].footer.text.split(/ +/g),
                 flaggedUserInfo = await client.users.fetch(interaction.message.embeds[0].fields[4].value).then(user => { return user }),
                 reinstatedMessage = new MessageEmbed()
