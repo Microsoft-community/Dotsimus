@@ -33,7 +33,6 @@ Channels: **${serverData.channels.cache.size}**
 Roles: **${serverData.roles.cache.size}**
                         `, inline: false
                         },
-                        { name: 'Location', value: `🌎 ${capitalizeFirstLetter(serverData.region)}`, inline: true },
                         { name: 'Language', value: serverData.preferredLocale.toLowerCase(), inline: true },
                         { name: 'Boosters', value: `🚀 ${serverData.premiumSubscriptionCount}`, inline: false },
                         { name: 'Explicit content filtering', value: serverData.explicitContentFilter, inline: true },
