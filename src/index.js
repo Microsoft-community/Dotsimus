@@ -378,23 +378,23 @@ client.on('messageCreate', message => {
       isModerator = message.member.permissions.serialize().KICK_MEMBERS || message.member.permissions.serialize().BAN_MEMBERS;
     let userArgFormat = args.length === 0 ? message.author.id : args[0];
     switch (command) {
-      case 'flags':
-        // TODO: limit amount of records that get shown(to last 4 maybe?)
-        // Show total amount of records
-        // Add embed
-        if (mention) userArgFormat = mention.user.id;
-        if (!Number.isInteger(+userArgFormat)) {
-          message.channel.send('Invalid user ID or mention provided.')
-          break;
-        }
-        db.getRecord(userArgFormat, server.id).then(data => {
-          if (data.length !== 0) {
-            message.channel.send('Flags record \n' + data[0].message.map(x => `||${x.message}|| - ${x.toxicity} \n`).join(''))
-          } else {
-            message.channel.send('No records found for this user.')
-          }
-        })
-        break;
+      // case 'flags':
+      //   // TODO: limit amount of records that get shown(to last 4 maybe?)
+      //   // Show total amount of records
+      //   // Add embed
+      //   if (mention) userArgFormat = mention.user.id;
+      //   if (!Number.isInteger(+userArgFormat)) {
+      //     message.channel.send('Invalid user ID or mention provided.')
+      //     break;
+      //   }
+      //   db.getRecord(userArgFormat, server.id).then(data => {
+      //     if (data.length !== 0) {
+      //       message.channel.send('Flags record \n' + data[0].message.map(x => `||${x.message}|| - ${x.toxicity} \n`).join(''))
+      //     } else {
+      //       message.channel.send('No records found for this user.')
+      //     }
+      //   })
+      //   break;
       case 'grant':
         try {
           grantAccess(message, mention, userArgFormat, server, isModerator);
