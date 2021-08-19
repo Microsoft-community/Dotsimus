@@ -21,7 +21,6 @@ module.exports = {
             .setDescription('⚠️ Restarts the bot.')),
     async execute (client, interaction) {
         switch (interaction.options.getSubcommand()) {
-            case 'help':
             case 'me':
                 const guilds = await client.guilds.cache,
                     addUpJSONData = (data) => {
@@ -48,7 +47,7 @@ module.exports = {
                         .setColor('#ffbd2e')
                         .addFields(
                             { name: 'Dotsimus servers', value: `${guilds.size}`, inline: true },
-                            { name: 'Dotsimus users', value: `${addUpJSONData(guilds.map(guild => guild.members.cache.size))}`, inline: true },
+                            { name: 'Dotsimus users', value: `${addUpJSONData(guilds.map(guild => guild.memberCount))}`, inline: true },
                             { name: 'Slash commands', value: 'You can see available slash commands and their use by typing `/` in the chat.', inline: false },
                             { name: '!watch', value: 'Sends a direct message to you whenever keyword that you track gets mentioned. \n Usage: `!watch <keyword>`' },
                             { name: '!repeat', value: 'Admin only command which repeats what you say. \n Usage: `!repeat <phrase>`' },
