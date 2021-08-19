@@ -268,10 +268,15 @@ client.on('messageCreate', message => {
                 } else {
                   channelMembersWithAccessAll.forEach(moderator => thread.members.add(moderator))
                 }
-                // const checkPinsAmount
-                await thread.send({ content: '@here', embeds: [investigationEmbed], components: [row] }).then(async sentReport => { 
-                  const pinsAmount = await thread.messages.fetchPinned().then(pinned => { return pinned.size })
-                  if (pinsAmount => 49) await thread.messages.fetchPinned().then(pinned => { return pinned.last().unpin() });
+                await thread.send({ 
+                  content: '@here', 
+                  embeds: [investigationEmbed], 
+                  components: [row]
+                 }).then(async sentReport => {
+                  const pins = await thread.messages.fetchPinned().then(pinned => {
+                    return pinned
+                  })
+                  if (pins.size >= 49) pins.last().unpin();
                   sentReport.pin(true)
                 }).catch(console.error);
 
@@ -287,9 +292,15 @@ client.on('messageCreate', message => {
                   } else {
                     channelMembersWithAccessAll.forEach(moderator => thread.members.add(moderator))
                   }
-                  thread.send({ content: '@here', embeds: [investigationEmbed], components: [row] }).then(async sentReport => {
-                    const pinsAmount = await thread.messages.fetchPinned().then(pinned => { return pinned.size })
-                    if (pinsAmount => 49) await thread.messages.fetchPinned().then(pinned => { return pinned.last().unpin() });
+                  thread.send({ 
+                    content: '@here', 
+                    embeds: [investigationEmbed], 
+                    components: [row]
+                   }).then(async sentReport => {
+                    const pins = await thread.messages.fetchPinned().then(pinned => {
+                      return pinned
+                    })
+                    if (pins.size >= 49) pins.last().unpin();
                     sentReport.pin(true)
                   }).catch(console.error);
                 })
