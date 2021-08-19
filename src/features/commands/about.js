@@ -47,7 +47,7 @@ module.exports = {
                         .setColor('#ffbd2e')
                         .addFields(
                             { name: 'Dotsimus servers', value: `${guilds.size}`, inline: true },
-                            { name: 'Dotsimus users', value: `${addUpJSONData(guilds.map(guild => guild.memberCount))}`, inline: true },
+                            { name: 'Dotsimus users', value: `${new Intl.NumberFormat().format(addUpJSONData(guilds.map(guild => guild.memberCount)))}`, inline: true },
                             { name: 'Slash commands', value: 'You can see available slash commands and their use by typing `/` in the chat.', inline: false },
                             { name: '!watch', value: 'Sends a direct message to you whenever keyword that you track gets mentioned. \n Usage: `!watch <keyword>`' },
                             { name: '!repeat', value: 'Admin only command which repeats what you say. \n Usage: `!repeat <phrase>`' },
