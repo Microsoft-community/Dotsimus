@@ -47,6 +47,7 @@ Add Dotsimus to your server: http://add-bot.dotsimus.com`)
             case 'ping':
                 const sent = await interaction.reply({ content: 'Pinging...', fetchReply: true });
                 interaction.editReply(`Websocket heartbeat: ${client.ws.ping}ms\nRoundtrip latency: ${sent.createdTimestamp - interaction.createdTimestamp}ms`);
+                break;
             case 'restart':
                 if (interaction.member.id === process.env.OWNER) {
                     interaction.reply('Restarting..').then(() => process.exit(0));
