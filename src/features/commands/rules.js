@@ -41,7 +41,6 @@ module.exports = {
         } else {
             switch (interaction.options._subcommand) {
                 case 'rule':
-                    console.log(interaction.options._hoistedOptions[0].value);
                     if (interaction.options._hoistedOptions[0].value === 69) {
                         interaction.reply({ content: 'nice' })
                         return;
