@@ -462,13 +462,6 @@ client.on('messageCreate', message => {
           message.channel.send(commandMessage)
         }
         break;
-      case 'uptime':
-        let days = Math.floor(client.uptime / 86400000),
-          hours = Math.floor(client.uptime / 3600000) % 24,
-          minutes = Math.floor(client.uptime / 60000) % 60,
-          seconds = Math.floor(client.uptime / 1000) % 60;
-        message.channel.send(`Uptime: ${days}d ${hours}h ${minutes}m ${seconds}s`);
-        break;
       case 'sendfeedback':
         const attribute = args.slice(0, 1)[0],
           suggestedScore = args.slice(args.length - 1, args.length)[0],
