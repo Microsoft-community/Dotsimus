@@ -1,4 +1,5 @@
 const { SlashCommandBuilder } = require('@discordjs/builders'),
+    { MessageEmbed, MessageActionRow, MessageButton } = require('discord.js'),
     Discord = require('discord.js');
 
 module.exports = {
@@ -7,7 +8,7 @@ module.exports = {
         .setDescription('Find out more about Dotsimus.')
         .addSubcommand(subcommand =>
             subcommand
-                .setName('help')
+                .setName('me')
                 .setDescription('Shows general information about bot and its commands.'))
         .addSubcommand(subcommand => subcommand
             .setName('uptime')
@@ -21,21 +22,42 @@ module.exports = {
     async execute (client, interaction) {
         switch (interaction.options.getSubcommand()) {
             case 'help':
-                const embedResponse = new Discord.MessageEmbed()
-                    .setTitle('Dotsimus and its functionality')
-                    .setDescription(`Dotsimus is a machine learning powered chat moderation bot, its primary goal is to help monitor, protect the server while its secondary goal is to enhance user experience. \n
-Support server: https://discord.gg/XAFXecKFRG
-Add Dotsimus to your server: http://add-bot.dotsimus.com`)
-                    .setColor('#ffbd2e')
-                    .addFields(
-                        { name: 'Slash commands', value: 'You can see available slash commands and their use by typing `/` in the chat.', inline: false },
-                        { name: '!watch', value: 'Sends a direct message to you whenever keyword that you track gets mentioned. \n Usage: `!watch <keyword>`' },
-                        { name: '!repeat', value: 'Admin only command which repeats what you say. \n Usage: `!repeat <phrase>`' },
-                        { name: '!dotprefix', value: 'Changes bot prefix. \n Usage: `!dotprefix <prefix>`' }
-                    );
+            case 'me':
+                const guilds = await client.guilds.cache,
+                    addUpJSONData = (data) => {
+                        let total = 0;
+                        for (let i = 0; i < data.length; i++) {
+                            total += data[i];
+                        }
+                        return total;
+                    },
+                    buttonsRow = new MessageActionRow()
+                        .addComponents(
+                            new MessageButton()
+                                .setLabel('Join Dotsimus Server')
+                                .setURL('https://discord.gg/XAFXecKFRG')
+                                .setStyle('LINK'),
+                            new MessageButton()
+                                .setLabel('Get Dotsimus')
+                                .setURL('https://Dotsimus.com')
+                                .setStyle('LINK')
+                        ),
+                    embedResponse = new MessageEmbed()
+                        .setTitle('Dotsimus and its functionality')
+                        .setDescription(`Dotsimus is a machine learning powered chat moderation bot, its primary goal is to help monitor, protect the server while its secondary goal is to enhance user experience.`)
+                        .setColor('#ffbd2e')
+                        .addFields(
+                            { name: 'Dotsimus servers', value: `${guilds.size}`, inline: true },
+                            { name: 'Dotsimus users', value: `${addUpJSONData(guilds.map(guild => guild.members.cache.size))}`, inline: true },
+                            { name: 'Slash commands', value: 'You can see available slash commands and their use by typing `/` in the chat.', inline: false },
+                            { name: '!watch', value: 'Sends a direct message to you whenever keyword that you track gets mentioned. \n Usage: `!watch <keyword>`' },
+                            { name: '!repeat', value: 'Admin only command which repeats what you say. \n Usage: `!repeat <phrase>`' },
+                            { name: '!dotprefix', value: 'Changes bot prefix. \n Usage: `!dotprefix <prefix>`' }
+                        );
                 interaction.reply({
                     type: 4,
-                    embeds: [embedResponse]
+                    embeds: [embedResponse],
+                    components: [buttonsRow]
                 });
                 break;
             case 'uptime':
