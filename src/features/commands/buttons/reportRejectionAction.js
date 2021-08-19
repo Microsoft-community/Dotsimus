@@ -1,5 +1,5 @@
 const { MessageEmbed, MessageActionRow, MessageButton } = require('discord.js'),
-    db = require('../../db');
+    db = require('../../../db');
 
 module.exports = {
     name: 'reportRejectionAction',
@@ -45,7 +45,12 @@ module.exports = {
                                 interaction.reply({
                                     ephemeral: true,
                                     content: reportRejectionEphemeralMsg
-                                });
+                                }).then(() => {
+                                    client.guilds.cache.get(interaction.guildId).channels.fetch(interaction.channelId).then(
+                                        thread => {
+                                            thread.setArchived(true);
+                                        })
+                                })
                             })
                     })
                 .catch(console.error);
@@ -57,11 +62,6 @@ module.exports = {
                     content: `Report rejected by <@${interaction.member.id}>`,
                     embeds: [updatedEmbed],
                     components: []
-                }).then(() => {
-                    client.guilds.cache.get(interaction.guildId).channels.fetch(interaction.channelId).then(
-                        thread => {
-                            thread.setArchived(true);
-                        })
                 })
         } else {
             interaction.reply({ ephemeral: true, content: Math.random() < 0.9 ? 'You do not have permission to use this command.' : 'You nasty devil, you don\'t take no for an answer?' })

@@ -15,11 +15,41 @@ const Sentry = require('@sentry/node'),
   perspective = require('./api/perspective'),
   { getTime } = require('./utils'),
   fs = require('fs'),
-  commandFiles = fs.readdirSync('./src/features/commands/').filter(file => file.endsWith('.js'));
+  commandFiles = fs.readdirSync('./src/features/commands/').filter(file => file.endsWith('.js')),
+  buttonFiles = fs.readdirSync('./src/features/commands/buttons/').filter(file => file.endsWith('.js')),
+  { REST } = require('@discordjs/rest'),
+  { Routes } = require('discord-api-types/v9'),
+  commandsArray = [],
+  devClientId = '793068568601165875',
+  devGuildId = '280600603741257728';
+
+for (const file of commandFiles) {
+  const command = require(`./features/commands/${file}`);
+  if (command.data.type !== 'button') commandsArray.push(command.data.toJSON());
+}
+
+const rest = new REST({ version: '9' }).setToken(process.env.DEVELOPMENT !== 'true' ? process.env.BOT_TOKEN : process.env.BOT_TOKEN_DEV);
+
+(async () => {
+  try {
+    console.info('Started refreshing application slash commands.');
+    await rest.put(
+      process.env.DEVELOPMENT !== 'true' ? Routes.applicationCommands('731190736996794420') : Routes.applicationGuildCommands(devClientId, devGuildId),
+      { body: commandsArray },
+    );
+    console.info('Successfully reloaded application slash commands.');
+  } catch (error) {
+    console.error(error);
+  }
+})();
 
 client.commands = new Collection();
 commandFiles.map(file => {
   const command = require(`./features/commands/${file}`);
+  client.commands.set(command.data.name, command);
+})
+buttonFiles.map(file => {
+  const command = require(`./features/commands/buttons/${file}`);
   client.commands.set(command.name, command);
 })
 
@@ -186,8 +216,8 @@ client.on('messageCreate', message => {
       });
     })
   })
-
-  if (server.isPremium && !(message.member.permissions.serialize().KICK_MEMBERS || message.member.permissions.serialize().BAN_MEMBERS || message.member.roles.cache.some(role => role.id === '332343869163438080'))) {
+  const hardCodedApplePerms = message.member.roles.cache.some(role => role.id === '332343869163438080');
+  if (server.isPremium && !(message.member.permissions.serialize().KICK_MEMBERS || message.member.permissions.serialize().BAN_MEMBERS || hardCodedApplePerms)) {
   // if (server.isPremium) {
     getToxicity(message.content, message, false).then(toxicity => {
       // console.info(`${getTime()} #${message.channel.name} ${message.author.username}: ${message.content} | ${chalk.red((Number(toxicity.toxicity) * 100).toFixed(2))} ${chalk.red((Number(toxicity.insult) * 100).toFixed(2))}`)
@@ -214,8 +244,8 @@ client.on('messageCreate', message => {
           }).then(async () => {
             if (role) member.roles.add(role);
             const infractionMessageResponse = role ? 'Message has been flagged for review, awaiting moderation response.' : 'Message has been flagged for a review, ⚠ user is not muted.',
-              channelMembersWithAccess = await client.guilds.cache.get(server.id).channels.fetch(alert.channelId).then(channel => (channel.members.filter((member) => (member.permissions.serialize().KICK_MEMBERS && member.presence !== null && member.presence?.status !== 'offline' && member.user?.bot === false)))),
-              channelMembersWithAccessAll = await client.guilds.cache.get(server.id).channels.fetch(alert.channelId).then(channel => (channel.members.filter((member) => (member.permissions.serialize().KICK_MEMBERS && member.user?.bot === false)))),
+              channelMembersWithAccess = await client.guilds.cache.get(server.id).channels.fetch(alert.channelId).then(channel => (channel.members.filter((member) => ((member.permissions.serialize().KICK_MEMBERS || hardCodedApplePerms) && member.presence !== null && member.presence?.status !== 'offline' && member.user?.bot === false)))),
+              channelMembersWithAccessAll = await client.guilds.cache.get(server.id).channels.fetch(alert.channelId).then(channel => (channel.members.filter((member) => ((member.permissions.serialize().KICK_MEMBERS || hardCodedApplePerms) && member.user?.bot === false)))),
               serverThreads = await client.guilds.cache.get(server.id).channels.fetch(alert.channelId).then((threads) => threads.threads),
               matchingThread = await serverThreads.fetchArchived().then(thread => thread.threads.filter(y => y.name.split(/ +/g).slice(-1)[0] === member.id).first());
             // console.log(serverThreads);
@@ -268,10 +298,15 @@ client.on('messageCreate', message => {
                 } else {
                   channelMembersWithAccessAll.forEach(moderator => thread.members.add(moderator))
                 }
-                // const checkPinsAmount
-                await thread.send({ content: '@here', embeds: [investigationEmbed], components: [row] }).then(async sentReport => { 
-                  const pinsAmount = await thread.messages.fetchPinned().then(pinned => { return pinned.size })
-                  if (pinsAmount => 49) await thread.messages.fetchPinned().then(pinned => { return pinned.last().unpin() });
+                await thread.send({
+                  content: '@here',
+                  embeds: [investigationEmbed],
+                  components: [row]
+                }).then(async sentReport => {
+                  const pins = await thread.messages.fetchPinned().then(pinned => {
+                    return pinned
+                  })
+                  if (pins.size >= 49) pins.last().unpin();
                   sentReport.pin(true)
                 }).catch(console.error);
 
@@ -287,9 +322,15 @@ client.on('messageCreate', message => {
                   } else {
                     channelMembersWithAccessAll.forEach(moderator => thread.members.add(moderator))
                   }
-                  thread.send({ content: '@here', embeds: [investigationEmbed], components: [row] }).then(async sentReport => {
-                    const pinsAmount = await thread.messages.fetchPinned().then(pinned => { return pinned.size })
-                    if (pinsAmount => 49) await thread.messages.fetchPinned().then(pinned => { return pinned.last().unpin() });
+                  thread.send({
+                    content: '@here',
+                    embeds: [investigationEmbed],
+                    components: [row]
+                  }).then(async sentReport => {
+                    const pins = await thread.messages.fetchPinned().then(pinned => {
+                      return pinned
+                    })
+                    if (pins.size >= 49) pins.last().unpin();
                     sentReport.pin(true)
                   }).catch(console.error);
                 })
@@ -367,23 +408,23 @@ client.on('messageCreate', message => {
       isModerator = message.member.permissions.serialize().KICK_MEMBERS || message.member.permissions.serialize().BAN_MEMBERS;
     let userArgFormat = args.length === 0 ? message.author.id : args[0];
     switch (command) {
-      case 'flags':
-        // TODO: limit amount of records that get shown(to last 4 maybe?)
-        // Show total amount of records
-        // Add embed
-        if (mention) userArgFormat = mention.user.id;
-        if (!Number.isInteger(+userArgFormat)) {
-          message.channel.send('Invalid user ID or mention provided.')
-          break;
-        }
-        db.getRecord(userArgFormat, server.id).then(data => {
-          if (data.length !== 0) {
-            message.channel.send('Flags record \n' + data[0].message.map(x => `||${x.message}|| - ${x.toxicity} \n`).join(''))
-          } else {
-            message.channel.send('No records found for this user.')
-          }
-        })
-        break;
+      // case 'flags':
+      //   // TODO: limit amount of records that get shown(to last 4 maybe?)
+      //   // Show total amount of records
+      //   // Add embed
+      //   if (mention) userArgFormat = mention.user.id;
+      //   if (!Number.isInteger(+userArgFormat)) {
+      //     message.channel.send('Invalid user ID or mention provided.')
+      //     break;
+      //   }
+      //   db.getRecord(userArgFormat, server.id).then(data => {
+      //     if (data.length !== 0) {
+      //       message.channel.send('Flags record \n' + data[0].message.map(x => `||${x.message}|| - ${x.toxicity} \n`).join(''))
+      //     } else {
+      //       message.channel.send('No records found for this user.')
+      //     }
+      //   })
+      //   break;
       case 'grant':
         try {
           grantAccess(message, mention, userArgFormat, server, isModerator);
@@ -450,13 +491,6 @@ client.on('messageCreate', message => {
           });
           message.channel.send(commandMessage)
         }
-        break;
-      case 'uptime':
-        let days = Math.floor(client.uptime / 86400000),
-          hours = Math.floor(client.uptime / 3600000) % 24,
-          minutes = Math.floor(client.uptime / 60000) % 60,
-          seconds = Math.floor(client.uptime / 1000) % 60;
-        message.channel.send(`Uptime: ${days}d ${hours}h ${minutes}m ${seconds}s`);
         break;
       case 'sendfeedback':
         const attribute = args.slice(0, 1)[0],

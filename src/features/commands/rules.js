@@ -1,9 +1,34 @@
-const { MessageEmbed } = require('discord.js'),
+const { SlashCommandBuilder } = require('@discordjs/builders'),
+    { MessageEmbed } = require('discord.js'),
     { fetchRules } = require('./../../api/discord-gating');
 
+
+
 module.exports = {
-    name: 'rules',
-    description: 'Allows you to guide new users through rules without hitting them with a wall of text.',
+    data: new SlashCommandBuilder()
+        .setName('rules')
+        .setDescription('Allows you to guide new users through rules without hitting them with a wall of text.')
+        .addSubcommand(subcommand =>
+            subcommand
+                .setName('rule')
+                .setDescription('Shows selected rule.')
+                .addIntegerOption(option =>
+                    option.setName('number')
+                        .setDescription('Type in rule number.')
+                        .setRequired(true)))
+        .addSubcommand(subcommand =>
+            subcommand
+                .setName('search')
+                .setDescription('Searches for rule with provided keyword.')
+                .addStringOption(option =>
+                    option.setName('number')
+                        .setDescription('Type in keyword.')
+                        .setRequired(true)))
+        .addSubcommand(subcommand =>
+            subcommand
+                .setName('all')
+                // setDefaultPermission(true) waiting for this to be merged
+                .setDescription('Shows all of the community rules and guidelines.')),
     execute: async function (client, interaction) {
         const fetchedRules = await fetchRules(interaction.guildId).then(data => data)
         if (fetchedRules === 0) {
@@ -16,6 +41,11 @@ module.exports = {
         } else {
             switch (interaction.options._subcommand) {
                 case 'rule':
+                    console.log(interaction.options._hoistedOptions[0].value);
+                    if (interaction.options._hoistedOptions[0].value === 69) {
+                        interaction.reply({ content: 'nice' })
+                        return;
+                    }
                     if (interaction.options._hoistedOptions[0].value > 0 && interaction.options._hoistedOptions[0].value <= fetchedRules.form_fields[0].values.length) {
                         const ruleEmbed = new MessageEmbed()
                             .setTitle(`Rule ${interaction.options._hoistedOptions[0].value}`)
@@ -65,19 +95,16 @@ module.exports = {
                             .setColor('#e4717a')
                             .setFooter('Last updated: ' + new Date(fetchedRules.version).toUTCString())
                             .addFields(rulesAll);
-                    client.users.cache.get(interaction.member.user.id).send({ embeds: [rulesEmbed] }).catch(error => {
+                    interaction.reply({
+                        embeds: [rulesEmbed],
+                        ephemeral: true
+                    }).catch(error => {
                         interaction.reply({
                             ephemeral: true,
-                            content: 'Failed to send community rules to you, please enable direct messaging in this server by **right clicking the server icon** and going to **privacy settings**.'
+                            content: 'Failed to send community rules.'
 
                         })
-                        throw 'DMs are disabled.' + error;
-                    }).then(() => interaction.reply({
-                        ephemeral: true,
-                        content: 'Sent community rules to your direct messages!'
-
-                    }))
-
+                    })
                     break;
                 default:
                     break;
@@ -85,3 +112,4 @@ module.exports = {
         }
     }
 };
+
