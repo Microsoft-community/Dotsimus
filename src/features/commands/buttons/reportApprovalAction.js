@@ -1,6 +1,6 @@
 const { Client } = require('discord.js'),
-    db = require('../../db'),
-    perspective = require('../../api/perspective');
+    db = require('../../../db'),
+    perspective = require('../../../api/perspective');
 
 module.exports = {
     name: 'reportApprovalAction',

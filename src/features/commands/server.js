@@ -1,12 +1,25 @@
-const Discord = require('discord.js')
-
-const capitalizeFirstLetter = (string) => {
-    return string.charAt(0).toUpperCase() + string.slice(1);
-}
+const { SlashCommandBuilder } = require('@discordjs/builders'),
+    Discord = require('discord.js'),
+    capitalizeFirstLetter = (string) => {
+        return string.charAt(0).toUpperCase() + string.slice(1);
+    },
+    apiDateToTimestamp = (date) => {
+        const dateObj = new Date(date);
+        return Math.floor(dateObj.getTime() / 1000);
+    };
 
 module.exports = {
-    name: 'server',
-    description: 'server',
+    data: new SlashCommandBuilder()
+        .setName('server')
+        .setDescription('Shows user related information.')
+        .addSubcommand(subcommand =>
+            subcommand
+                .setName('info')
+                .setDescription('Shows selected user information.'))
+        .addSubcommand(subcommand =>
+            subcommand
+                .setName('activity')
+                .setDescription('Shows selected user infractions and warnings.')),
     execute (client, interaction, activeUsersCollection) {
         const serverData = client.guilds.cache.get(interaction.guildId)
         switch (interaction.options._subcommand) {
@@ -22,7 +35,7 @@ module.exports = {
                     .setTitle(serverData.name, serverData.iconURL())
                     .setColor('#e4717a')
                     .setDescription(`${serverData.description ? serverData.description : 'No description available.'} \n
-Owner: <@${serverData.ownerID}> \n
+Owner: <@${serverData.ownerId}> \n
 ${serverData.vanityURLCode ? `Invite link: discord.gg/${serverData.vanityURLCode}` : ''}`)
                     .setThumbnail(serverData.iconURL())
                     .addFields(
@@ -38,7 +51,7 @@ Roles: **${serverData.roles.cache.size}**
                         { name: 'Explicit content filtering', value: serverData.explicitContentFilter, inline: true },
                         { name: 'Verification level', value: serverData.verificationLevel, inline: true },
                         { name: 'Features', value: serverData.features.length >= 1 ? serverData.features.map(feature => `⦿ ${capitalizeFirstLetter(feature.toLowerCase())}`) : "No features available.", inline: false },
-                        { name: 'Created', value: serverData.createdAt.toLocaleString(), inline: false }
+                        { name: 'Created', value: `<t:${apiDateToTimestamp(serverData.createdAt)}:R>`, inline: false }
                     )
                 interaction.reply({
                     type: 4,

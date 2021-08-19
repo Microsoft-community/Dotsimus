@@ -1,5 +1,5 @@
 const { MessageEmbed, MessageActionRow, MessageButton } = require('discord.js'),
-    db = require('../../db');
+    db = require('../../../db');
 
 module.exports = {
     name: 'reportRejectionAction',

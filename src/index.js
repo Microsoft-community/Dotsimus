@@ -15,11 +15,41 @@ const Sentry = require('@sentry/node'),
   perspective = require('./api/perspective'),
   { getTime } = require('./utils'),
   fs = require('fs'),
-  commandFiles = fs.readdirSync('./src/features/commands/').filter(file => file.endsWith('.js'));
+  commandFiles = fs.readdirSync('./src/features/commands/').filter(file => file.endsWith('.js')),
+  buttonFiles = fs.readdirSync('./src/features/commands/buttons/').filter(file => file.endsWith('.js')),
+  { REST } = require('@discordjs/rest'),
+  { Routes } = require('discord-api-types/v9'),
+  commandsArray = [],
+  devClientId = '793068568601165875',
+  devGuildId = '280600603741257728';
+
+for (const file of commandFiles) {
+  const command = require(`./features/commands/${file}`);
+  if (command.data.type !== 'button') commandsArray.push(command.data.toJSON());
+}
+
+const rest = new REST({ version: '9' }).setToken(process.env.DEVELOPMENT !== 'true' ? process.env.BOT_TOKEN : process.env.BOT_TOKEN_DEV);
+
+(async () => {
+  try {
+    console.info('Started refreshing application slash commands.');
+    await rest.put(
+      process.env.DEVELOPMENT !== 'true' ? Routes.applicationCommands('731190736996794420') : Routes.applicationGuildCommands(devClientId, devGuildId),
+      { body: commandsArray },
+    );
+    console.info('Successfully reloaded application slash commands.');
+  } catch (error) {
+    console.error(error);
+  }
+})();
 
 client.commands = new Collection();
 commandFiles.map(file => {
   const command = require(`./features/commands/${file}`);
+  client.commands.set(command.data.name, command);
+})
+buttonFiles.map(file => {
+  const command = require(`./features/commands/buttons/${file}`);
   client.commands.set(command.name, command);
 })
 
@@ -268,11 +298,11 @@ client.on('messageCreate', message => {
                 } else {
                   channelMembersWithAccessAll.forEach(moderator => thread.members.add(moderator))
                 }
-                await thread.send({ 
-                  content: '@here', 
-                  embeds: [investigationEmbed], 
+                await thread.send({
+                  content: '@here',
+                  embeds: [investigationEmbed],
                   components: [row]
-                 }).then(async sentReport => {
+                }).then(async sentReport => {
                   const pins = await thread.messages.fetchPinned().then(pinned => {
                     return pinned
                   })
@@ -292,11 +322,11 @@ client.on('messageCreate', message => {
                   } else {
                     channelMembersWithAccessAll.forEach(moderator => thread.members.add(moderator))
                   }
-                  thread.send({ 
-                    content: '@here', 
-                    embeds: [investigationEmbed], 
+                  thread.send({
+                    content: '@here',
+                    embeds: [investigationEmbed],
                     components: [row]
-                   }).then(async sentReport => {
+                  }).then(async sentReport => {
                     const pins = await thread.messages.fetchPinned().then(pinned => {
                       return pinned
                     })

@@ -1,18 +1,17 @@
-const Discord = require('discord.js'),
+const { SlashCommandBuilder } = require('@discordjs/builders'),
+    Discord = require('discord.js'),
     db = require('../../db'),
     { getStatusColor, capitalizeFirstLetter, getDate, getDaysSince } = require('../../utils.js'),
     apiDateToTimestamp = (date) => {
         const dateObj = new Date(date);
         return Math.floor(dateObj.getTime() / 1000);
     },
-    sendInfoEmbed = (client, interaction, user) => {
-        const getMember = client.guilds.cache.get(interaction.guildId).members.fetch(user).then(async member => {
-            // console.log(member.user.presence);
+    sendInfoEmbed = async (client, interaction, user) => {
+        const getMember = await client.guilds.cache.get(interaction.guildId).members.fetch(user).then(async member => {
             return member
-        });
-
+        }).catch(() => { return null });
         db.getRecord(user, interaction.guildId).then(async data => {
-            if (getMember) {
+            if (getMember !== null) {
                 const guildMember = await getMember,
                     infoEmbed = new Discord.MessageEmbed()
                         .setTitle(`${guildMember.user.username}#${guildMember.user.discriminator}`)
@@ -51,7 +50,7 @@ const Discord = require('discord.js'),
                     const infoEmbed = new Discord.MessageEmbed()
                         .setTitle(`${user.username}#${user.discriminator}`)
                         .setColor(`${getStatusColor(user?.presence?.status)}`)
-                        .setDescription(`${capitalizeFirstLetter(user.presence.status)}`)
+                        .setDescription(`${user?.presence?.status ? capitalizeFirstLetter(user?.presence?.status) : 'No description is set.'}`)
                         .setThumbnail(`${user.avatar ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png` : 'https://cdn.discordapp.com/avatars/731190736996794420/acb75c08b6eb67c01a5a4cf6e5e567a1.png'}`)
                         .setFooter(`User ID: ${user.id}`)
                         .addFields(
@@ -62,7 +61,7 @@ const Discord = require('discord.js'),
                             },
                             {
                                 name: 'Created on',
-                                value: `<t:${apiDateToTimestamp(guildMember.user.createdAt)}>`,
+                                value: `<t:${apiDateToTimestamp(user.createdAt)}>`,
                                 inline: true
                             }
                         );
@@ -111,7 +110,7 @@ const sendWarningEmbed = (client, interaction, user) => {
                         },
                         {
                             name: 'Last 5 toxicity flags',
-                            value: `${data[0] ? data[0].message.reverse().slice(0, 5).map(infraction => `${infraction._id} • <t:${apiDateToTimestamp(infraction.timestamp)}:R>`) : 'No infractions found.'}`,
+                            value: `${data[0] ? data[0].message.reverse().slice(0, 5).map(infraction => `${infraction._id} • <t:${apiDateToTimestamp(infraction.timestamp)}:R>`).join("\r\n") : 'No infractions found.'}`,
                             inline: false
                         }
                     );
@@ -149,7 +148,7 @@ const sendWarningEmbed = (client, interaction, user) => {
                         },
                         {
                             name: 'Last 5 toxicity flags',
-                            value: `${data[0] ? data[0].message.reverse().slice(0, 5).map(infraction => `${infraction._id} • <t:${apiDateToTimestamp(infraction.timestamp)}:R>`) : 'No infractions found.'}`,
+                            value: `${data[0] ? data[0].message.reverse().slice(0, 5).map(infraction => `${infraction._id} • <t:${apiDateToTimestamp(infraction.timestamp)}:R>`).join("\r\n") : 'No infractions found.'}`,
                             inline: false
                         }
                     );
@@ -164,16 +163,28 @@ const sendWarningEmbed = (client, interaction, user) => {
 }
 
 module.exports = {
-    name: 'user',
-    description: 'Provides user related information.',
+    data: new SlashCommandBuilder()
+        .setName('user')
+        .setDescription('Shows user related information.')
+        .addSubcommand(subcommand =>
+            subcommand
+                .setName('information')
+                .setDescription('Shows selected user information.')
+                .addUserOption(option =>
+                    option.setName('user')
+                        .setDescription('Select user or user ID.')))
+        .addSubcommand(subcommand =>
+            subcommand
+                .setName('warnings')
+                .setDescription('Shows selected user infractions and warnings.')
+                .addUserOption(option =>
+                    option.setName('user')
+                        .setDescription('Select user or user ID.'))),
     execute (client, interaction, activeUsersCollection) {
         switch (interaction.options._subcommand) {
-            case 'info':
+            case 'information':
                 switch (interaction.options._hoistedOptions[0]?.name) {
-                    case 'user-name':
-                        sendInfoEmbed(client, interaction, interaction.options._hoistedOptions[0].value);
-                        break;
-                    case 'user-id':
+                    case 'user':
                         sendInfoEmbed(client, interaction, interaction.options._hoistedOptions[0].value);
                         break;
                     default:
@@ -183,10 +194,7 @@ module.exports = {
                 break;
             case 'warnings':
                 switch (interaction.options._hoistedOptions[0]?.name) {
-                    case 'user-name':
-                        sendWarningEmbed(client, interaction, interaction.options._hoistedOptions[0].value);
-                        break;
-                    case 'user-id':
+                    case 'user':
                         sendWarningEmbed(client, interaction, interaction.options._hoistedOptions[0].value);
                         break;
                     default:
