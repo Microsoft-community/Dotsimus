@@ -36,7 +36,12 @@ module.exports = {
                                 interaction.reply({
                                     ephemeral: true,
                                     content: reportApprovalEphemeralMsg
-                                });
+                                }).then(() => {
+                                    client.guilds.cache.get(interaction.guildId).channels.fetch(interaction.channelId).then(
+                                        thread => {
+                                            thread.setArchived(true);
+                                        })
+                                })
                             })
                     })
                 .catch(console.error);
@@ -48,11 +53,6 @@ module.exports = {
                     content: `Report approved by <@${interaction.member.id}>`,
                     embeds: [updatedEmbed],
                     components: []
-                }).then(() => {
-                    client.guilds.cache.get(interaction.guildId).channels.fetch(interaction.channelId).then(
-                        thread => {
-                            thread.setArchived(true);
-                        })
                 })
         } else {
             interaction.reply({ ephemeral: true, content: Math.random() < 0.9 ? 'You do not have permission to use this command.' : 'You nasty devil, you don\'t take no for an answer?' })
