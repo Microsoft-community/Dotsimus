@@ -110,7 +110,7 @@ const sendWarningEmbed = (client, interaction, user) => {
                         },
                         {
                             name: 'Last 5 toxicity flags',
-                            value: `${data[0] ? data[0].message.reverse().slice(0, 5).map(infraction => `${infraction._id} • <t:${apiDateToTimestamp(infraction.timestamp)}:R>`).join("\r\n") : 'No infractions found.'}`,
+                            value: `${data[0] ? data[0].message.reverse().slice(0, 5).map(infraction => `<t:${apiDateToTimestamp(infraction.timestamp)}:R> • ${infraction._id}`).join("\r\n") : 'No infractions found.'}`,
                             inline: false
                         }
                     );
@@ -148,7 +148,7 @@ const sendWarningEmbed = (client, interaction, user) => {
                         },
                         {
                             name: 'Last 5 toxicity flags',
-                            value: `${data[0] ? data[0].message.reverse().slice(0, 5).map(infraction => `${infraction._id} • <t:${apiDateToTimestamp(infraction.timestamp)}:R>`).join("\r\n") : 'No infractions found.'}`,
+                            value: `${data[0] ? data[0].message.reverse().slice(0, 5).map(infraction => `<t:${apiDateToTimestamp(infraction.timestamp)}:R> • ${infraction._id}`).join("\r\n") : 'No infractions found.'}`,
                             inline: false
                         }
                     );
