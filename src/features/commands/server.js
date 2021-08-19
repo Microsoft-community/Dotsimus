@@ -14,7 +14,7 @@ module.exports = {
         .setDescription('Shows user related information.')
         .addSubcommand(subcommand =>
             subcommand
-                .setName('info')
+                .setName('information')
                 .setDescription('Shows selected user information.'))
         .addSubcommand(subcommand =>
             subcommand
@@ -30,7 +30,7 @@ module.exports = {
                     content: `${activeUsers} ${activeUsers > 1 || activeUsers == 0 ? 'users' : 'user'} engaged with the server in the past ~3 minutes.`
                 })
                 break;
-            case 'info':
+            case 'information':
                 const infoEmbed = new Discord.MessageEmbed()
                     .setTitle(serverData.name, serverData.iconURL())
                     .setColor('#e4717a')
@@ -46,11 +46,11 @@ Channels: **${serverData.channels.cache.size}**
 Roles: **${serverData.roles.cache.size}**
                         `, inline: false
                         },
-                        { name: 'Language', value: serverData.preferredLocale.toLowerCase(), inline: true },
+                        { name: 'Language', value: `${serverData.preferredLocale.toLowerCase()}`, inline: true },
                         { name: 'Boosters', value: `🚀 ${serverData.premiumSubscriptionCount}`, inline: false },
-                        { name: 'Explicit content filtering', value: serverData.explicitContentFilter, inline: true },
-                        { name: 'Verification level', value: serverData.verificationLevel, inline: true },
-                        { name: 'Features', value: serverData.features.length >= 1 ? serverData.features.map(feature => `⦿ ${capitalizeFirstLetter(feature.toLowerCase())}`) : "No features available.", inline: false },
+                        { name: 'Explicit content filtering', value: `${serverData.explicitContentFilter}`, inline: true },
+                        { name: 'Verification level', value: `${serverData.verificationLevel}`, inline: true },
+                        { name: 'Features', value: `${serverData.features.length >= 1 ? serverData.features.map(feature => `⦿ ${capitalizeFirstLetter(feature.toLowerCase())}`) : "No features available."}`, inline: false },
                         { name: 'Created', value: `<t:${apiDateToTimestamp(serverData.createdAt)}:R>`, inline: false }
                     )
                 interaction.reply({
