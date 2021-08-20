@@ -79,7 +79,6 @@ module.exports = {
                             .addFields(getSearchResults);
                         interaction.reply({
                             type: 4,
-                            ephemeral: true,
                             embeds: [foundRules]
                         })
                     } else {
