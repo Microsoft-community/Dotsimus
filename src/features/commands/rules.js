@@ -45,6 +45,10 @@ module.exports = {
                         interaction.reply({ content: 'nice' })
                         return;
                     }
+                    if (interaction.options._hoistedOptions[0].value === 420) {
+                        interaction.reply({ content: 'hahah, weed weed' })
+                        return;
+                    }
                     if (interaction.options._hoistedOptions[0].value > 0 && interaction.options._hoistedOptions[0].value <= fetchedRules.form_fields[0].values.length) {
                         const ruleEmbed = new MessageEmbed()
                             .setTitle(`Rule ${interaction.options._hoistedOptions[0].value}`)
