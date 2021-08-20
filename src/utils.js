@@ -1,3 +1,5 @@
+const fs = require('fs');
+
 const getTime = () => {
     const today = new Date()
     return today.getHours() + ':' + today.getMinutes()
@@ -48,4 +50,43 @@ const getDaysSince = (current, previous) => {
     return Math.round(elapsed / msPerDay);
 }
 
-module.exports = { getTime, toxicityReport, getStatusColor, capitalizeFirstLetter, getDate, getDaysSince };
+const collectCommandAnalytics = async (commandName, subCommandName) => {
+    const updateAnalytics = (fileName, data) => {
+        fs.writeFile(fileName, JSON.stringify(data, null, 2), function (err) {
+            if (err) console.log('error', err);
+        })
+    },
+        analyticsFile = fs.readFileSync("./events.json", "utf8"),
+        parsedAnalytics = JSON.parse(analyticsFile),
+        findCommand = (name) => parsedAnalytics.filter(event => event?.name === name);
+    console.log(findCommand(commandName)[0] !== undefined);
+    if (findCommand(commandName)[0] !== undefined) {
+        ++findCommand(commandName)[0].used
+        findCommand(commandName)[0].lastUsed = +new Date
+        updateAnalytics('./events.json', parsedAnalytics);
+    } else {
+        parsedAnalytics.push({
+            type: 'command',
+            name: commandName,
+            used: 1,
+            lastUsed: +new Date
+        })
+        updateAnalytics('./events.json', parsedAnalytics);
+    }
+    if (findCommand(`${commandName} ${subCommandName}`)[0] !== undefined) {
+        ++findCommand(`${commandName} ${subCommandName}`)[0].used
+        findCommand(`${commandName} ${subCommandName}`)[0].lastUsed = +new Date
+        updateAnalytics('./events.json', parsedAnalytics);
+    } else {
+        if (subCommandName === undefined) return
+        parsedAnalytics.push({
+            type: 'subCommand',
+            name: `${commandName} ${subCommandName}`,
+            used: 1,
+            lastUsed: +new Date
+        })
+        updateAnalytics('./events.json', parsedAnalytics);
+    }
+}
+
+module.exports = { getTime, toxicityReport, getStatusColor, capitalizeFirstLetter, getDate, getDaysSince, collectCommandAnalytics };
