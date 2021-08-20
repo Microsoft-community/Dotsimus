@@ -59,7 +59,6 @@ const collectCommandAnalytics = async (commandName, subCommandName) => {
         analyticsFile = fs.readFileSync("./events.json", "utf8"),
         parsedAnalytics = JSON.parse(analyticsFile),
         findCommand = (name) => parsedAnalytics.filter(event => event?.name === name);
-    console.log(findCommand(commandName)[0] !== undefined);
     if (findCommand(commandName)[0] !== undefined) {
         ++findCommand(commandName)[0].used
         findCommand(commandName)[0].lastUsed = +new Date
