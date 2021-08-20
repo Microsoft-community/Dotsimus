@@ -13,7 +13,7 @@ const Sentry = require('@sentry/node'),
   fetch = require('request-promise-native'),
   db = require('./db'),
   perspective = require('./api/perspective'),
-  { getTime } = require('./utils'),
+  { getTime, collectCommandAnalytics } = require('./utils'),
   fs = require('fs'),
   commandFiles = fs.readdirSync('./src/features/commands/').filter(file => file.endsWith('.js')),
   buttonFiles = fs.readdirSync('./src/features/commands/buttons/').filter(file => file.endsWith('.js')),
@@ -85,11 +85,10 @@ client.on('ready', () => {
   // client.api.applications('731190736996794420').guilds('553939036490956801').commands('792118637808058408').delete()
   // client.api.applications('731190736996794420').guilds('553939036490956801').commands.get().then(data => console.log(data))
 });
-// manually add muted roles to premium servers to db
 client.on('interactionCreate', async interaction => {
-  // console.log(interaction);
   try {
     !interaction.isButton() ? client.commands.get(interaction.commandName)?.execute(client, interaction, activeUsersCollection) : client.commands.get(interaction.customId)?.execute(client, interaction, activeUsersCollection);
+    collectCommandAnalytics(interaction.commandName, interaction.options._subcommand);
   } catch (error) {
     console.error(error);
   }
@@ -218,7 +217,7 @@ client.on('messageCreate', message => {
   })
   const hardCodedApplePerms = message.member.roles.cache.some(role => role.id === '332343869163438080');
   if (server.isPremium && !(message.member.permissions.serialize().KICK_MEMBERS || message.member.permissions.serialize().BAN_MEMBERS || hardCodedApplePerms)) {
-  // if (server.isPremium) {
+    // if (server.isPremium) {
     getToxicity(message.content, message, false).then(toxicity => {
       // console.info(`${getTime()} #${message.channel.name} ${message.author.username}: ${message.content} | ${chalk.red((Number(toxicity.toxicity) * 100).toFixed(2))} ${chalk.red((Number(toxicity.insult) * 100).toFixed(2))}`)
       const messageToxicity = toxicity.toxicity;
@@ -248,9 +247,6 @@ client.on('messageCreate', message => {
               channelMembersWithAccessAll = await client.guilds.cache.get(server.id).channels.fetch(alert.channelId).then(channel => (channel.members.filter((member) => ((member.permissions.serialize().KICK_MEMBERS || hardCodedApplePerms) && member.user?.bot === false)))),
               serverThreads = await client.guilds.cache.get(server.id).channels.fetch(alert.channelId).then((threads) => threads.threads),
               matchingThread = await serverThreads.fetchArchived().then(thread => thread.threads.filter(y => y.name.split(/ +/g).slice(-1)[0] === member.id).first());
-            // console.log(serverThreads);
-            // console.log(matchingThread);
-            console.log(channelMembersWithAccess.map(user => user).length);
 
             message.channel.send(infractionMessageResponse).then(async sentMessage => {
               const investigationEmbed = new MessageEmbed()

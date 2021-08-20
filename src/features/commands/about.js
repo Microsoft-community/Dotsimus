@@ -75,7 +75,7 @@ module.exports = {
                 } else {
                     interaction.reply({
                         content: 'You are not authorized to use this command.',
-                        ephermal: true
+                        ephemeral: true
                     });
                 }
             default:

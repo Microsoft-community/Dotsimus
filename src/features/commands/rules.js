@@ -21,7 +21,7 @@ module.exports = {
                 .setName('search')
                 .setDescription('Searches for rule with provided keyword.')
                 .addStringOption(option =>
-                    option.setName('number')
+                    option.setName('keyword')
                         .setDescription('Type in keyword.')
                         .setRequired(true)))
         .addSubcommand(subcommand =>
@@ -43,6 +43,10 @@ module.exports = {
                 case 'rule':
                     if (interaction.options._hoistedOptions[0].value === 69) {
                         interaction.reply({ content: 'nice' })
+                        return;
+                    }
+                    if (interaction.options._hoistedOptions[0].value === 420) {
+                        interaction.reply({ content: 'hahah, weed weed' })
                         return;
                     }
                     if (interaction.options._hoistedOptions[0].value > 0 && interaction.options._hoistedOptions[0].value <= fetchedRules.form_fields[0].values.length) {
@@ -75,7 +79,6 @@ module.exports = {
                             .addFields(getSearchResults);
                         interaction.reply({
                             type: 4,
-                            ephemeral: true,
                             embeds: [foundRules]
                         })
                     } else {
