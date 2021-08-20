@@ -21,7 +21,7 @@ module.exports = {
                 .setName('search')
                 .setDescription('Searches for rule with provided keyword.')
                 .addStringOption(option =>
-                    option.setName('number')
+                    option.setName('keyword')
                         .setDescription('Type in keyword.')
                         .setRequired(true)))
         .addSubcommand(subcommand =>
