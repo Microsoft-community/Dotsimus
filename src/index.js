@@ -88,7 +88,7 @@ client.on('ready', () => {
 client.on('interactionCreate', async interaction => {
   try {
     !interaction.isButton() ? client.commands.get(interaction.commandName)?.execute(client, interaction, activeUsersCollection) : client.commands.get(interaction.customId)?.execute(client, interaction, activeUsersCollection);
-    collectCommandAnalytics(interaction.commandName, interaction.options?._subcommand);
+    !interaction.isButton() ? collectCommandAnalytics(interaction.commandName, interaction.options?._subcommand) : collectCommandAnalytics(interaction.customId);
   } catch (error) {
     console.error(error);
   }
@@ -215,8 +215,8 @@ client.on('messageCreate', message => {
       });
     })
   })
-  if (server.isPremium && !(message.member.permissions.serialize().KICK_MEMBERS || message.member.permissions.serialize().BAN_MEMBERS || message.member.roles.cache.some(role => role.id === '332343869163438080'))) {
-    // if (server.isPremium) {
+  // if (server.isPremium && !(message.member.permissions.serialize().KICK_MEMBERS || message.member.permissions.serialize().BAN_MEMBERS || message.member.roles.cache.some(role => role.id === '332343869163438080'))) {
+  if (server.isPremium) {
     getToxicity(message.content, message, false).then(toxicity => {
       // console.info(`${getTime()} #${message.channel.name} ${message.author.username}: ${message.content} | ${chalk.red((Number(toxicity.toxicity) * 100).toFixed(2))} ${chalk.red((Number(toxicity.insult) * 100).toFixed(2))}`)
       const messageToxicity = toxicity.toxicity;
@@ -258,14 +258,7 @@ client.on('messageCreate', message => {
                     name: `Trigger message (Toxicity: ${Math.round(Number(messageToxicity) * 100)}%, Insult: ${Math.round(Number(toxicity.insult) * 100)}%)`,
                     value: removedMessage.length > 1024 ? removedMessage.slice(0, 1021).padEnd(1024, '.') ?? 'No recent message found.' : removedMessage ?? 'No recent message found.',
                     inline: false
-                  },
-                  secondMessage,
-                  thirdMessage,
-                  { name: 'User', value: `<@${message.author.id}>`, inline: true },
-                  { name: 'User ID', value: `${message.author.id}`, inline: true },
-                  { name: 'Is user new?', value: `${user.isNew ? "Yes" : "No"}`, inline: true },
-                  { name: 'Total infractions', value: `${totalInfractions}`, inline: true },
-                  { name: 'Channel', value: `<#${message.channel.id}> | 🔗 [Message link](https://discordapp.com/channels/${server.id}/${message.channel.id}/${sentMessage.id})` }
+                  }
                 )
                 .setFooter(`${message.channel.id} ${sentMessage.id}`);
               const row = new MessageActionRow()
@@ -275,15 +268,37 @@ client.on('messageCreate', message => {
                     .setLabel('Approve')
                     .setStyle('SUCCESS'),
                   new MessageButton()
+                    .setCustomId('reportApprovalUnmuteAction')
+                    .setLabel('Approve & unmute')
+                    .setStyle('SUCCESS')
+                );
+              const rowTwo = new MessageActionRow()
+                .addComponents(
+                  new MessageButton()
                     .setCustomId('reportRejectionAction')
                     .setLabel('Reject & unmute')
                     .setStyle('SECONDARY'),
                   new MessageButton()
                     .setCustomId('reportApprovalActionBan')
-                    .setLabel('Approve & ban')
+                    .setLabel('Ban')
                     .setStyle('DANGER')
                     .setDisabled(true)
                 );
+              if (messages[1]) investigationEmbed.addField(
+                `Second message (Toxicity: ${Math.round(Number(messages[1].values.toxicity) * 100)}%, Insult: ${Math.round(Number(messages[1].values.insult) * 100)}%)`,
+                messages[1].message.length > 1024 ? messages[1].message.slice(0, 1021).padEnd(1024, '.') : messages[1].message,
+                false);
+              if (messages[2]) investigationEmbed.addField(
+                `Third message (Toxicity: ${Math.round(Number(messages[2].values.toxicity) * 100)}%, Insult: ${Math.round(Number(messages[2].values.insult) * 100)}%)`,
+                messages[2].message.length > 1024 ? messages[2].message.slice(0, 1021).padEnd(1024, '.') : messages[2].message,
+                false);
+              investigationEmbed.addFields(
+                { name: 'User', value: `<@${message.author.id}>`, inline: true },
+                { name: 'User ID', value: `${message.author.id}`, inline: true },
+                { name: 'Is user new?', value: `${user.isNew ? "Yes" : "No"}`, inline: true },
+                { name: 'Total infractions', value: `${totalInfractions}`, inline: true },
+                { name: 'Channel', value: `<#${message.channel.id}> | 🔗 [Message link](https://discordapp.com/channels/${server.id}/${message.channel.id}/${sentMessage.id})` }
+              )
               // respond to shut up dotsimus
               // alertRecipient = alert.channelId === '792393096020885524' ? `<@${process.env.OWNER}>` : '@here';
               if (matchingThread !== undefined) {
@@ -297,7 +312,7 @@ client.on('messageCreate', message => {
                 await thread.send({
                   content: '@here',
                   embeds: [investigationEmbed],
-                  components: [row]
+                  components: [row, rowTwo]
                 }).then(async sentReport => {
                   const pins = await thread.messages.fetchPinned().then(pinned => {
                     return pinned
