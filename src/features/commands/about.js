@@ -1,7 +1,12 @@
 const { SlashCommandBuilder } = require('@discordjs/builders'),
     { MessageEmbed, MessageActionRow, MessageButton } = require('discord.js'),
     Topgg = require('@top-gg/sdk'),
-    api = new Topgg.Api(process.env.TOPGG_TOKEN);
+    api = new Topgg.Api(process.env.TOPGG_TOKEN),
+    fs = require('fs'),
+    apiDateToTimestamp = (date) => {
+        const dateObj = new Date(date);
+        return Math.floor(dateObj.getTime() / 1000);
+    };
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -20,6 +25,9 @@ module.exports = {
         .addSubcommand(subcommand => subcommand
             .setName('restart')
             .setDescription('⚠️ [Owner command] Restarts the bot.'))
+        .addSubcommand(subcommand => subcommand
+            .setName('usage')
+            .setDescription('Shows how many times commands were used and when they were used last.')),
     async execute (client, interaction) {
         switch (interaction.options.getSubcommand()) {
             case 'me':
@@ -82,6 +90,26 @@ module.exports = {
                         ephemeral: true
                     });
                 }
+                break;
+            case 'usage':
+                const analyticsFile = fs.readFileSync("./events.json", "utf8"),
+                    parsedAnalytics = JSON.parse(analyticsFile),
+                    usageEmbed = new MessageEmbed()
+                        .setTitle('Dotsimus Commands usage')
+                        .setColor('#ffbd2e');
+                parsedAnalytics.sort((a, b) => (a.used - b.used)).reverse()
+                usageEmbed.addFields(parsedAnalytics.map((command, key) => {
+                    return {
+                        name: `${key + 1} - ${command.name}`,
+                        value: `Used ${command.used} times | Last used <t:${apiDateToTimestamp(command.lastUsed)}:R>`,
+                        inline: false
+                    }
+                }).slice(0, 25))
+                interaction.reply({
+                    embeds: [usageEmbed],
+                    ephemeral: true
+                });
+                break;
             default:
                 break;
         }
