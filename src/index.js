@@ -296,7 +296,7 @@ client.on('messageCreate', message => {
                 { name: 'User', value: `<@${message.author.id}>`, inline: true },
                 { name: 'User ID', value: `${message.author.id}`, inline: true },
                 { name: 'Is user new?', value: `${user.isNew ? "Yes" : "No"}`, inline: true },
-                { name: 'Total infractions', value: `${totalInfractions}`, inline: true },
+                { name: 'Total infractions', value: `${totalInfractions >= 1 ? totalInfractions : 'No infractions present.'}`, inline: true },
                 { name: 'Channel', value: `<#${message.channel.id}> | 🔗 [Message link](https://discordapp.com/channels/${server.id}/${message.channel.id}/${sentMessage.id})` }
               )
               // respond to shut up dotsimus
