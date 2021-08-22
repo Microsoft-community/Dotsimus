@@ -96,6 +96,7 @@ module.exports = {
                     parsedAnalytics = JSON.parse(analyticsFile),
                     usageEmbed = new MessageEmbed()
                         .setTitle('Dotsimus Commands usage')
+                        .setFooter('Partial analytics collection started since August 20th, 2021.')
                         .setColor('#ffbd2e');
                 parsedAnalytics.sort((a, b) => (a.used - b.used)).reverse()
                 usageEmbed.addFields(parsedAnalytics.map((command, key) => {
