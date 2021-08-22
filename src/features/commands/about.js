@@ -19,7 +19,7 @@ module.exports = {
             .setDescription('Shows bots latency.'))
         .addSubcommand(subcommand => subcommand
             .setName('restart')
-            .setDescription('⚠️ Restarts the bot.')),
+            .setDescription('⚠️ [Owner command] Restarts the bot.'))
     async execute (client, interaction) {
         switch (interaction.options.getSubcommand()) {
             case 'me':
