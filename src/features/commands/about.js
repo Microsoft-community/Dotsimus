@@ -102,7 +102,7 @@ module.exports = {
                 usageEmbed.addFields(parsedAnalytics.map((command, key) => {
                     return {
                         name: `${key + 1} - ${command.name}`,
-                        value: `Used ${command.used} times | Last used <t:${apiDateToTimestamp(command.lastUsed)}:R>`,
+                        value: `Used ${command.used > 1 ? `${command.used} times` : `${command.used} time`} | Last used <t:${apiDateToTimestamp(command.lastUsed)}:R>`,
                         inline: false
                     }
                 }).slice(0, 25))
