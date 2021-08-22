@@ -261,7 +261,7 @@ client.on('messageCreate', message => {
                   }
                 )
                 .setFooter(`${message.channel.id} ${sentMessage.id}`);
-              const row = new MessageActionRow()
+              const reportActions = new MessageActionRow()
                 .addComponents(
                   new MessageButton()
                     .setCustomId('reportApprovalAction')
@@ -271,9 +271,7 @@ client.on('messageCreate', message => {
                     .setCustomId('reportApprovalUnmuteAction')
                     .setLabel('Approve & unmute')
                     .setStyle('SUCCESS')
-                );
-              const rowTwo = new MessageActionRow()
-                .addComponents(
+                    .setDisabled(true),
                   new MessageButton()
                     .setCustomId('reportRejectionAction')
                     .setLabel('Reject & unmute')
@@ -312,7 +310,7 @@ client.on('messageCreate', message => {
                 await thread.send({
                   content: '@here',
                   embeds: [investigationEmbed],
-                  components: [row, rowTwo]
+                  components: [reportActions]
                 }).then(async sentReport => {
                   const pins = await thread.messages.fetchPinned().then(pinned => {
                     return pinned
@@ -336,7 +334,7 @@ client.on('messageCreate', message => {
                   thread.send({
                     content: '@here',
                     embeds: [investigationEmbed],
-                    components: [row]
+                    components: [reportActions]
                   }).then(async sentReport => {
                     const pins = await thread.messages.fetchPinned().then(pinned => {
                       return pinned
