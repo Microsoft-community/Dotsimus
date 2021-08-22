@@ -1,6 +1,7 @@
 const { SlashCommandBuilder } = require('@discordjs/builders'),
     { MessageEmbed, MessageActionRow, MessageButton } = require('discord.js'),
-    Discord = require('discord.js');
+    Topgg = require('@top-gg/sdk'),
+    api = new Topgg.Api(process.env.TOPGG_TOKEN);
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -53,6 +54,9 @@ module.exports = {
                             { name: '!repeat', value: 'Admin only command which repeats what you say. \n Usage: `!repeat <phrase>`' },
                             { name: '!dotprefix', value: 'Changes bot prefix. \n Usage: `!dotprefix <prefix>`' }
                         );
+                if (process.env.DEVELOPMENT !== 'true') api.postStats({
+                    serverCount: guilds.size
+                });
                 interaction.reply({
                     type: 4,
                     embeds: [embedResponse],
