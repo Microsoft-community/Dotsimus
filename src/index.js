@@ -88,7 +88,7 @@ client.on('ready', () => {
 client.on('interactionCreate', async interaction => {
   try {
     !interaction.isButton() ? client.commands.get(interaction.commandName)?.execute(client, interaction, activeUsersCollection) : client.commands.get(interaction.customId)?.execute(client, interaction, activeUsersCollection);
-    collectCommandAnalytics(interaction.commandName, interaction.options._subcommand);
+    collectCommandAnalytics(interaction.commandName, interaction.options?._subcommand);
   } catch (error) {
     console.error(error);
   }

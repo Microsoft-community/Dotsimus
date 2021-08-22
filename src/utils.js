@@ -72,19 +72,21 @@ const collectCommandAnalytics = async (commandName, subCommandName) => {
         })
         updateAnalytics('./events.json', parsedAnalytics);
     }
-    if (findCommand(`${commandName} ${subCommandName}`)[0] !== undefined) {
-        ++findCommand(`${commandName} ${subCommandName}`)[0].used
-        findCommand(`${commandName} ${subCommandName}`)[0].lastUsed = +new Date
-        updateAnalytics('./events.json', parsedAnalytics);
-    } else {
-        if (subCommandName === undefined) return
-        parsedAnalytics.push({
-            type: 'subCommand',
-            name: `${commandName} ${subCommandName}`,
-            used: 1,
-            lastUsed: +new Date
-        })
-        updateAnalytics('./events.json', parsedAnalytics);
+    if (subCommandName !== undefined) {
+        if (findCommand(`${commandName} ${subCommandName}`)[0] !== undefined) {
+            ++findCommand(`${commandName} ${subCommandName}`)[0].used
+            findCommand(`${commandName} ${subCommandName}`)[0].lastUsed = +new Date
+            updateAnalytics('./events.json', parsedAnalytics);
+        } else {
+            if (subCommandName === undefined) return
+            parsedAnalytics.push({
+                type: 'subCommand',
+                name: `${commandName} ${subCommandName}`,
+                used: 1,
+                lastUsed: +new Date
+            })
+            updateAnalytics('./events.json', parsedAnalytics);
+        }
     }
 }
 
