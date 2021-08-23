@@ -12,9 +12,9 @@ module.exports = {
             db.saveMessage(
                 +new Date,
                 interaction.guildId,
-                interaction.message.embeds[0].fields[4].value,
-                await client.users.fetch(interaction.message.embeds[0].fields[4].value).then(user => { return user.username }),
-                interaction.message.embeds[0].fields[5].value === 'Yes' ? true : false,
+                interaction.message.embeds[0].fields.filter(field => field.name === 'User ID').map(field => field.value)[0],
+                await client.users.fetch(interaction.message.embeds[0].fields.filter(field => field.name === 'User ID').map(field => field.value)[0]).then(user => { return user.username }),
+                interaction.message.embeds[0].fields.filter(field => field.name === 'Is user new?').map(field => field.value)[0] === 'Yes' ? true : false,
                 interaction.message.embeds[0].fields[0].value,
                 await perspective.getToxicity(interaction.message.embeds[0].fields[0].value, {
                     channel: {

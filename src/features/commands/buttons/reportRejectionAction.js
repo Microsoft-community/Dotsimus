@@ -7,14 +7,14 @@ module.exports = {
     async execute (client, interaction) {
         if (interaction.member.permissions.serialize().KICK_MEMBERS || interaction.member.permissions.serialize().BAN_MEMBERS || interaction.member.roles.cache.some(role => role.id === '332343869163438080')) {
             const removedMessageInfo = interaction.message.embeds[0].footer.text.split(/ +/g),
-                flaggedUserInfo = await client.users.fetch(interaction.message.embeds[0].fields[4].value).then(user => { return user }),
+                flaggedUserInfo = await client.users.fetch(interaction.message.embeds[0].fields.filter(field => field.name === 'User ID').map(field => field.value)[0]).then(user => { return user }),
                 reinstatedMessage = new MessageEmbed()
                     .setColor('#32CD32')
-                    .setAuthor(`${flaggedUserInfo.username}#${flaggedUserInfo.discriminator}`, `https://cdn.discordapp.com/avatars/${interaction.message.embeds[0].fields[4].value}/${flaggedUserInfo.avatar}.png`, `https://discord.com/users/${interaction.message.embeds[0].fields[4].value}`)
+                    .setAuthor(`${flaggedUserInfo.username}#${flaggedUserInfo.discriminator}`, `https://cdn.discordapp.com/avatars/${interaction.message.embeds[0].fields.filter(field => field.name === 'User ID').map(field => field.value)[0]}/${flaggedUserInfo.avatar}.png`, `https://discord.com/users/${interaction.message.embeds[0].fields.filter(field => field.name === 'User ID').map(field => field.value)[0]}`)
                     .setDescription(`${interaction.message.embeds[0].fields[0].value}`)
                     .setFooter('Message reinstated by the moderation team.', `https://cdn.discordapp.com/icons/${interaction.guildId}/${interaction.guild.icon}.webp`);
             let reportRejectionEphemeralMsg = 'Report rejected, user is notified & unmuted.'
-            client.guilds.cache.get(interaction.guildId).members.fetch(interaction.message.embeds[0].fields[4].value).then(async member => {
+            client.guilds.cache.get(interaction.guildId).members.fetch(interaction.message.embeds[0].fields.filter(field => field.name === 'User ID').map(field => field.value)[0]).then(async member => {
                 member.roles.remove(await db.getAlerts(interaction.guildId).then(alerts => {
                     return alerts[0].mutedRoleId
                 }));
