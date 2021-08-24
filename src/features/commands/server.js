@@ -9,6 +9,7 @@ const { SlashCommandBuilder } = require('@discordjs/builders'),
     };
 
 module.exports = {
+    type: 'slash',
     data: new SlashCommandBuilder()
         .setName('server')
         .setDescription('Shows user related information.')

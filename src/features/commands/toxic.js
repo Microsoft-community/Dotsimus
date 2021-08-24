@@ -1,5 +1,5 @@
 const { SlashCommandBuilder } = require('@discordjs/builders'),
-    { MessageEmbed } = require('discord.js'),
+    { MessageEmbed, MessageActionRow, MessageButton } = require('discord.js'),
     perspective = require('../../api/perspective');
 
 module.exports = {
@@ -12,7 +12,19 @@ module.exports = {
                 .setRequired(true)
         ),
     async execute (client, interaction) {
-        await interaction.deferReply();
+
+        const Buttons = new MessageActionRow()
+        .addComponents(
+            new MessageButton()
+                .setCustomId(`sendToxicityEmbed`)
+                .setLabel(`Send anyways`)
+                .setStyle(`DANGER`),
+            new MessageButton()
+                .setCustomId(`hideToxicityEmbed`)
+                .setLabel(`Dont send`)
+                .setStyle(`SECONDARY`)
+        )
+
         perspective.getToxicity(interaction.options._hoistedOptions[0].value, {
             channel: {
                 name: interaction.channel_id
@@ -30,13 +42,24 @@ module.exports = {
                         { name: 'Probability', value: `**Toxicity:** ${toxicity.toxicity} \n **Insult:** ${toxicity.insult}` },
                         { name: 'Dotsimus combined probability', value: `${toxicity.combined}` }
                     );
-                interaction.editReply({
-                    type: 4,
-                    embeds: [embedResponse]
-                })
+                    console.log(toxicity.toxicity)
+                if(toxicity.toxicity > 0.80) {
+                    interaction.reply({
+                        content: `Are you sure that you want to share this content? It might be seen as inappropriate by the moderation team.`,
+                        embeds: [embedResponse],
+                        components: [Buttons],
+                        ephemeral: true,
+                    })
+                } else {
+                    interaction.reply({
+                        type: 4,
+                        embeds: [embedResponse],
+                        
+                    })
+                }
             } else {
-                interaction.editReply({
-                    type: 4,
+                interaction.reply({
+                    //type: 4,
                     ephemeral: true,
                     content: 'Provided message cannot be analyzed.'
                 })

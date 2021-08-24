@@ -4,6 +4,7 @@ const { Client } = require('discord.js'),
 
 module.exports = {
     name: 'reportApprovalAction',
+    type: 'button',
     description: 'Keeps user muted and updates removed message with moderator notice.',
     async execute (client, interaction) {
         if (interaction.member.permissions.serialize().KICK_MEMBERS || interaction.member.permissions.serialize().BAN_MEMBERS || interaction.member.roles.cache.some(role => role.id === '332343869163438080')) {
