@@ -20,8 +20,6 @@ const Sentry = require('@sentry/node'),
   { REST } = require('@discordjs/rest'),
   { Routes } = require('discord-api-types/v9'),
   commandsArray = [],
-  adiDevClientId = '871633567376089128',
-  adiDevGuildId = '852904338204262465';
   devClientId = '793068568601165875',
   devGuildId = '280600603741257728';
 
@@ -37,7 +35,7 @@ const rest = new REST({ version: '9' }).setToken(process.env.DEVELOPMENT !== 'tr
   try {
     console.info('Started refreshing application slash commands.');
     await rest.put(
-      process.env.DEVELOPMENT !== 'true' ? Routes.applicationCommands('731190736996794420') : Routes.applicationGuildCommands(adiDevClientId, adiDevGuildId),
+      process.env.DEVELOPMENT !== 'true' ? Routes.applicationCommands('731190736996794420') : Routes.applicationGuildCommands(devClientId, devGuildId),
       { body: commandsArray },
     );
     console.info('Successfully reloaded application slash commands.');
