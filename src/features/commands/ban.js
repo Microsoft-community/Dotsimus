@@ -44,6 +44,18 @@ module.exports = {
                 content: `There's no user mentioned, try mentioning a user in the option \`user\` then try again`
             })
         }
-      }
+      } else {
+
+       interaction.editReply({
+
+                type: 4,
+
+                ephemeral: true,
+
+                content: `You don't have enough permissions to run this command`
+
+            })
+
+       }
     },
 }
