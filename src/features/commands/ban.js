@@ -18,7 +18,8 @@ module.exports = {
     async execute(client, interaction) {
         await interaction.deferReply();
         var userSnowflake = interaction.options.getUser('user');
-
+        var commandUser = client.users.cache.get(interaction.member.user.id);
+        if (commandUser.permissions.has("BAN_MEMBERS", true)) {
         if (!isNaN(userSnowflake)) {
             var reason = interaction.options.get('reason')?.value;
             // Ban user from guild
@@ -43,5 +44,6 @@ module.exports = {
                 content: `There's no user mentioned, try mentioning a user in the option \`user\` then try again`
             })
         }
+      }
     },
 }
