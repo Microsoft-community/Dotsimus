@@ -27,7 +27,7 @@ module.exports = {
                     .setColor('#ffbd2e')
                     .addFields(
                         { name: 'Message', value: `||${interaction.options._hoistedOptions[0].value.slice(0, 1020)}||` },
-                        { name: 'Probability', value: `**Toxicity:** ${toxicity.toxicity} \n **Insult:** ${toxicity.insult}` },
+                        { name: 'Probability', value: `**Toxicity:** ${toxicity.toxicity} \n**Insult:** ${toxicity.insult}` },
                         { name: 'Dotsimus combined probability', value: `${toxicity.combined}` }
                     );
                 interaction.editReply({
