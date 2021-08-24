@@ -42,7 +42,6 @@ module.exports = {
                         { name: 'Probability', value: `**Toxicity:** ${toxicity.toxicity} \n **Insult:** ${toxicity.insult}` },
                         { name: 'Dotsimus combined probability', value: `${toxicity.combined}` }
                     );
-                    console.log(toxicity.toxicity)
                 if(toxicity.toxicity > 0.80) {
                     interaction.reply({
                         content: `Are you sure that you want to share this content? It might be seen as inappropriate by the moderation team.`,
