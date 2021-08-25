@@ -12,7 +12,7 @@ module.exports = {
         )
         .addStringOption(option =>
             option.setName('reason')
-                .setDescription('Reason to include in ban message')
+                .setDescription('Reason to include in ban message.')
                 .setRequired(false)
         ),
     async execute(client, interaction) {
