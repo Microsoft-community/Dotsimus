@@ -28,7 +28,7 @@ module.exports = {
                 reason = "No reason specified";
                 interaction.editReply({
                     type: 4,
-                    content: `<@${userSnowflake}> has been banned`
+                    content: `<@${userSnowflake}> has been banned.`
                 });
             } else {
                 interaction.editReply({
