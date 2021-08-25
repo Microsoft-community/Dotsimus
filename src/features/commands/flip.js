@@ -2,6 +2,7 @@ const { SlashCommandBuilder } = require('@discordjs/builders'),
     wait = require('util').promisify(setTimeout);
 
 module.exports = {
+    type: 'slash',
     data: new SlashCommandBuilder()
         .setName('flip-a-coin')
         .setDescription('Resolve any argument with a flip of a coin.')

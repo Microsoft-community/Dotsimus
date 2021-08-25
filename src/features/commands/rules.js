@@ -5,6 +5,7 @@ const { SlashCommandBuilder } = require('@discordjs/builders'),
 
 
 module.exports = {
+    type: 'slash',
     data: new SlashCommandBuilder()
         .setName('rules')
         .setDescription('Allows you to guide new users through rules without hitting them with a wall of text.')
