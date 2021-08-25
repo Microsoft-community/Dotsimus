@@ -33,7 +33,7 @@ module.exports = {
             } else {
                 interaction.editReply({
                     type: 4,
-                    content: `<@${userSnowflake}> has been banned for **${reason}**`
+                    content: `<@${userSnowflake}> has been banned for **${reason}.**`
                 });
             }
 
