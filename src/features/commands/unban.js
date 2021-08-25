@@ -27,7 +27,7 @@ module.exports = {
             interaction.editReply({
                 type: 4,
                 ephemeral: true,
-                content: `There's no user mentioned, try mentioning a user ID/snowflake in the option \`snowflake\` then try again`
+                content: `⚠️ Invalid user specified, try double check whether user ID is correct.`
             })
         }
        } else {
