@@ -25,7 +25,7 @@ module.exports = {
             // Ban user from guild
             interaction.guild.members.ban(user);
             if (isNaN(reason)) {
-                reason = "No reason specified";
+                reason = "No reason specified.";
                 interaction.editReply({
                     type: 4,
                     content: `<@${userSnowflake}> has been banned.`
