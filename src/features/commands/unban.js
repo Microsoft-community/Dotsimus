@@ -20,7 +20,7 @@ module.exports = {
             interaction.guild.members.unban(user);
             interaction.editReply({
                 type: 4,
-                content: `<@${userSnowflake}> has been unbanned successfully`
+                content: `<@${userSnowflake}> has been unbanned successfully.`
             });
             
         } else {
