@@ -3,6 +3,7 @@ const { SlashCommandBuilder } = require('@discordjs/builders'),
     perspective = require('../../api/perspective');
 
 module.exports = {
+type: 'slash',
     type: 'slash',
     data: new SlashCommandBuilder()
         .setName('toxic')
