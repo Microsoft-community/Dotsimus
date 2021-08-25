@@ -37,7 +37,7 @@ module.exports = {
 
                 ephemeral: true,
 
-                content: `You don't have enough permissions to run this command`
+                content: `You don't have enough permissions to run this command.`
 
             })
        }
