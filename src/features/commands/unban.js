@@ -5,7 +5,7 @@ module.exports = {
         .setName('unban')
         .setDescription('Unbans a user from the server.')
         .addStringOption(option =>
-            option.setName('snowflake')
+            option.setName('user')
                 .setDescription('User ID (snowflake) to unban.')
                 .setRequired(true)
         ),
