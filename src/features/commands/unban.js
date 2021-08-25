@@ -11,7 +11,7 @@ module.exports = {
         ),
     async execute(client, interaction) {
         await interaction.deferReply();
-        var userSnowflake = interaction.options.get('snowflake')?.value;
+        var userSnowflake = interaction.options.get('user')?.value;
         var commandUser = client.users.cache.get(interaction.member.user.id);
 
         if (commandUser.permissions.has("BAN_MEMBERS", true)) {
