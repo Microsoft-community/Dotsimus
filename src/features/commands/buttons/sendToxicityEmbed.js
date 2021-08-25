@@ -1,6 +1,4 @@
-const { Client, MessageEmbed, MessageActionRow, MessageButton } = require('discord.js'),
-    db = require('../../../db'),
-    perspective = require('../../../api/perspective');
+const { Client, MessageEmbed } = require('discord.js');
 
 module.exports = {
     name: 'sendToxicityEmbed',
@@ -10,7 +8,7 @@ module.exports = {
 
         if(interaction.isButton()) {
             interaction.update({
-                content: `Message has been sent to channel.`,
+                content: `Message has been sent to the channel.`,
                 components: []
             })
         }

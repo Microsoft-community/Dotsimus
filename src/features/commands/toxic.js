@@ -3,6 +3,7 @@ const { SlashCommandBuilder } = require('@discordjs/builders'),
     perspective = require('../../api/perspective');
 
 module.exports = {
+    type: 'slash',
     data: new SlashCommandBuilder()
         .setName('toxic')
         .setDescription('Machine learning filter for toxicity evaluations.')
@@ -42,7 +43,7 @@ module.exports = {
                         { name: 'Probability', value: `**Toxicity:** ${toxicity.toxicity} \n **Insult:** ${toxicity.insult}` },
                         { name: 'Dotsimus combined probability', value: `${toxicity.combined}` }
                     );
-                if(toxicity.toxicity > 0.80) {
+                if(toxicity.toxicity >= 0.60) {
                     interaction.reply({
                         content: `Are you sure that you want to share this content? It might be seen as inappropriate by the moderation team.`,
                         embeds: [embedResponse],

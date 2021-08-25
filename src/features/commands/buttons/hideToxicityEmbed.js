@@ -5,7 +5,7 @@ const { Client } = require('discord.js'),
 module.exports = {
     name: 'hideToxicityEmbed',
     type: 'button',
-    description: 'Does not send Toxicity embed in the channel.',
+    description: 'Retracts from sending Toxicity embed in the channel.',
     async execute (client, interaction) {
         if(interaction.isButton()) {
             interaction.update({
@@ -13,9 +13,5 @@ module.exports = {
                 components: []
             })
         }
-        // interaction.reply({
-        //     content: `👀`,
-        //     ephemeral: true
-        // })
     },
 };
