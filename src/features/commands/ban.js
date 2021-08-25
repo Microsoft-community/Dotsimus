@@ -41,7 +41,7 @@ module.exports = {
             interaction.editReply({
                 type: 4,
                 ephemeral: true,
-                content: `There's no user mentioned, try mentioning a user in the option \`user\` then try again.`
+                content: `⚠️ Invalid user specified, try double check whether user ID is correct.`
             })
         }
       } else {
