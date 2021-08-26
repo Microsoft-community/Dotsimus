@@ -20,8 +20,8 @@ const Sentry = require('@sentry/node'),
   { REST } = require('@discordjs/rest'),
   { Routes } = require('discord-api-types/v9'),
   commandsArray = [],
-  devClientId = '793068568601165875',
-  devGuildId = '280600603741257728';
+  devClientId = '880151909623791668',
+  devGuildId = '880152553847930940';
 
 
 for (const file of commandFiles) {
@@ -35,7 +35,7 @@ const rest = new REST({ version: '9' }).setToken(process.env.DEVELOPMENT !== 'tr
   try {
     console.info('Started refreshing application slash commands.');
     await rest.put(
-      process.env.DEVELOPMENT !== 'true' ? Routes.applicationCommands('731190736996794420') : Routes.applicationGuildCommands(devClientId, devGuildId),
+      process.env.DEVELOPMENT !== 'true' ? Routes.applicationCommands('880151909623791668') : Routes.applicationGuildCommands(devClientId, devGuildId),
       { body: commandsArray },
     );
     console.info('Successfully reloaded application slash commands.');
@@ -216,7 +216,7 @@ client.on('messageCreate', message => {
       });
     })
   })
-  if (server.isPremium && !(message.member.permissions.serialize().KICK_MEMBERS || message.member.permissions.serialize().BAN_MEMBERS || message.member.roles.cache.some(role => role.id === '332343869163438080'))) {
+  if (!(message.member.permissions.serialize().KICK_MEMBERS || message.member.permissions.serialize().BAN_MEMBERS || message.member.roles.cache.some(role => role.id === '332343869163438080'))) {
   // if (server.isPremium) {
     getToxicity(message.content, message, false).then(toxicity => {
       // console.info(`${getTime()} #${message.channel.name} ${message.author.username}: ${message.content} | ${chalk.red((Number(toxicity.toxicity) * 100).toFixed(2))} ${chalk.red((Number(toxicity.insult) * 100).toFixed(2))}`)
