@@ -14,7 +14,7 @@ module.exports = {
         var userSnowflake = interaction.options.get('user')?.value;
         var commandUser = client.users.cache.get(interaction.member.user.id);
 
-        if (commandUser.permissions.has("BAN_MEMBERS", true)) {
+        if (commandUser.permissions.has("BAN_MEMBERS", false)) {
         if (!isNaN(userSnowflake)) {
             // Unban user from guild
             interaction.guild.members.unban(user);
