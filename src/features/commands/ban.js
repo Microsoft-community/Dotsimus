@@ -19,7 +19,7 @@ module.exports = {
         await interaction.deferReply();
         var userSnowflake = interaction.options.getUser('user');
         var commandUser = client.users.cache.get(interaction.member.user.id);
-        if (commandUser.permissions.has("BAN_MEMBERS", false)) {
+        if (commandUser.permissions.has("BAN_MEMBERS", true)) {
         if (!isNaN(userSnowflake)) {
             var reason = interaction.options.get('reason')?.value;
             // Ban user from guild
