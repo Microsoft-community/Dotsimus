@@ -9,6 +9,7 @@ const { SlashCommandBuilder } = require('@discordjs/builders'),
     };
 
 module.exports = {
+    type: 'slash',
     data: new SlashCommandBuilder()
         .setName('about')
         .setDescription('Find out more about Dotsimus.')

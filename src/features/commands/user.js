@@ -121,7 +121,7 @@ const sendWarningEmbed = (client, interaction, user) => {
         } else {
             client.users.fetch(user).then((user) => {
                 const infoEmbed = new Discord.MessageEmbed()
-                    .setTitle(`${user.username}#${user.discriminator}`)
+                    .setTitle(`${user.tag}`)
                     .setColor(`${getStatusColor(user?.presence?.status)}`)
                     .setThumbnail(`https://cdn.discordapp.com/avatars/${guildMember.user.id}/${guildMember.user.avatar}.png`)
                     .setFooter(`User ID: ${user.id} - user created on ${getDate(user.createdAt)}`)
@@ -163,6 +163,7 @@ const sendWarningEmbed = (client, interaction, user) => {
 }
 
 module.exports = {
+    type: 'slash',
     data: new SlashCommandBuilder()
         .setName('user')
         .setDescription('Shows user related information.')

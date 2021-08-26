@@ -23,9 +23,10 @@ const Sentry = require('@sentry/node'),
   devClientId = '793068568601165875',
   devGuildId = '280600603741257728';
 
+
 for (const file of commandFiles) {
   const command = require(`./features/commands/${file}`);
-  if (command.data.type !== 'button') commandsArray.push(command.data.toJSON());
+  if (command.type !== 'button') commandsArray.push(command.data.toJSON());
 }
 
 const rest = new REST({ version: '9' }).setToken(process.env.DEVELOPMENT !== 'true' ? process.env.BOT_TOKEN : process.env.BOT_TOKEN_DEV);

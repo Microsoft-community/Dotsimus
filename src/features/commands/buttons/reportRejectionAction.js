@@ -3,6 +3,7 @@ const { MessageEmbed, MessageActionRow, MessageButton } = require('discord.js'),
 
 module.exports = {
     name: 'reportRejectionAction',
+    type: 'button',
     description: 'Unmutes user, reinstates removed message and notifies affected user.',
     async execute (client, interaction) {
         if (interaction.member.permissions.serialize().KICK_MEMBERS || interaction.member.permissions.serialize().BAN_MEMBERS || interaction.member.roles.cache.some(role => role.id === '332343869163438080')) {
