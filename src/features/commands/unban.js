@@ -3,43 +3,35 @@ const { SlashCommandBuilder } = require('@discordjs/builders');
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('unban')
-        .setDescription('Unbans a user from the server.')
-        .addStringOption(option =>
+        .setDescription('Unbans user from the server.')
+        .addUserOption(option =>
             option.setName('user')
-                .setDescription('User ID (snowflake) to unban.')
+                .setDescription('Select user to unban.')
                 .setRequired(true)
         ),
-    async execute(client, interaction) {
+    async execute (client, interaction) {
         await interaction.deferReply();
-        var userSnowflake = interaction.options.get('user')?.value;
-        var commandUser = client.users.cache.get(interaction.member.user.id);
-
-        if (commandUser.permissions.has("BAN_MEMBERS", true)) {
-        if (!isNaN(userSnowflake)) {
-            // Unban user from guild
-            interaction.guild.members.unban(user);
-            interaction.editReply({
-                type: 4,
-                content: `<@${userSnowflake}> has been unbanned successfully.`
-            });
-            
+        const userSnowflake = interaction.options.getUser('user');
+        if (interaction.member.permissions.serialize().BAN_MEMBERS) {
+            if (!isNaN(userSnowflake)) {
+                interaction.guild.members.unban(userSnowflake);
+                interaction.editReply({
+                    type: 4,
+                    content: `${userSnowflake} has been unbanned successfully.`
+                });
+            } else {
+                interaction.editReply({
+                    type: 4,
+                    ephemeral: true,
+                    content: `⚠️ Invalid user specified, try double check whether user ID is correct.`
+                })
+            }
         } else {
             interaction.editReply({
                 type: 4,
                 ephemeral: true,
-                content: `⚠️ Invalid user specified, try double check whether user ID is correct.`
+                content: `You don't have enough permissions to run this command.`
             })
         }
-       } else {
-       interaction.editReply({
-
-                type: 4,
-
-                ephemeral: true,
-
-                content: `You don't have enough permissions to run this command.`
-
-            })
-       }
     },
 }
