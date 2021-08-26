@@ -1,61 +1,52 @@
-const { SlashCommandBuilder } = require('@discordjs/builders'),
-    { MessageEmbed } = require('discord.js');
+const { SlashCommandBuilder } = require('@discordjs/builders');
 
 module.exports = {
+    type: 'slash',
     data: new SlashCommandBuilder()
         .setName('ban')
-        .setDescription('Bans a user from the server.')
+        .setDescription('Bans user from the server.')
         .addUserOption(option =>
             option.setName('user')
-                .setDescription('User to ban.')
+                .setDescription('Select user to ban.')
                 .setRequired(true)
         )
         .addStringOption(option =>
             option.setName('reason')
-                .setDescription('Reason to include in ban message.')
+                .setDescription('Reason for a ban.')
                 .setRequired(false)
         ),
-    async execute(client, interaction) {
+    async execute (client, interaction) {
         await interaction.deferReply();
-        var userSnowflake = interaction.options.getUser('user');
-        var commandUser = client.users.cache.get(interaction.member.user.id);
-        if (commandUser.permissions.has("BAN_MEMBERS", true)) {
-        if (!isNaN(userSnowflake)) {
-            var reason = interaction.options.get('reason')?.value;
-            // Ban user from guild
-            interaction.guild.members.ban(user);
-            if (isNaN(reason)) {
-                reason = "No reason specified.";
-                interaction.editReply({
-                    type: 4,
-                    content: `<@${userSnowflake}> has been banned.`
-                });
+        const userSnowflake = interaction.options.getUser('user');
+        if (interaction.member.permissions.serialize().BAN_MEMBERS) {
+            if (!isNaN(userSnowflake)) {
+                let reason = interaction.options.get('reason')?.value ?? "No reason specified.";
+                interaction.guild.members.ban(userSnowflake);
+                if (!interaction.options.get('reason')?.value) {
+                    interaction.editReply({
+                        type: 4,
+                        content: `${userSnowflake} has been banned.`
+                    });
+                } else {
+                    interaction.editReply({
+                        type: 4,
+                        content: `${userSnowflake} has been banned for **${reason}.**`
+                    });
+                }
             } else {
                 interaction.editReply({
                     type: 4,
-                    content: `<@${userSnowflake}> has been banned for **${reason}.**`
-                });
+                    ephemeral: true,
+                    content: `⚠️ Invalid user specified, double check whether user ID is correct.`
+                })
             }
-
         } else {
             interaction.editReply({
                 type: 4,
                 ephemeral: true,
-                content: `⚠️ Invalid user specified, try double check whether user ID is correct.`
+                content: `You don't have required permissions to run this command.`
             })
+
         }
-      } else {
-
-       interaction.editReply({
-
-                type: 4,
-
-                ephemeral: true,
-
-                content: `You don't have enough permissions to run this command.`
-
-            })
-
-       }
     },
 }
