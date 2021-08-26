@@ -20,8 +20,8 @@ module.exports = {
         const userSnowflake = interaction.options.getUser('user');
         if (interaction.member.permissions.serialize().BAN_MEMBERS) {
             if (!isNaN(userSnowflake)) {
-                let reason = interaction.options.get('reason')?.value ?? "No reason specified.";
-                interaction.guild.members.ban(userSnowflake);
+                const reason = interaction.options.get('reason')?.value ?? "No reason specified.";
+                interaction.guild.members.ban(userSnowflake, { reason: interaction.options.get('reason')?.value })
                 if (!interaction.options.get('reason')?.value) {
                     interaction.editReply({
                         type: 4,
