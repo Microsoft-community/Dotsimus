@@ -14,7 +14,7 @@ module.exports = {
         const userSnowflake = interaction.options.getUser('user');
         if (interaction.member.permissions.serialize().BAN_MEMBERS) {
             if (!isNaN(userSnowflake)) {
-                interaction.guild.members.unban(userSnowflake);
+                interaction.guild.members.unban(userSnowflake).catch(() => {});
                 interaction.editReply({
                     type: 4,
                     content: `${userSnowflake} has been unbanned successfully.`
