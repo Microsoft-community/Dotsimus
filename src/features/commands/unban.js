@@ -13,19 +13,29 @@ module.exports = {
         await interaction.deferReply();
         const userSnowflake = interaction.options.getUser('user');
         if (interaction.member.permissions.serialize().BAN_MEMBERS) {
-            if (!isNaN(userSnowflake)) {
-                interaction.guild.members.unban(userSnowflake).catch(() => {});
+            const banList = await interaction.guild.fetchBans();
+            const bannedUser = banList.find(user => user.id === interaction.member.user.id);
+            if (bannedUser) {
+              if (!isNaN(userSnowflake)) {
+                  interaction.guild.members.unban(userSnowflake).catch(() => {});
+                  interaction.editReply({
+                      type: 4,
+                      content: `${userSnowflake} has been unbanned successfully.`
+                  });
+              } else {
                 interaction.editReply({
                     type: 4,
-                    content: `${userSnowflake} has been unbanned successfully.`
-                });
-            } else {
-                interaction.editReply({
+                    ephemeral: true,
+                    content: `This user is not banned!`
+                })
+             }
+           } else {
+              interaction.editReply({
                     type: 4,
                     ephemeral: true,
                     content: `⚠️ Invalid user specified, try double check whether user ID is correct.`
                 })
-            }
+           }
         } else {
             interaction.editReply({
                 type: 4,
