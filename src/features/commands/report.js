@@ -4,6 +4,7 @@ const { report } = require('process');
 const { promisify } = require('util')
 const Report = require('../../reportObject.js');
 const UserCases = require('../../userCases.js');
+const db = require('../../db');
 
 function getMessageId(linkOrId)
 {
@@ -29,19 +30,23 @@ module.exports = {
                 .setDescription('The reason of the report')
                 .setRequired(false)),
 
-    async execute(client, interaction)
-    {
+    async execute(client, interaction) {
+        if (await db.usedPreventedFromReport(interaction.member.id)) {
+            return await interaction.reply({
+                content: `You are prevented from reporting, this could be because you abused the system.\n
+                If you want more info, or if you think this is an error, contact moderators.`,
+                ephemeral: true
+            });
+        }
+
         reason = interaction.options.getString('reason');
         messageLinkOrId = interaction.options.get('message').value;
 
-        try
-        {
+        try {
             // try to get the message id from the link
             const messageId = getMessageId(messageLinkOrId);
             message = await interaction.channel.messages.fetch(messageId);
-        }
-        catch(e)
-        {
+        } catch(e) {
             interaction.reply({
                 content: 'Please input a valid Discord message link, or a valid message ID',
                 ephemeral: true
@@ -49,8 +54,7 @@ module.exports = {
             return;
         }
 
-        try
-        {
+        try {
             const report = await reportMessage(interaction.member, message, reason);
 
             await sendReport(client, report);
@@ -70,9 +74,7 @@ module.exports = {
                     ephemeral: true
                 });
             }
-        }
-        catch(e)
-        {
+        } catch(e) {
             interaction.reply({
                 content: 'Report creation failed: ' + e,
                 ephemeral: true

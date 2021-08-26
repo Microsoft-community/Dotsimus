@@ -5,7 +5,8 @@ const Sentry = require('@sentry/node'),
   adminRoleSchema = require('./adminRoleSchema'),
   serversConfigSchema = require('./schemas/serversConfig'),
   saveMessageSchema = require('./schemas/saveMessageSchema'),
-  watchKeywordSchema = require('./schemas/watchKeywordSchema');
+  watchKeywordSchema = require('./schemas/watchKeywordSchema'),
+  blockedReportSchema = require('./schemas/blockedReport');
 
 if (process.env.DEVELOPMENT !== 'true') Sentry.init({ dsn: process.env.SENTRY_DSN });
 
@@ -24,6 +25,7 @@ const Alert = mongoose.model('Alert', alertSchema),
   ServersConfig = mongoose.model('ServersConfig', serversConfigSchema),
   SaveMessage = mongoose.model('userInfractions', saveMessageSchema),
   WatchKeyword = mongoose.model('watchedKeywords', watchKeywordSchema),
+  BlockedReport = mongoose.model('blockedReport', blockedReportSchema)
   TTL = 30 * 1000,
   cache = new Map();
 const cachify = (originalFn) => {
@@ -283,5 +285,40 @@ module.exports = {
         console.error(e)
         throw 'Failed to update or add an alert'
       })
+  },
+  saveBlockedReportUser: async function(userId, username) {
+    try {
+      const filter = { userId };
+      const result = await BlockedReport.findOneAndUpdate(filter, { $setOnInsert: {
+          userId,
+          username
+        }
+      }, {
+        upsert: true,
+      });
+  
+      console.log(result);
+    } catch(e) {
+      console.error(e);
+      throw 'Failed to block user from the report system';
+    }
+  },
+  deleteBlockedReportUser: async function(userId) {
+    try {
+      const result = await BlockedReport.deleteMany({ userId });
+
+      console.log(result);
+    } catch(e) {
+      console.error(e);
+      throw 'Failed to unblock user from the report system';
+    }
+  },
+  usedPreventedFromReport: async function(userId) {
+    try {
+      const result = await BlockedReport.find({ userId });
+      return result.length > 0;
+    } catch(e) {
+      return false;
+    }
   }
 }
