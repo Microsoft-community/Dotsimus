@@ -2,7 +2,7 @@ const { MessageEmbed } = require('discord.js');
 
 const ReportStatus = {
     Pending: 'Pending',
-    Validated: 'Validated',
+    Approved: 'Approved',
     Rejected: 'Rejected'
 };
 
@@ -10,6 +10,7 @@ class ReportedContentInterface {
     constructor() {
         this.reportType = "Unknown";
         this.link = "";
+        this.fields = {};
     }
 
     /**
@@ -38,46 +39,13 @@ class ReportedContentInterface {
     }
 }
 
-class ReportedMessage extends ReportedContentInterface {
-    constructor(message) {
-        super(message);
-
-        this.reportType = "Message";
-        this.message = message;
-        this.link = message.url;
-        this.content = message.content;
-    }
-
-    isSame() {
-        return this.content == this.message.content;
-    }
-
-    approve() {
-        // approving will delete the message
-        try
-        {
-            this.message.delete();
-        }
-        catch(e)
-        {
-            // if the bot doesn't have right to delete the message
-            // then maybe let moderators delete it
-        }
-    }
-
-    getContent() {
-        // return the content at the time of the report
-        return this.content;
-    }
-}
-
 class ReportObject {
     constructor(guild, author, reason, content, reportedUser) {
         this.id = 0;
         this.guild = guild;
         this.owner = author;
         this.reportedContent = content;
-        this.reportedUser = message.author;
+        this.reportedUser = reportedUser;
         this.signalers = [ author ];
         this.reason = reason;
         this.investigation = 0;
@@ -98,20 +66,40 @@ class ReportObject {
 }
 
 class ReportEmbed {
+    static normalizeReason(rules) {
+        if (Array.isArray(rules)) {
+            let ruleStr = '';
+            rules.forEach((element, index) => {
+                if (index) ruleStr += '/';
+                ruleStr += element.toString();
+            })
+
+            return ruleStr;
+        } else if (typeof rules === 'string') {
+            return rules;
+        } else {
+            return rules.toString();
+        }
+    }
     static createBasicReportEmbed(reportObject) {
         let embed = new MessageEmbed()
             .setTitle(`Report ${reportObject.id}`)
             .setAuthor(reportObject.reportedUser.tag, reportObject.reportedUser.displayAvatarURL())
             .addFields(
+                { name: 'ID', value: reportObject.id.toString(), inline: true },
                 { name: 'User ID', value: reportObject.reportedUser.toString() },
                 { name: 'Type', value: reportObject.reportedContent.reportType }
             );
 
         if (reportObject.reason) {
             embed = embed.addFields(
-                { name: 'Reason', value: reportObject.reason, inline: true }
+                { name: 'Rules', value: ReportEmbed.normalizeReason(reportObject.reason), inline: true }
             );
         }
+
+        Object.entries(reportObject.reportedContent.fields).forEach(([key, value]) => {
+            embed = embed.addFields({ name: key, value });
+        });
 
         embed = embed.addFields(
             { name: 'Content', value: reportObject.reportedContent.getContent() },
@@ -122,21 +110,29 @@ class ReportEmbed {
     }
 
     static createModeratorReportEmbed(reportObject) {
+        let reporters = reportObject.owner.toString();
+        if (reportObject.signalers.length > 1) {
+            // add boosters to the list
+            reportObject.signalers.forEach((element, index) => {
+                if (!index) return;
+                reporters += ` | <@${element.id}>`;
+            });
+        }
+
         let embed = ReportEmbed.createBasicReportEmbed(reportObject)
             .addFields(
-                { name: 'ID', value: reportObject.id.toString(), inline: true },
                 { name: 'Status', value: reportObject.status, inline: true },
-                { name: 'Reported by', value: reportObject.owner.toString(), inline: true }
+                { name: 'Reported by', value: reporters, inline: true }
             );
 
         if (reportObject.status != ReportStatus.Pending) {
-            if (reportObject.acceptor != null) {
+            if (reportObject.acceptor) {
                 embed = embed.addFields(
-                    { name: 'Reviewed by', value: reportObject.acceptor }
+                    { name: 'Reviewed by', value: reportObject.acceptor.toString() }
                 );
             }
 
-            if (reportObject.actionTaken != null) {
+            if (reportObject.actionTaken) {
                 embed = embed.addFields(
                     { name: 'Action taken', value: reportObject.actionTaken }
                 );
@@ -149,5 +145,5 @@ class ReportEmbed {
 
 module.exports.ReportObject = ReportObject;
 module.exports.ReportStatus = ReportStatus;
-module.exports.ReportedMessage = ReportedMessage;
 module.exports.ReportEmbed = ReportEmbed;
+module.exports.ReportedContentInterface = ReportedContentInterface;
