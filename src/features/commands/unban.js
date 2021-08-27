@@ -41,7 +41,7 @@ module.exports = {
             interaction.editReply({
                 type: 4,
                 ephemeral: true,
-                content: `You don't have enough permissions to run this command.`
+                content: `You don't have required permissions to run this command.`
             })
         }
     },
