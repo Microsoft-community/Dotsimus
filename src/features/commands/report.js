@@ -21,7 +21,7 @@ function getMessageId(linkOrId)
 }
 
 // Minimum time before allowing the user to report
-const reportAwaitTime = 1000;
+const reportAwaitTime = 5000;
 // Time before dropping the report. This is used to avoid users create many interactions that the bot collects.
 const reportTimeout = 30000;
 
