@@ -16,7 +16,7 @@ module.exports = {
                 .setRequired(false)
         ),
     async execute (client, interaction) {
-        await interaction.deferReply();
+        await interaction.deferReply({ ephemeral: true });
         const userSnowflake = interaction.options.getUser('user');
         if (interaction.member.permissions.serialize().BAN_MEMBERS) {
             if (!isNaN(userSnowflake)) {
@@ -25,12 +25,14 @@ module.exports = {
                 if (!interaction.options.get('reason')?.value) {
                     interaction.editReply({
                         type: 4,
-                        content: `${userSnowflake} has been banned.`
+                        content: `${userSnowflake} has been banned.`,
+                        ephemeral: false
                     });
                 } else {
                     interaction.editReply({
                         type: 4,
-                        content: `${userSnowflake} has been banned for **${reason}.**`
+                        content: `${userSnowflake} has been banned for **${reason}.**`,
+                        ephemeral: false
                     });
                 }
             } else {
