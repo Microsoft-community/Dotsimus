@@ -1,6 +1,7 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 
 module.exports = {
+    type: 'slash',
     data: new SlashCommandBuilder()
         .setName('unban')
         .setDescription('Unbans user from the server.')
