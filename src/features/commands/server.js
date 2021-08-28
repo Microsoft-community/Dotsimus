@@ -12,15 +12,15 @@ module.exports = {
     type: 'slash',
     data: new SlashCommandBuilder()
         .setName('server')
-        .setDescription('Shows user related information.')
+        .setDescription('Shows server information and activity.')
         .addSubcommand(subcommand =>
             subcommand
                 .setName('information')
-                .setDescription('Shows selected user information.'))
+                .setDescription('Shows information about a server.'))
         .addSubcommand(subcommand =>
             subcommand
                 .setName('activity')
-                .setDescription('Shows selected user infractions and warnings.')),
+                .setDescription('Shows the server\'s activity in the past 3 minutes.')),
     execute (client, interaction, activeUsersCollection) {
         const serverData = client.guilds.cache.get(interaction.guildId)
         switch (interaction.options._subcommand) {
