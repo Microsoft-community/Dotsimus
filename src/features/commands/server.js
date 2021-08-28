@@ -20,7 +20,7 @@ module.exports = {
         .addSubcommand(subcommand =>
             subcommand
                 .setName('activity')
-                .setDescription('Shows the server\'s activity in the past 3 minutes.')),
+                .setDescription('Shows the server\'s engagement and activity in the past 3 minutes.')),
     execute (client, interaction, activeUsersCollection) {
         const serverData = client.guilds.cache.get(interaction.guildId)
         switch (interaction.options._subcommand) {
