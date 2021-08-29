@@ -14,34 +14,25 @@ module.exports = {
         await interaction.deferReply();
         const userSnowflake = interaction.options.getUser('user');
         if (interaction.member.permissions.serialize().BAN_MEMBERS) {
-            const banList = await interaction.guild.fetchBans();
-            const bannedUser = banList.find(user => user.id === interaction.member.user.id);
-            if (bannedUser) {
-              if (!isNaN(userSnowflake)) {
-                  interaction.guild.members.unban(userSnowflake).catch(() => {});
-                  interaction.editReply({
-                      type: 4,
-                      content: `${userSnowflake} has been unbanned successfully.`
-                  });
-              } else {
+            const isUserBanned = await interaction.guild.bans.fetch({ user: userSnowflake, cache: false }).catch(() => false);
+            if (isUserBanned) {
+                interaction.guild.members.unban(userSnowflake).catch(() => { });
+                interaction.editReply({
+                    type: 4,
+                    content: `${userSnowflake} has been unbanned successfully.`
+                });
+            } else {
                 interaction.editReply({
                     type: 4,
                     ephemeral: true,
-                    content: `This user is not banned!`
+                    content: `⚠️ User isn't banned or invalid user specified.`
                 })
-             }
-           } else {
-              interaction.editReply({
-                    type: 4,
-                    ephemeral: true,
-                    content: `⚠️ Invalid user specified, try double check whether user ID is correct.`
-                })
-           }
+            }
         } else {
             interaction.editReply({
                 type: 4,
                 ephemeral: true,
-                content: `You don't have required permissions to run this command.`
+                content: `You don't have required permissions to use this command.`
             })
         }
     },
