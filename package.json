@@ -24,7 +24,7 @@
     "request-promise-native": "^1.0.9",
     "@top-gg/sdk": "^3.1.2"
   },
-  "engines" {
+  "engines": {
     "node": "16.6.2"
   }
 }
