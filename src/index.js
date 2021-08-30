@@ -21,7 +21,7 @@ const Sentry = require('@sentry/node'),
   { Routes } = require('discord-api-types/v9'),
   commandsArray = [],
   devClientId = '793068568601165875',
-  devGuildId = '855853563941748747';
+  devGuildId = '280600603741257728';
 
 
 for (const file of commandFiles) {
