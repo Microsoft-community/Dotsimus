@@ -51,7 +51,6 @@ const getDaysSince = (current, previous) => {
 }
 
 const collectCommandAnalytics = async (commandName, subCommandName) => {
-    return; // SHUT UP AND STOP BOTHERING ME WITH EVENTS.JS OH MY GOD JUST SHUT UP
     const updateAnalytics = (fileName, data) => {
         fs.writeFile(fileName, JSON.stringify(data, null, 2), function (err) {
             if (err) console.log('error', err);
