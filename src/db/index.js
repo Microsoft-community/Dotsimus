@@ -300,7 +300,7 @@ module.exports = {
       console.log(result);
     } catch(e) {
       console.error(e);
-      throw 'Failed to block user from the report system';
+      throw 'Failed to block the user.';
     }
   },
   deleteBlockedReportUser: async function(userId) {
@@ -310,7 +310,7 @@ module.exports = {
       console.log(result);
     } catch(e) {
       console.error(e);
-      throw 'Failed to unblock user from the report system';
+      throw 'Failed to unblock the user.';
     }
   },
   usedPreventedFromReport: async function(userId) {
