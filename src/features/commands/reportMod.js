@@ -1,4 +1,5 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
+const { Permissions } = require('discord.js');
 const db = require('../../db');
 
 module.exports = {
@@ -26,6 +27,13 @@ module.exports = {
                         .setRequired(true))),
 
     async execute(client, interaction) {
+        if (!interaction.member.permissions.has(Permissions.KICK_MEMBERS)) {
+            interaction.reply({
+                content: 'Insufficient permission to execute this command.'
+            });
+            return;
+        }
+
         switch(interaction.options.getSubcommand()) {
             case 'block': {
                 const user = interaction.options.getUser('user');
