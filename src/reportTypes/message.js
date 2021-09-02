@@ -18,12 +18,15 @@ class ReportedMessage extends Report.ReportedContentInterface {
         };
     }
 
-    static fromJSON(data) {
-        const reportedContent = new ReportedMessage({
+    static fromJSON(client, data) {
+        const match = data.link.match('/channels/([0-9]+)/([0-9]+)/([0-9]+)');
+
+        const reportedContent = new ReportedMessage(new Message(client, {
             id: data.message.id,
-            url: data.link,
+            guild_id: match[1],
+            channel_id: match[2],
             content: data.content
-        });
+        }));
 
         return reportedContent;
     }
@@ -32,14 +35,11 @@ class ReportedMessage extends Report.ReportedContentInterface {
         return this.content == this.message.content;
     }
 
-    approve() {
+    async approve() {
         // approving will delete the message
-        try
-        {
-            this.message.delete();
-        }
-        catch(e)
-        {
+        try {
+            await this.message.delete();
+        } catch(e) {
             // if the bot doesn't have right to delete the message
             // then maybe let moderators delete it
         }
@@ -59,7 +59,7 @@ module.exports = {
             new Guild(client, { id: reportData.guildId }),
             new User(client, { id: reportData.ownerId }),
             reportData.reason,
-            ReportedMessage.fromJSON(reportData.reportedContent),
+            ReportedMessage.fromJSON(client, reportData.reportedContent),
             new User(client, { id: reportData.reportedUserId })
         );
 
@@ -70,6 +70,7 @@ module.exports = {
         });
 
         reportObject.thread = new ThreadChannel(reportObject.guild, { id: reportData.threadId }, client);
+        reportObject.thread.name = '';
         reportObject.investigation = new Message(client, { id: reportData.investigationId });
         reportObject.investigation.channelId = reportObject.thread.id;
 
