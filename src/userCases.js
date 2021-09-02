@@ -8,6 +8,16 @@ class UserCase {
 }
   
 module.exports = {
+    /**
+     * Create a new case about an user.
+     * @param {*} client
+     * @param {*} guild which guild to create the case on.
+     * @param {*} user which user this case belongs to.
+     * @param {*} embed
+     * @param {*} components
+     * @param {*} reason the reason as to why this case is being created.
+     * @returns user case object.
+     */
     async createCase(client, guild, user, embed, components, reason) {
         const channel = await this.getChannelForCases(client, guild);
         const thread = await this.findThreadCase(channel, user);
@@ -25,6 +35,13 @@ module.exports = {
 
         return userCase;
     },
+    /**
+     * This method will modify an existing case by removing the message and creating a new message.
+     * @param {*} message the case's message to modify
+     * @param {*} embed
+     * @param {*} components
+     * @returns new user case.
+     */
     async modifyCase(message, embed, components) {
         await message.delete();
         const thread = message.channel;
@@ -50,9 +67,11 @@ module.exports = {
     },
 
     async findThreadCase(channel, user) {
-        threadList = await channel.threads.fetch({
-            active: true
-        });
+        // fetch all threads, even archived one
+        let threadList = await channel.threads.fetch({ active: true });
+        threadList = await channel.threads.fetch({ archived: {
+            fetchAll: true
+        } });
     
         return await threadList.threads.find(
             thread => {
@@ -71,7 +90,9 @@ async function createCaseOnThread(thread, embed, components) {
         content: '@here',
         embeds: [embed],
         components: components
-      });
+    });
+
+    //channelMembersWithAccess = await client.guilds.cache.get(server.id).channels.fetch(alert.channelId).then(channel => (channel.members.filter((member) => ((member.permissions.serialize().KICK_MEMBERS || hardCodedApplePerms(member)) && member.presence !== null && member.presence?.status !== 'offline' && member.user?.bot === false))));
 
     // FIXME: add moderators to the thread
 
