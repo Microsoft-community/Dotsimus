@@ -36,13 +36,17 @@ module.exports = {
             embeds: [ Reports.ReportEmbed.createModeratorReportEmbed(reportObject) ],
             components: []
         });
+
+        if (reportObject.thread) {
+            await reportObject.thread.setArchived(true);
+        }
     }
 };
 
 async function sendRejectDM(user) {
     const DM = await user.createDM();
     await DM.send({
-        content: 'Following your report, the moderation team has estimated that the message is not against the server rules.\n'
-            + 'If you think this is an error, please contact a moderator through the moderation mail.'
+        content: 'Thank you for your report! The moderation team has looked into the report and didn\'t take any action.\n'
+            + 'If you think this is an error, please contact a moderator through the moderation team.'
     });
 }

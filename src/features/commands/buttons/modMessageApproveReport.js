@@ -36,12 +36,16 @@ module.exports = {
             embeds: [ Reports.ReportEmbed.createModeratorReportEmbed(reportObject) ],
             components: []
         });
+
+        if (reportObject.thread) {
+            await reportObject.thread.setArchived(true);
+        }
     }
 };
 
 async function sendApprovalDM(user) {
     const DM = await user.createDM();
     await DM.send({
-        content: 'The moderation team has reviewed your report and took appropriate actions. The reported content was found to be against the server rules, we thank you for your report'
+        content: 'Thank you for the report! The moderation team has reviewed your report and took action.'
     });
 }
