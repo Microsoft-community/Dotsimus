@@ -29,8 +29,8 @@ const alreadyReportedText = 'You already reported this message.';
 const alreadyReviewedText = 'This report was already reviewed by a moderator.';
 const blockedReportingText = `You are prevented from reporting, this could be because you abused the system.\n
 If you want more info, or if you think this is an error, contact moderators.`;
-const warnText = 'You are about to report a message. Abusing the report system coud lead to punishment. If this is really your intent you can go ahead.';
-const genericReportText = 'Moderators will now review your report. Please note that they are not robots: it might take some time before an action is taken. You will receive a DM once moderators review your report, make sure you have enabled them for this server!';
+const warnText = 'You are about to report a message. Inappropriate use of reporting system may lead to punishment.';
+const genericReportText = 'Report is pending a review, please note that this might take some time. You will receive a direct message once moderators review your report, make sure you have enabled them for this server!';
 
 // map of current report challenges by user
 const userReportMap = new Map();
@@ -44,6 +44,13 @@ module.exports = {
     },
 
     async execute(client, interaction) {
+        if (!interaction.guild.rulesChannelId) {
+            return await interaction.reply({
+                content: `Reports are supported only in community guilds.`,
+                ephemeral: true
+            });
+        }
+
         if (!await canReport(interaction.user)) {
             return await interaction.reply({
                 content: blockedReportingText,
