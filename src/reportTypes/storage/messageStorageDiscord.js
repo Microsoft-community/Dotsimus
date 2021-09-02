@@ -1,3 +1,7 @@
+/**
+ * Uses Discord as a storage for reports, this is a workaround till a proper database is used for report references.
+ */
+
 const UserCases = require('../../userCases.js');
 const Report = require('../../reportObject.js');
 
@@ -17,13 +21,12 @@ module.exports.findByContentId = async function findByContentId(client, guild, u
         return messageId !== undefined;
     });
 
-    if (message) {
-        return parseMessage(message);
-    } else {
+    if (!message) {
         throw new Error('report not found');
     }
 
-    return undefined;
+    parseMessage(message);
+    return message;
 };
 
 module.exports.findByGeneratedReport = async function findByGeneratedReport(client, message) {
