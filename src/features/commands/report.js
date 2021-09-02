@@ -9,6 +9,7 @@ const { fetchRules } = require('./../../api/discord-gating');
 const { values } = require('lodash');
 const wait = promisify(setTimeout);
 const MessageReports = require('../../reportTypes/message.js');
+const { assert } = require('console');
 
 function getMessageId(linkOrId)
 {
@@ -22,7 +23,8 @@ function getMessageId(linkOrId)
 
 // Minimum time before allowing the user to report
 const reportAwaitTime = 5000;
-// Time before dropping the report. This is used to avoid users create many interactions that the bot collects.
+// Time before dropping the report to delete interactions.
+// This is used to avoid resource leaks because of users creating many interactions and forgetting about them.
 const reportTimeout = 30000;
 
 const alreadyReportedText = 'You already reported this message.';
@@ -62,7 +64,7 @@ module.exports = {
 
         let challenge;
         try {
-            // create a report challenge to prevent users from creating multiple interactions for the same message
+            // create a report challenge to prevent users from trying to report the same message
             challenge = createUniqueChallenge(interaction.user, reportedMessage);
         } catch(e) {
             let error;
@@ -80,10 +82,8 @@ module.exports = {
 
         try {
             const reportData = await MessageReports.findReport(client, reportedMessage);
-            if (reportData) {
-                removeChallenge(challenge);
-            }
-            
+            removeChallenge(challenge);
+    
             if (reportData.status === Report.ReportStatus.Pending) {
                 return await interaction.reply({
                     content: alreadyReportedText,
@@ -159,6 +159,8 @@ module.exports = {
         });
 
         collector.on('end', async (collected, reason) => {
+            cleanup();
+    
             await interaction.editReply({
                 embeds: [ generateChallengeEmbed(null, `${warnText}`) ],
                 components: []
