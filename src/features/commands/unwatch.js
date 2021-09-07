@@ -11,7 +11,7 @@ module.exports = {
                 .setDescription('The keyword you will untrack.')
         ),
     async execute (client, interaction) {
-        const keyword = interaction.options.getString("keyword");
+        const keyword = interaction.options.getString("keyword", true);
         const { guild: server } = interaction;
         let watchedKeywordsCollection = db.getWatchedKeywords();
         const refreshWatchedCollection = () => (
