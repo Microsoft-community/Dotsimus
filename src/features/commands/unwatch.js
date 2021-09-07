@@ -8,7 +8,7 @@ module.exports = {
         .setDescription('Removes a keyword or all keywords that you have watched before.')
         .addStringOption(option =>
             option.setName('keyword')
-                .setDescription('The keyword you will untrack.')
+                .setDescription('The keyword you will specifically unwatch.')
         ),
     async execute (client, interaction) {
         const keyword = interaction.options.getString("keyword", true);
