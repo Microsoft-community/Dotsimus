@@ -22,8 +22,7 @@ module.exports = {
            interaction.reply({ content: `Keyword ${keyword} cannot be watched because the keyword has fewer than 3 characters.`, ephemeral: true });
            return;
         }
-          interaction.reply({ content: `Keyword ${keyword} cannot be watched because the keyword has fewer than 3 characters.`, ephemeral: true });
-        } else {
+
           try {
             db.watchKeyword(interaction.member.id, server.id, keyword.toLowerCase()).then(resp => {
               refreshWatchedCollection().then(resp => db.getWatchedKeywords(interaction.member.id, server.id).then(keywords => {
@@ -36,6 +35,6 @@ module.exports = {
           } catch (error) {
             interaction.reply({ content: `You must allow direct messages from members in this server for this feature to work.\nEnable direct messages in **Privacy Settings > Allow direct messages from server members**.`, ephemeral: true });
           }
-        }
+        
     },
 };
