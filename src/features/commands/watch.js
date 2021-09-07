@@ -19,6 +19,9 @@ module.exports = {
              watchedKeywordsCollection = db.getWatchedKeywords()
         );
         if (keyword.length < 3) {
+           interaction.reply({ content: `Keyword ${keyword} cannot be watched because the keyword has fewer than 3 characters.`, ephemeral: true });
+           return;
+        }
           interaction.reply({ content: `Keyword ${keyword} cannot be watched because the keyword has fewer than 3 characters.`, ephemeral: true });
         } else {
           try {
