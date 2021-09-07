@@ -12,7 +12,7 @@ module.exports = {
                 .setRequired(true)
         ),
     async execute (client, interaction) {
-        const keyword = interaction.options.getString("keyword");
+        const keyword = interaction.options.getString("keyword", true);
         const server = interaction.guild;
         let watchedKeywordsCollection = db.getWatchedKeywords();
         const refreshWatchedCollection = () => (
