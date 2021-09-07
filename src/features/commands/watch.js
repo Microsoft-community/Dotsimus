@@ -29,7 +29,11 @@ module.exports = {
                 const list = keywords[0].watchedWords.length === 6 ? keywords[0].watchedWords.slice(1) : keywords[0].watchedWords;
                 interaction.reply({ content: `Keyword "${keyword}" is tracked successfully.`, ephemeral: true });
                 const userToDM = client.users.cache.get(interaction.user.id) || client.users.fetch(interaction.user.id);
-                userToDM.send(`\`${keyword}\` keyword tracking is set up successfully on **${server.name}** server.\nCurrently tracked server keywords:\n${list.map((keyword, index) => `${index + 1}. ${keyword} \n`).join('')}\nYou can track up to 5 keywords.`);
+                userToDM
+                      .send(`\`${keyword}\` keyword tracking is set up successfully on **${server.name}** server.\nCurrently tracked server keywords:\n${list.map((keyword, index) => `${index + 1}. ${keyword} \n`).join('')}\nYou can track up to 5 keywords.`)
+                      .catch({
+                           interaction.reply({ content: `You must allow direct messages from members in this server for this feature to work.\nEnable direct messages in **Privacy Settings > Allow direct messages from server members**.`, ephemeral: true });
+                      });
               }))
             });
           } catch (error) {
