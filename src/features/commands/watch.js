@@ -27,7 +27,7 @@ module.exports = {
             db.watchKeyword(interaction.member.id, server.id, keyword.toLowerCase()).then(resp => {
               refreshWatchedCollection().then(resp => db.getWatchedKeywords(interaction.member.id, server.id).then(keywords => {
                 const list = keywords[0].watchedWords.length === 6 ? keywords[0].watchedWords.slice(1) : keywords[0].watchedWords;
-                interaction.reply({ content: `Keyword "${keyword}" is tracked successfully.` });
+                interaction.reply({ content: `Keyword "${keyword}" is tracked successfully.`, ephemeral: true });
                 const userToDM = client.users.cache.get(interaction.user.id) || client.users.fetch(interaction.user.id);
                 userToDM.send(`\`${keyword}\` keyword tracking is set up successfully on **${server.name}** server.\nCurrently tracked server keywords:\n${list.map((keyword, index) => `${index + 1}. ${keyword} \n`).join('')}\nYou can track up to 5 keywords.`);
               }))
