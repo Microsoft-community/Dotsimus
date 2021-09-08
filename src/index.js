@@ -482,7 +482,7 @@ client.on('messageCreate', message => {
         const watchCommandSlashMigrationNoticeEmbed = new MessageEmbed()
 	        .setColor('#0099ff')
 	        .setTitle('The !watch (or !track) command has been migrated to a new home!')
-	        .setDescription('You can now use it along with other slash commands.\nType `/watch` to use it')
+	        .setDescription('You can now use it along with other slash commands.\nType `/watch` to use it.')
 	        .setTimestamp();
 
         message.channel.send({ embeds: [watchCommandSlashMigrationNoticeEmbed] });
@@ -496,7 +496,7 @@ client.on('messageCreate', message => {
         const watchCommandSlashMigrationNoticeEmbed1 = new MessageEmbed()
 	           .setColor('#0099ff')
 	           .setTitle('The !unwatch (or !untrack) command has been migrated to a new home!')
-	           .setDescription('You can now use it along with other slash commands.\nType `/unwatch` to use it')
+	           .setDescription('You can now use it along with other slash commands.\nType `/unwatch` to use it.')
 	           .setTimestamp();
 
         message.channel.send({ embeds: [watchCommandSlashMigrationNoticeEmbed1] });
