@@ -14,6 +14,12 @@ module.exports = {
     async execute (client, interaction) {
         const keyword = interaction.options.getString("keyword", true);
         const {guild: server} = interaction;
+          
+        if (!server) {
+             interaction.reply({ content: "You can only watch keywords in guilds." });
+             return;
+        }
+          
         let watchedKeywordsCollection = db.getWatchedKeywords();
         const refreshWatchedCollection = () => (
              watchedKeywordsCollection = db.getWatchedKeywords()
