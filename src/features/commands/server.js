@@ -51,7 +51,7 @@ Roles: **${serverData.roles.cache.size}**
                         { name: 'Boosters', value: `🚀 ${serverData.premiumSubscriptionCount}`, inline: false },
                         { name: 'Explicit content filtering', value: `${serverData.explicitContentFilter}`, inline: true },
                         { name: 'Verification level', value: `${serverData.verificationLevel}`, inline: true },
-                        { name: 'Features', value: `${serverData.features.length >= 1 ? serverData.features.map(feature => `• ${capitalizeFirstLetter(feature.toLowerCase())}\n`) : "No features available."}`.replaceAll(",", ""), inline: false },
+                        { name: 'Features', value: `${serverData.features.length >= 1 ? serverData.features.map(feature => `• ${capitalizeFirstLetter(feature.toLowerCase())}`).join("\r\n") : "No features available."}`, inline: false },
                         { name: 'Created', value: `<t:${apiDateToTimestamp(serverData.createdAt)}:R>`, inline: false }
                     )
                 interaction.reply({
