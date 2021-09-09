@@ -16,7 +16,7 @@ module.exports = {
         const {guild: server} = interaction;
           
         if (!server) {
-             interaction.reply({ content: "You can only watch keywords in guilds." });
+             interaction.reply({ content: "You can only watch keywords in servers." });
              return;
         }
           
