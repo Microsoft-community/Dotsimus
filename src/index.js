@@ -17,6 +17,7 @@ const Sentry = require('@sentry/node'),
   fs = require('fs'),
   commandFiles = fs.readdirSync('./src/features/commands/').filter(file => file.endsWith('.js')),
   buttonFiles = fs.readdirSync('./src/features/commands/buttons/').filter(file => file.endsWith('.js')),
+  menuFiles = fs.readdirSync('./src/features/commands/selectMenus/').filter(file => file.endsWith('.js')),
   { REST } = require('@discordjs/rest'),
   { Routes } = require('discord-api-types/v9'),
   commandsArray = [],
@@ -26,7 +27,7 @@ const Sentry = require('@sentry/node'),
 
 for (const file of commandFiles) {
   const command = require(`./features/commands/${file}`);
-  if (command.type !== 'button') commandsArray.push(command.data.toJSON());
+  if (command.type !== 'button' || command.type !== 'selectMenu') commandsArray.push(command.data.toJSON());
 }
 
 const rest = new REST({ version: '9' }).setToken(process.env.DEVELOPMENT !== 'true' ? process.env.BOT_TOKEN : process.env.BOT_TOKEN_DEV);
@@ -52,6 +53,10 @@ commandFiles.map(file => {
 buttonFiles.map(file => {
   const command = require(`./features/commands/buttons/${file}`);
   client.commands.set(command.name, command);
+})
+menuFiles.map(file => {
+  const command = require(`./features/commands/selectMenus/${file}`);
+  client.commands.set(command.name, command)
 })
 
 if (process.env.DEVELOPMENT !== 'true') Sentry.init({ dsn: process.env.SENTRY_DSN });
@@ -88,8 +93,13 @@ client.on('ready', () => {
 });
 client.on('interactionCreate', async interaction => {
   try {
+    if(interaction.isSelectMenu()){
+      client.commands.get(interaction.customId)?.execute(client, interaction)
+    }
     !interaction.isButton() ? client.commands.get(interaction.commandName)?.execute(client, interaction, activeUsersCollection) : client.commands.get(interaction.customId)?.execute(client, interaction, activeUsersCollection);
     !interaction.isButton() ? collectCommandAnalytics(interaction.commandName, interaction.options?._subcommand) : collectCommandAnalytics(interaction.customId);
+    // !interaction.isSelectMenu() ? client.commands.get(interaction.commandName)?.execute(client, interaction) : client.commands.get(interaction.customId)?.execute(client, interaction);
+    // !interaction.isSelectMenu() ? collectCommandAnalytics(interaction.commandName, interaction.options?._subcommand) : collectCommandAnalytics(interaction.customId);
   } catch (error) {
     console.error(error);
   }
