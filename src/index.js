@@ -17,6 +17,7 @@ const Sentry = require('@sentry/node'),
   fs = require('fs'),
   commandFiles = fs.readdirSync('./src/features/commands/').filter(file => file.endsWith('.js')),
   buttonFiles = fs.readdirSync('./src/features/commands/buttons/').filter(file => file.endsWith('.js')),
+  menuFiles = fs.readdirSync('./src/features/commands/selectMenus/').filter(file => file.endsWith('.js')),
   { REST } = require('@discordjs/rest'),
   { Routes } = require('discord-api-types/v9'),
   commandsArray = [],
@@ -26,7 +27,7 @@ const Sentry = require('@sentry/node'),
 
 for (const file of commandFiles) {
   const command = require(`./features/commands/${file}`);
-  if (command.type !== 'button') commandsArray.push(command.data.toJSON());
+  if (command.type !== 'button' || command.type !== 'selectMenu') commandsArray.push(command.data.toJSON());
 }
 
 const rest = new REST({ version: '9' }).setToken(process.env.DEVELOPMENT !== 'true' ? process.env.BOT_TOKEN : process.env.BOT_TOKEN_DEV);
@@ -52,6 +53,10 @@ commandFiles.map(file => {
 buttonFiles.map(file => {
   const command = require(`./features/commands/buttons/${file}`);
   client.commands.set(command.name, command);
+})
+menuFiles.map(file => {
+  const command = require(`./features/commands/selectMenus/${file}`);
+  client.commands.set(command.name, command)
 })
 
 if (process.env.DEVELOPMENT !== 'true') Sentry.init({ dsn: process.env.SENTRY_DSN });
@@ -88,8 +93,13 @@ client.on('ready', () => {
 });
 client.on('interactionCreate', async interaction => {
   try {
+    if(interaction.isSelectMenu()){
+      client.commands.get(interaction.customId)?.execute(client, interaction)
+    }
     !interaction.isButton() ? client.commands.get(interaction.commandName)?.execute(client, interaction, activeUsersCollection) : client.commands.get(interaction.customId)?.execute(client, interaction, activeUsersCollection);
     !interaction.isButton() ? collectCommandAnalytics(interaction.commandName, interaction.options?._subcommand) : collectCommandAnalytics(interaction.customId);
+    // !interaction.isSelectMenu() ? client.commands.get(interaction.commandName)?.execute(client, interaction) : client.commands.get(interaction.customId)?.execute(client, interaction);
+    // !interaction.isSelectMenu() ? collectCommandAnalytics(interaction.commandName, interaction.options?._subcommand) : collectCommandAnalytics(interaction.customId);
   } catch (error) {
     console.error(error);
   }
@@ -462,7 +472,7 @@ client.on('messageCreate', message => {
         break;
       case 'watch':
       case 'track':
-        /*if (!args[0] || args[0]?.length < 3) {
+        if (!args[0] || args[0]?.length < 3) {
           message.react("❌")
           message.author.send('❌ Keyword must be longer than 2 characters.')
         } else {
@@ -475,31 +485,18 @@ client.on('messageCreate', message => {
                 message.author.send(`\`${trackingWord}\` keyword tracking is set up successfully on **${server.name}** server.\nCurrently tracked server keywords:\n${list.map((keyword, index) => `${index + 1}. ${keyword} \n`).join('')}\nYou can track up to 5 keywords.`)
               }))
             })
+
           } catch (error) {
             message.reply('allow direct messages from server members in this server for this feature to work.')
           }
-        }*/
-        const watchCommandSlashMigrationNoticeEmbed = new MessageEmbed()
-	        .setColor('#0099ff')
-	        .setTitle('The !watch (or !track) command has been migrated to a new home!')
-	        .setDescription('You can now use it along with other slash commands.\nType `/watch` to use it.')
-	        .setTimestamp();
-
-        message.channel.send({ embeds: [watchCommandSlashMigrationNoticeEmbed] });
+        }
         break;
       case 'unwatch':
       case 'untrack':
-        /*db.removeWatchedKeyword(message.author.id, server.id).then(resp => {
+        db.removeWatchedKeyword(message.author.id, server.id).then(resp => {
           refreshWatchedCollection()
         })
-        message.react("✅")*/
-        const watchCommandSlashMigrationNoticeEmbed1 = new MessageEmbed()
-	           .setColor('#0099ff')
-	           .setTitle('The !unwatch (or !untrack) command has been migrated to a new home!')
-	           .setDescription('You can now use it along with other slash commands.\nType `/unwatch` to use it.')
-	           .setTimestamp();
-
-        message.channel.send({ embeds: [watchCommandSlashMigrationNoticeEmbed1] });
+        message.react("✅")
         break;
       case 'setalerts':
         message.channel.send(user.isAdmin ? 'true' : 'false')
