@@ -11,6 +11,7 @@ module.exports = {
                 flaggedUserInfo = await client.users.fetch(interaction.message.embeds[0].fields.filter(field => field.name === 'User ID').map(field => field.value)[0]).then(user => { return user }),
                 reinstatedMessage = new MessageEmbed()
                     .setColor('#32CD32')
+            // setAuthor ONLY works if there is a custom User profile image, if not it willl be set to something else
                     .setAuthor(`${flaggedUserInfo.username}#${flaggedUserInfo.discriminator}`, `https://cdn.discordapp.com/avatars/${interaction.message.embeds[0].fields.filter(field => field.name === 'User ID').map(field => field.value)[0]}/${flaggedUserInfo.avatar}.png`, `https://discord.com/users/${interaction.message.embeds[0].fields.filter(field => field.name === 'User ID').map(field => field.value)[0]}`)
                     .setDescription(`${interaction.message.embeds[0].fields[0].value}`)
                     .setFooter('Message reinstated by the moderation team.', `https://cdn.discordapp.com/icons/${interaction.guildId}/${interaction.guild.icon}.webp`);
