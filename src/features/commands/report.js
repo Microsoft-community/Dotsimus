@@ -53,7 +53,7 @@ module.exports = {
             });
         }
 
-        if (!await canReport(interaction.user)) {
+        if (!await canReport(interaction.member)) {
             return await interaction.reply({
                 content: blockedReportingText,
                 ephemeral: true
@@ -230,8 +230,8 @@ function createUniqueChallenge(user, message) {
     };
 }
 
-async function canReport(user) {
-    return !await db.usedPreventedFromReport(user.id);
+async function canReport(member) {
+    return !await db.usedPreventedFromReport(member.guild.id, member.id);
 }
 
 function removeChallenge(challenge) {

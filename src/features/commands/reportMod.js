@@ -38,7 +38,7 @@ module.exports = {
             case 'block': {
                 const user = interaction.options.getUser('user');
     
-                await db.saveBlockedReportUser(user.id, user.username);
+                await db.saveBlockedReportUser(interaction.guild.id, user.id, user.username);
         
                 interaction.reply({
                     content: `:exclamation: The user ${user} is now blocked from using report commands.`,
@@ -48,7 +48,7 @@ module.exports = {
             case 'unblock': {
                 const user = interaction.options.getUser('user');
     
-                await db.deleteBlockedReportUser(user.id);
+                await db.deleteBlockedReportUser(interaction.guild.id, user.id);
         
                 interaction.reply({
                     content: `:white_check_mark: The user ${user} can now use report commands.`,
