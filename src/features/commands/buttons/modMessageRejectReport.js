@@ -9,6 +9,12 @@ module.exports = {
     type: 'button',
     description: 'Reject and notify all reporters that no action will be taken',
     async execute (client, interaction) {
+        if (!interaction.member.permissions.serialize().KICK_MEMBERS) {
+            interaction.reply({
+                content: 'Insufficient permission to execute this command.'
+            });
+            return;
+        }
         interaction.deferUpdate();
 
         let reportData;

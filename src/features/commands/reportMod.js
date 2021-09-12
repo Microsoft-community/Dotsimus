@@ -27,7 +27,7 @@ module.exports = {
                         .setRequired(true))),
 
     async execute(client, interaction) {
-        if (!interaction.member.permissions.has(Permissions.KICK_MEMBERS)) {
+        if (!interaction.member.permissions.serialize().KICK_MEMBERS) {
             interaction.reply({
                 content: 'Insufficient permission to execute this command.'
             });

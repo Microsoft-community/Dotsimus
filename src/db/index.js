@@ -179,6 +179,13 @@ module.exports = {
         throw 'Failed to update or add server config'
       })
   }),
+  getServerConfig: cachify(async function (serverId) {
+    if (serverId) {
+      return await ServersConfig.find({ serverId }).lean()
+    } else {
+      return await ServersConfig.find({}).lean();
+    }
+  }),
   updateServerPrefix: cachify(function (serverId, prefix) {
     const query = { serverId }
     return new Promise((resolve, reject) => {

@@ -11,8 +11,7 @@ const wait = promisify(setTimeout);
 const MessageReports = require('../../reportTypes/message.js');
 const { assert } = require('console');
 
-function getMessageId(linkOrId)
-{
+function getMessageId (linkOrId) {
     if (!isNaN(linkOrId)) {
         return linkOrId;
     } else {
@@ -40,12 +39,27 @@ const userReportMap = new Map();
 module.exports = {
     type: 'app',
     data: {
-        name: 'Report',
+        name: 'Report message',
         type: Constants.ApplicationCommandTypes.MESSAGE,
         defaultPermission: true
     },
 
-    async execute(client, interaction) {
+    async execute (client, interaction) {
+        // disabled for Apple community
+        const isPremium = await db.getServerConfig(interaction.guild.id).then(config => config[0]?.isSubscribed)
+        if (interaction.guild.id === '332309672486895637') {
+            return interaction.reply({
+                content: 'This functionality is currently disabled on this server, learn more over at [Dotsimus.com](https://dotsimus.com/).',
+                ephemeral: true
+            });
+        }
+        if (!isPremium) {
+            return interaction.reply({
+                content: 'This is a premium feature, learn more over at [Dotsimus.com](https://dotsimus.com/).',
+                ephemeral: true
+            });
+        }
+
         if (!interaction.guild.rulesChannelId) {
             return await interaction.reply({
                 content: `Reports are supported only in community guilds.`,
@@ -53,7 +67,7 @@ module.exports = {
             });
         }
 
-        if (!await canReport(interaction.member)) {
+        if (!await canReport(interaction.user)) {
             return await interaction.reply({
                 content: blockedReportingText,
                 ephemeral: true
@@ -66,7 +80,7 @@ module.exports = {
         try {
             // create a report challenge to prevent users from trying to report the same message
             challenge = createUniqueChallenge(interaction.user, reportedMessage);
-        } catch(e) {
+        } catch (e) {
             let error;
             if (e.message === 'already_exists') {
                 error = 'You are already making a report for this message.';
@@ -83,7 +97,7 @@ module.exports = {
         try {
             const reportData = await MessageReports.findReport(client, reportedMessage);
             removeChallenge(challenge);
-    
+
             if (reportData.status === Report.ReportStatus.Pending) {
                 return await interaction.reply({
                     content: alreadyReportedText,
@@ -95,7 +109,7 @@ module.exports = {
                     ephemeral: true
                 });
             }
-        } catch(e) {
+        } catch (e) {
             // no existing report found
         }
 
@@ -103,7 +117,7 @@ module.exports = {
 
         const awaitTimeSeconds = Math.floor(reportAwaitTime / 1000);
         await interaction.reply({
-            embeds: [ generateChallengeEmbed(challenge, `${warnText}\nYou will be allowed to report in ${awaitTimeSeconds} seconds.`) ],
+            embeds: [generateChallengeEmbed(challenge, `${warnText}\nYou will be allowed to report in ${awaitTimeSeconds} seconds.`)],
             ephemeral: true
         });
 
@@ -131,7 +145,7 @@ module.exports = {
             collector.stop('canceled');
             removeChallenge(challenge);
         };
-    
+
         const collector = interaction.channel.createMessageComponentCollector({
             filter,
             time: reportTimeout
@@ -147,12 +161,12 @@ module.exports = {
                 cleanup();
 
                 await interaction.editReply({
-                    embeds: [ generateChallengeEmbed(null, `${warnText}`) ],
+                    embeds: [generateChallengeEmbed(null, `${warnText}`)],
                     components: []
                 });
 
                 await interaction.followUp({
-                    embeds: [ generateChallengeEmbed(null, 'The operation was canceled by the user.') ],
+                    embeds: [generateChallengeEmbed(null, 'The operation was canceled by the user.')],
                     ephemeral: true
                 })
             }
@@ -160,14 +174,14 @@ module.exports = {
 
         collector.on('end', async (collected, reason) => {
             cleanup();
-    
+
             await interaction.editReply({
-                embeds: [ generateChallengeEmbed(null, `${warnText}`) ],
+                embeds: [generateChallengeEmbed(null, `${warnText}`)],
                 components: []
             });
 
             await interaction.followUp({
-                embeds: [ generateChallengeEmbed(null, 'Message not reported in the mean time.') ],
+                embeds: [generateChallengeEmbed(null, 'Message not reported in the mean time.')],
                 ephemeral: true
             })
         });
@@ -183,7 +197,7 @@ module.exports = {
                     cleanup();
 
                     interaction.editReply({
-                        embeds: [ generateChallengeEmbed(null, `${warnText}`) ],
+                        embeds: [generateChallengeEmbed(null, `${warnText}`)],
                         components: []
                     });
 
@@ -194,7 +208,7 @@ module.exports = {
 
         const timeoutSeconds = Math.floor(reportTimeout / 1000);
         await interaction.editReply({
-            embeds: [ generateChallengeEmbed(challenge, `${warnText}\n${timeoutSeconds} seconds before the report expires.`) ],
+            embeds: [generateChallengeEmbed(challenge, `${warnText}\n${timeoutSeconds} seconds before the report expires.`)],
             components: createReportComponents(rules, false)
         });
     }
@@ -204,7 +218,7 @@ module.exports.data.toJSON = function () {
     return module.exports.data;
 }
 
-function createUniqueChallenge(user, message) {
+function createUniqueChallenge (user, message) {
     let userReport = userReportMap.get(user.id);
     if (userReport) {
         const reportingMessage = userReport.current.get(message.id);
@@ -230,11 +244,11 @@ function createUniqueChallenge(user, message) {
     };
 }
 
-async function canReport(member) {
-    return !await db.usedPreventedFromReport(member.guild.id, member.id);
+async function canReport (user) {
+    return !await db.usedPreventedFromReport(user.id);
 }
 
-function removeChallenge(challenge) {
+function removeChallenge (challenge) {
     challenge.userReport.current.delete(challenge.messageId);
     if (!challenge.userReport.current.size) {
         // if there is no pending report for the user, no need to keep track of them
@@ -242,7 +256,7 @@ function removeChallenge(challenge) {
     }
 }
 
-function generateChallengeEmbed(challenge, text) {
+function generateChallengeEmbed (challenge, text) {
     const footer = challenge ? `${challenge.id} ${challenge.messageId}` : '';
 
     return new MessageEmbed()
@@ -251,7 +265,7 @@ function generateChallengeEmbed(challenge, text) {
         .setFooter(footer);
 }
 
-function buildSelectMenu(rules) {
+function buildSelectMenu (rules) {
     selects = [];
     rules.form_fields[0].values.forEach((element, index) => {
         const ruleNum = index + 1;
@@ -265,7 +279,7 @@ function buildSelectMenu(rules) {
     return selects;
 }
 
-function createReportComponents(rules, shouldDisable) {
+function createReportComponents (rules, shouldDisable) {
     return [
         new MessageActionRow()
             .addComponents(
@@ -290,7 +304,7 @@ function createReportComponents(rules, shouldDisable) {
     ];
 }
 
-function createReportText(ruleList) {
+function createReportText (ruleList) {
     if (ruleList.length <= 1) {
         return `You have selected rule #${ruleList[0]}.`;
     } else {
@@ -310,14 +324,13 @@ function createReportText(ruleList) {
     }
 }
 
-async function handleSendReport(client, interaction, message, ruleList) {
+async function handleSendReport (client, interaction, message, ruleList) {
     let report;
     try {
         report = await MessageReports.report(client, interaction.member, message, ruleList);
-    } catch(e) {
+    } catch (e) {
         let error;
-        switch(e.message)
-        {
+        switch (e.message) {
             case 'already_reported':
                 error = alreadyReportedText;
                 break;
