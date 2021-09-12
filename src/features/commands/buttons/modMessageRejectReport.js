@@ -21,7 +21,6 @@ module.exports = {
             return;
         }
 
-        reportedContent = MessageReports.ReportedMessage.fromJSON(reportData.reportedContent);
         reportObject = MessageReports.parseReport(client, reportData);
 
         for (let i = 0; i < reportObject.signalers.length; i++) {
