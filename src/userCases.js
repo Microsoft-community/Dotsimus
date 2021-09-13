@@ -69,10 +69,20 @@ module.exports = {
     async findThreadCase(channel, user) {
         // fetch all threads, even archived one
         let threadList = await channel.threads.fetch({ active: true });
+        const thread = await this.findThreadCaseList(threadList, user);
+        if (thread) {
+            return thread;
+        }
+
+        // have to fetch active and archived threads separately
         threadList = await channel.threads.fetch({ archived: {
             fetchAll: true
         } });
     
+        return await this.findThreadCaseList(threadList, user);
+    },
+
+    async findThreadCaseList(threadList, user) {
         return await threadList.threads.find(
             thread => {
                 return thread.name.split(/ +/g).slice(-1)[0] === user.id;
