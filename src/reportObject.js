@@ -83,10 +83,9 @@ class ReportEmbed {
     }
     static createBasicReportEmbed(reportObject) {
         let embed = new MessageEmbed()
-            .setTitle(`Report ${reportObject.id}`)
+            .setTitle(`Report`)
             .setAuthor(reportObject.reportedUser.tag, reportObject.reportedUser.displayAvatarURL())
             .addFields(
-                { name: 'ID', value: reportObject.id.toString(), inline: true },
                 { name: 'User ID', value: reportObject.reportedUser.toString() },
                 { name: 'Type', value: reportObject.reportedContent.reportType }
             );
