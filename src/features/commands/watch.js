@@ -92,8 +92,8 @@ module.exports = {
             return
         } else {
 
-            var watching = [];
-            var length;
+            let watching = [];
+            let length;
             db.getWatchedKeywords(interaction.user.id, interaction.guild.id).then(keywords => {
                 if (keywords.length === 0) {
                     length = 0
