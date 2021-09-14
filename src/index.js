@@ -8,11 +8,6 @@ const {
 } = require('discord.js'),
   client = new Client(
     { 
-      makeCache: Options.cacheWithLimits({
-        MessageManager: 100, 
-        PresenceManager: 0,
-        UserManager: 100
-      }),
       intents: ["GUILDS", "GUILD_MESSAGES", "DIRECT_MESSAGES", "GUILD_MESSAGE_TYPING", "GUILD_PRESENCES"], partials: ["CHANNEL"] 
   });
 //   client = new Discord.Client({ partials: ['MESSAGE', "USER", 'REACTION'], intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES] }),
