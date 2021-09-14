@@ -15,7 +15,7 @@ module.exports = {
             });
             return;
         }
-        interaction.deferUpdate();
+        await interaction.deferUpdate();
 
         let reportData;
         try {
