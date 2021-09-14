@@ -21,7 +21,7 @@ module.exports = {
         try {
             reportData = await MessageReports.Storage.findByGeneratedReport(client, interaction.message);
         } catch(e) {
-            await interaction.reply({
+            await interaction.editReply({
                 content: e.message
             });
             return;
