@@ -7,7 +7,7 @@ const {
 module.exports = {
     name: 'keywords',
     type: 'selectMenu',
-    description: 'Retracts from sending Toxicity embed in the channel.',
+    description: 'List of keywords to choose from.',
     async execute(client, interaction) {
 
         let trackingWord;
