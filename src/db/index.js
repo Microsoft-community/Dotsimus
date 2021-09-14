@@ -293,10 +293,11 @@ module.exports = {
         throw 'Failed to update or add an alert'
       })
   },
-  saveBlockedReportUser: async function(userId, username) {
+  saveBlockedReportUser: async function(guildId, userId, username) {
     try {
       const filter = { userId };
       const result = await BlockedReport.findOneAndUpdate(filter, { $setOnInsert: {
+          serverId: guildId,
           userId,
           username
         }
@@ -310,9 +311,12 @@ module.exports = {
       throw 'Failed to block the user.';
     }
   },
-  deleteBlockedReportUser: async function(userId) {
+  deleteBlockedReportUser: async function(guildId, userId) {
     try {
-      const result = await BlockedReport.deleteMany({ userId });
+      const result = await BlockedReport.deleteMany({
+        serverId: guildId,
+        userId
+      });
 
       console.log(result);
     } catch(e) {
@@ -320,9 +324,12 @@ module.exports = {
       throw 'Failed to unblock the user.';
     }
   },
-  usedPreventedFromReport: async function(userId) {
+  usedPreventedFromReport: async function(guildId, userId) {
     try {
-      const result = await BlockedReport.find({ userId });
+      const result = await BlockedReport.find({
+        serverId: guildId,
+        userId
+      });
       return result.length > 0;
     } catch(e) {
       return false;
