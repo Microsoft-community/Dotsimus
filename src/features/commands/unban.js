@@ -20,13 +20,14 @@ module.exports = {
                     type: 4,
                     content: `${userSnowflake} has been unbanned successfully.`
                 });
-                return;
+            } else {
+               interaction.reply({
+                   type: 4,
+                   ephemeral: true,
+                   content: `⚠️ User isn't banned or invalid user specified.`
+               })
             }
-            interaction.reply({
-                type: 4,
-                ephemeral: true,
-                content: `⚠️ User isn't banned or invalid user specified.`
-            })
+
         } else {
             interaction.reply({
                 type: 4,
