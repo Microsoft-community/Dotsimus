@@ -17,7 +17,7 @@ module.exports = {
         ),
     async execute (client, interaction) {
         const userSnowflake = interaction.options.getUser('user');
-        if (interaction.member.permissions.serialize().BAN_MEMBERS) {
+        if (interaction.member.permissions.serialize().BAN_MEMBERS && interaction.member.roles.highest.position > interaction.options.getMember('user').roles.highest.position) {
             if (!isNaN(userSnowflake)) {
                 const reason = interaction.options.get('reason')?.value ?? "No reason specified.";
                 interaction.guild.members.ban(userSnowflake, { reason: interaction.options.get('reason')?.value }).then(() => {
@@ -53,7 +53,6 @@ module.exports = {
                 ephemeral: true,
                 content: `You don't have required permissions to run this command.`
             })
-
         }
     },
 }
