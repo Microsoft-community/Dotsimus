@@ -9,13 +9,14 @@ module.exports = {
     type: 'button',
     description: 'Notify all reporters that this report is a valid one',
     async execute (client, interaction) {
+        await interaction.deferReply({ ephemeral: true });
+
         if (!interaction.member.permissions.serialize().KICK_MEMBERS) {
-            interaction.reply({
-                content: 'Insufficient permission to execute this command.'
+            interaction.editReply({
+                content: 'Insufficient permission to execute this command.',
             });
             return;
         }
-        await interaction.deferUpdate();
 
         let reportData;
         try {
@@ -46,6 +47,10 @@ module.exports = {
         if (reportObject.thread) {
             await reportObject.thread.setArchived(true);
         }
+
+        interaction.editReply({
+            content: `Approved by ${interaction.member.toString()}`
+        });
     }
 };
 

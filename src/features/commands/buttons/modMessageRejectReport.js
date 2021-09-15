@@ -9,13 +9,14 @@ module.exports = {
     type: 'button',
     description: 'Reject and notify all reporters that no action will be taken',
     async execute (client, interaction) {
+        await interaction.deferReply({ ephemeral: true });
+
         if (!interaction.member.permissions.serialize().KICK_MEMBERS) {
-            interaction.reply({
-                content: 'Insufficient permission to execute this command.'
+            interaction.editReply({
+                content: 'Insufficient permission to execute this command.',
             });
             return;
         }
-        await interaction.deferUpdate();
 
         let reportData;
         try {
@@ -45,6 +46,10 @@ module.exports = {
         if (reportObject.thread) {
             await reportObject.thread.setArchived(true);
         }
+    
+        interaction.editReply({
+            content: `Rejected by ${interaction.member.toString()}`
+        });
     }
 };
 
