@@ -21,11 +21,11 @@ module.exports = {
                     content: `${userSnowflake} has been unbanned successfully.`
                 });
             } else {
-               interaction.reply({
-                   type: 4,
-                   ephemeral: true,
-                   content: `⚠️ User isn't banned or invalid user specified.`
-               })
+                interaction.reply({
+                    type: 4,
+                    ephemeral: true,
+                    content: `⚠️ User isn't banned or invalid user specified.`
+                })
             }
 
         } else {

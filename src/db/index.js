@@ -5,7 +5,8 @@ const Sentry = require('@sentry/node'),
   adminRoleSchema = require('./adminRoleSchema'),
   serversConfigSchema = require('./schemas/serversConfig'),
   saveMessageSchema = require('./schemas/saveMessageSchema'),
-  watchKeywordSchema = require('./schemas/watchKeywordSchema');
+  watchKeywordSchema = require('./schemas/watchKeywordSchema'),
+  blockedReportSchema = require('./schemas/blockedReport');
 
 if (process.env.DEVELOPMENT !== 'true') Sentry.init({ dsn: process.env.SENTRY_DSN });
 
@@ -24,6 +25,7 @@ const Alert = mongoose.model('Alert', alertSchema),
   ServersConfig = mongoose.model('ServersConfig', serversConfigSchema),
   SaveMessage = mongoose.model('userInfractions', saveMessageSchema),
   WatchKeyword = mongoose.model('watchedKeywords', watchKeywordSchema),
+  BlockedReport = mongoose.model('blockedReport', blockedReportSchema)
   TTL = 30 * 1000,
   cache = new Map();
 const cachify = (originalFn) => {
@@ -194,6 +196,13 @@ module.exports = {
         throw 'Failed to update or add server config'
       })
   }),
+  getServerConfig: cachify(async function (serverId) {
+    if (serverId) {
+      return await ServersConfig.find({ serverId }).lean()
+    } else {
+      return await ServersConfig.find({}).lean();
+    }
+  }),
   updateServerPrefix: cachify(function (serverId, prefix) {
     const query = { serverId }
     return new Promise((resolve, reject) => {
@@ -300,5 +309,47 @@ module.exports = {
         console.error(e)
         throw 'Failed to update or add an alert'
       })
+  },
+  saveBlockedReportUser: async function(guildId, userId, username) {
+    try {
+      const filter = { userId };
+      const result = await BlockedReport.findOneAndUpdate(filter, { $setOnInsert: {
+          serverId: guildId,
+          userId,
+          username
+        }
+      }, {
+        upsert: true,
+      });
+  
+      console.log(result);
+    } catch(e) {
+      console.error(e);
+      throw 'Failed to block the user.';
+    }
+  },
+  deleteBlockedReportUser: async function(guildId, userId) {
+    try {
+      const result = await BlockedReport.deleteMany({
+        serverId: guildId,
+        userId
+      });
+
+      console.log(result);
+    } catch(e) {
+      console.error(e);
+      throw 'Failed to unblock the user.';
+    }
+  },
+  usedPreventedFromReport: async function(guildId, userId) {
+    try {
+      const result = await BlockedReport.find({
+        serverId: guildId,
+        userId
+      });
+      return result.length > 0;
+    } catch(e) {
+      return false;
+    }
   }
 }
