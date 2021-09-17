@@ -119,27 +119,25 @@ module.exports = {
                         content: `Keyword must be of 3 or more characters.`,
                         ephemeral: true,
                     })
-                    return
-                } else {
-                    try {
-                        db.watchKeyword(interaction.user.id, interaction.guild.id, trackingWord).then(resp => {
-                            refreshWatchedCollection().then(resp => db.getWatchedKeywords(interaction.user.id, interaction.guild.id).then(keywords => {
-                                const list = keywords[0].watchedWords.length > 5 ? keywords[0].watchedWords.slice(1) : keywords[0].watchedWords
+                    return;
+                } try {
+                    db.watchKeyword(interaction.user.id, interaction.guild.id, trackingWord).then(resp => {
+                      refreshWatchedCollection().then(resp => db.getWatchedKeywords(interaction.user.id, interaction.guild.id).then(keywords => {
+                         const list = keywords[0].watchedWords.length > 5 ? keywords[0].watchedWords.slice(1) : keywords[0].watchedWords
                                 
-                                interaction.reply({
-                                    content: `\`${trackingWord}\` keyword tracking is set up successfully on **${interaction.guild.name}** server.\nCurrently tracked keywords for the server:\n${list.map((keyword, index) => `${index + 1}. \`${keyword}\` \n`).join('')}*You can watch* ***${5-list.length}*** *more keywords.*`,
-                                    ephemeral: true,
-                                })
-                            }).then(refreshWatchedCollection()))
-                        })
-
-                    } catch (error) {
-                        console.log(error)
-                        interaction.reply({
-                            content: 'Allow Direct Messages from server members in this server for this feature to work.',
+                         interaction.reply({
+                            content: `\`${trackingWord}\` keyword tracking is set up successfully on **${interaction.guild.name}** server.\nCurrently tracked keywords for the server:\n${list.map((keyword, index) => `${index + 1}. \`${keyword}\` \n`).join('')}*You can watch* ***${5-list.length}*** *more keywords.*`,
                             ephemeral: true,
-                        })
-                    }
+                         })
+                    }).then(refreshWatchedCollection()))
+                 })
+
+                } catch (error) {
+                   console.log(error);
+                   interaction.reply({
+                      content: 'Allow Direct Messages from server members in this server for this feature to work.',
+                      ephemeral: true,
+                   })
                 }
             })
         }
