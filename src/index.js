@@ -112,8 +112,6 @@ client.on('interactionCreate', async interaction => {
     }
     !interaction.isButton() ? client.commands.get(interaction.commandName)?.execute(client, interaction, activeUsersCollection) : client.commands.get(interaction.customId)?.execute(client, interaction, activeUsersCollection);
     !interaction.isButton() ? collectCommandAnalytics(interaction.commandName, interaction.options?._subcommand) : collectCommandAnalytics(interaction.customId);
-    // !interaction.isSelectMenu() ? client.commands.get(interaction.commandName)?.execute(client, interaction) : client.commands.get(interaction.customId)?.execute(client, interaction);
-    // !interaction.isSelectMenu() ? collectCommandAnalytics(interaction.commandName, interaction.options?._subcommand) : collectCommandAnalytics(interaction.customId);
   } catch (error) {
     console.error(error);
   }
