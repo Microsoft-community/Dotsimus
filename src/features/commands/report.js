@@ -32,6 +32,7 @@ const blockedReportingText = `You are prevented from reporting, this could be be
 If you want more info, or if you think this is an error, contact moderators.`;
 const warnText = 'You are about to report a message. Inappropriate use of reporting system may lead to punishment.';
 const genericReportText = 'Report is pending a review, please note that this might take some time. You will receive a direct message once moderators review your report, make sure you have enabled them for this server!';
+const noRulesDefinedText = 'No rule was found. Make sure this server is a community server and the bot has enough permission to fetch rules.';
 
 // map of current report challenges by user
 const userReportMap = new Map();
@@ -63,6 +64,14 @@ module.exports = {
         if (!interaction.guild.rulesChannelId) {
             return await interaction.reply({
                 content: `Reports are supported only in community guilds.`,
+                ephemeral: true
+            });
+        }
+
+        const rules = await fetchRules(interaction.guild.id);
+        if (!rules) {
+            return await interaction.reply({
+                content: noRulesDefinedText,
                 ephemeral: true
             });
         }
@@ -112,8 +121,6 @@ module.exports = {
         } catch (e) {
             // no existing report found
         }
-
-        const rules = await fetchRules(interaction.guild.id);
 
         const awaitTimeSeconds = Math.floor(reportAwaitTime / 1000);
         await interaction.reply({
@@ -338,9 +345,9 @@ async function handleSendReport (client, interaction, message, ruleList) {
                 error = alreadyReviewedText;
                 break;
             default:
-                error = 'Failed to send the report to moderators.';
+                // let user (could be server managers) to know about why it fails
+                error = `Failed to send the report to moderators: \`${e.message}\``;
                 console.error(e);
-                // NOTE: should it disclose the error to users?
                 break;
         }
 
