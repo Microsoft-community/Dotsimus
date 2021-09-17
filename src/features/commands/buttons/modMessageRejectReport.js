@@ -14,6 +14,7 @@ module.exports = {
         if (!interaction.member.permissions.serialize().KICK_MEMBERS) {
             interaction.editReply({
                 content: 'Insufficient permission to execute this command.',
+                ephemeral: true
             });
             return;
         }
@@ -25,6 +26,7 @@ module.exports = {
             await interaction.editReply({
                 content: e.message
             });
+            console.error(e);
             return;
         }
 
