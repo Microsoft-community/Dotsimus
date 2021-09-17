@@ -79,6 +79,6 @@ function parseMessage(message) {
 }
 
 function parseId(string) {
-    const match = string.match(/<@([0-9]*)>/);
+    const match = string.match(/<@!?([0-9]*)>/);
     return match[1];
 }

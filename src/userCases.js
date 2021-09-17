@@ -1,5 +1,7 @@
 db = require('./db');
 
+const { Permissions } = require('discord.js');
+
 class UserCase {
     constructor(thread, message) {
         this.thread = thread;
@@ -20,9 +22,17 @@ module.exports = {
      */
     async createCase(client, guild, user, embed, components, reason) {
         const channel = await this.getChannelForCases(client, guild);
+        if (!channel.permissionsFor(client.user).has([Permissions.FLAGS.MANAGE_THREADS, Permissions.FLAGS.MANAGE_MESSAGES, Permissions.FLAGS.VIEW_CHANNEL])) {
+            throw new Error('insufficient_channel_perms');
+        }
+
         const thread = await this.findThreadCase(channel, user);
 
         if (thread) {
+            if (!thread.permissionsFor(client.user).has([Permissions.FLAGS.SEND_MESSAGES, Permissions.FLAGS.MANAGE_MESSAGES])) {
+                throw new Error('insufficient_thread_perms');
+            }
+    
             await thread.setArchived(false);
 
             userCase = await createCaseOnThread(thread, embed, components);
@@ -128,5 +138,8 @@ async function pinCase(userCase) {
     // fetch & unpin the latest pinned message
     const pins = await userCase.thread.messages.fetchPinned();
     if (pins.size >= 49) pins.last().unpin();
-    userCase.message.pin(true);
+    try {
+        userCase.message.pin(true);
+    } catch(e) {
+    }
 }
