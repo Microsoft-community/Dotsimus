@@ -155,7 +155,7 @@ module.exports = {
                     const listEmbed = new MessageEmbed()
                           .setColor('#0099ff')
                           .setTitle('Your tracked keywords')
-                          .addField('List of keywords you have tracked:', list.map((keyword, index) => `${index + 1}. \`${keyword}\` \n`).join(''))
+                          .setDescription(list.map((keyword, index) => `${index + 1}. \`${keyword}\` \n`).join(''))
                           .setTimestamp();
 
                     interaction.reply({
