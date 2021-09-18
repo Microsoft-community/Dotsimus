@@ -29,7 +29,7 @@ module.exports = {
         .addSubcommand(subcommand =>
             subcommand
                 .setName('list')
-                .setDescription('Lists all keywords you have tracked.')),
+                .setDescription('Lists tracked keywords.')),
     async execute(client, interaction) {
 
         let keyword = interaction.options.getString('keyword');
