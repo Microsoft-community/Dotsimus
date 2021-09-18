@@ -27,6 +27,7 @@ module.exports = {
                     content: `⚠️ User isn't banned or invalid user specified.`
                 })
             }
+
         } else {
             interaction.reply({
                 type: 4,
