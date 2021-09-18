@@ -129,7 +129,8 @@ module.exports = {
                     );
                     interaction.reply({
                         content: 'Reviews significantly help to amplify the voice of the users and help to find focus areas for further Dotsimus development, if you\'d like to leave some feedback please do so on [Top.GG](https://top.gg/bot/731190736996794420#reviews). It\'s highly appreciated ☺️!',
-                        components: [reviewsButtonsRow]
+                        components: [reviewsButtonsRow],
+                        ephemeral: true
                     });
                 break;
             default:
