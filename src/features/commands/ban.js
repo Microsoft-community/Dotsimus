@@ -17,7 +17,7 @@ module.exports = {
         ),
     async execute (client, interaction) {
         const userSnowflake = interaction.options.getUser('user');
-        if (interaction.member.permissions.serialize().BAN_MEMBERS && interaction.member.roles.highest.position > interaction.options.getMember('user').roles.highest.position) {
+        if (interaction.member.permissions.serialize().BAN_MEMBERS) {
             if (!isNaN(userSnowflake)) {
                 const reason = interaction.options.get('reason')?.value ?? "No reason specified.";
                 interaction.guild.members.ban(userSnowflake, { reason: interaction.options.get('reason')?.value }).then(() => {
@@ -27,32 +27,32 @@ module.exports = {
                             content: `${userSnowflake} has been banned.`,
                             ephemeral: false
                         });
-                    } else {
-                        interaction.reply({
-                            type: 4,
-                            content: `${userSnowflake} has been banned for **${reason}.**`,
-                            ephemeral: false
-                        });
+                        return;
                     }
-                }).catch(() => {
                     interaction.reply({
-                        content: 'Something went horribly wrong, check whether bot has required permissions enabled.',
+                        type: 4,
+                        content: `${userSnowflake} has been banned for **${reason}.**`,
+                        ephemeral: false
+                    });
+                }).catch((err) => {
+                    interaction.reply({
+                        content: `Something went horribly wrong, check whether bot has required permissions enabled.\n${err}`,
                         ephemeral: true
                     })
                 })
-            } else {
-                interaction.reply({
-                    type: 4,
-                    ephemeral: true,
-                    content: `⚠️ Invalid user specified, double check whether user ID is correct.`
-                })
+                return;
             }
-        } else {
             interaction.reply({
                 type: 4,
                 ephemeral: true,
-                content: `You don't have required permissions to run this command.`
+                content: `⚠️ Invalid user specified, double check whether user ID is correct.`
             })
+            return;
         }
+        interaction.reply({
+            type: 4,
+            ephemeral: true,
+            content: `You don't have required permissions to run this command.`
+        })
     },
 }
