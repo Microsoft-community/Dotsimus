@@ -100,7 +100,7 @@ module.exports = {
                         .setFooter('Partial analytics collection started since August 20th, 2021.')
                         .setColor('#ffbd2e');
                 parsedAnalytics.sort((a, b) => (a.used - b.used)).reverse()
-                usageEmbed.addFields(parsedAnalytics.map((command, key) => {
+                usageEmbed.addFields(parsedAnalytics.filter(command => command.type === "command").map((command, key) => {
                     return {
                         name: `${key + 1} - ${command.name}`,
                         value: `Used ${command.used > 1 ? `${command.used} times` : `${command.used} time`} | Last used <t:${apiDateToTimestamp(command.lastUsed)}:R>`,
