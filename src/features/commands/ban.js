@@ -27,32 +27,33 @@ module.exports = {
                             content: `${userSnowflake} has been banned.`,
                             ephemeral: false
                         });
-                        return;
+                    } else {
+                        interaction.reply({
+                            type: 4,
+                            content: `${userSnowflake} has been banned for **${reason}.**`,
+                            ephemeral: false
+                        });
                     }
+                }).catch(() => {
                     interaction.reply({
-                        type: 4,
-                        content: `${userSnowflake} has been banned for **${reason}.**`,
-                        ephemeral: false
-                    });
-                }).catch((err) => {
-                    interaction.reply({
-                        content: `Something went horribly wrong, check whether bot has required permissions enabled.\n${err}`,
+                        content: 'Something went horribly wrong, check whether bot has required permissions enabled.',
                         ephemeral: true
                     })
                 })
-                return;
+            } else {
+                interaction.reply({
+                    type: 4,
+                    ephemeral: true,
+                    content: `⚠️ Invalid user specified, double check whether user ID is correct.`
+                })
             }
+        } else {
             interaction.reply({
                 type: 4,
                 ephemeral: true,
-                content: `⚠️ Invalid user specified, double check whether user ID is correct.`
+                content: `You don't have required permissions to run this command.`
             })
-            return;
+
         }
-        interaction.reply({
-            type: 4,
-            ephemeral: true,
-            content: `You don't have required permissions to run this command.`
-        })
     },
 }
