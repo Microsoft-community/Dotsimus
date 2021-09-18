@@ -293,8 +293,7 @@ client.on('messageCreate', message => {
                   new MessageButton()
                     .setCustomId('reportApprovalUnmuteAction')
                     .setLabel('Approve & unmute')
-                    .setStyle('SUCCESS')
-                    .setDisabled(true),
+                    .setStyle('SUCCESS'),
                   new MessageButton()
                     .setCustomId('reportRejectionAction')
                     .setLabel('Reject & unmute')
