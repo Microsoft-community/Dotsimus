@@ -141,7 +141,7 @@ module.exports = {
                         } catch (error) {
                             console.log(error)
                             interaction.reply({
-                                content: `Something went wrong:\n${error}`,
+                                content: 'Something went wrong.',
                                 ephemeral: true
                             })
                         }
