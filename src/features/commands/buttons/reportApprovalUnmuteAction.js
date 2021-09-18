@@ -1,15 +1,15 @@
-const { Client } = require('discord.js'),
+const { MessageActionRow, MessageButton } = require('discord.js'),
     db = require('../../../db'),
     perspective = require('../../../api/perspective');
 
 module.exports = {
-    name: 'reportApprovalAction',
+    name: 'reportApprovalUnmuteAction',
     type: 'button',
-    description: 'Keeps user muted and updates removed message with moderator notice.',
+    description: 'Unmutes user and updates removed message with moderator notice.',
     async execute (client, interaction) {
         if (interaction.member.permissions.serialize().KICK_MEMBERS || interaction.member.permissions.serialize().BAN_MEMBERS || interaction.member.roles.cache.some(role => role.id === '332343869163438080')) {
             const removedMessageInfo = interaction.message.embeds[0].footer.text.split(/ +/g),
-                reportApprovalEphemeralMsg = 'Report approved, user is notified & muted.';
+                reportApprovalEphemeralMsg = 'Report approved, user is notified & unmuted.';
             db.saveMessage(
                 +new Date,
                 interaction.guildId,
@@ -28,6 +28,27 @@ module.exports = {
                     return toxicity.toxicity
                 })
             )
+            client.guilds.cache.get(interaction.guildId).members.fetch(interaction.message.embeds[0].fields.filter(field => field.name === 'User ID').map(field => field.value)[0]).then(async member => {
+                member.roles.remove(await db.getAlerts(interaction.guildId).then(alerts => {
+                    return alerts[0].mutedRoleId
+                }));
+                const buttonsRow = new MessageActionRow()
+                    .addComponents(
+                        new MessageButton()
+                            .setLabel('Get back to chat')
+                            .setURL(`https://discordapp.com/channels/${interaction.guildId}/${removedMessageInfo[0]}`)
+                            .setStyle('LINK')
+                    );
+                member.send({
+                    content: `Moderators decided that your message is inappropriate, despite that you're now unmuted on **${interaction.guild.name}**.`,
+                    components: [buttonsRow]
+                }).catch(error => {
+                    console.info({ message: `Could not send unmute notice to ${member.id}.`, error: error });
+                });
+            }).catch(err => {
+                reportRejectionEphemeralMsg = 'Report approved, user is notified, but not unmuted due to an error.'
+                console.error(err);
+            })
             client.guilds.cache.get(interaction.guildId).channels
                 .fetch(removedMessageInfo[0]).then(
                     channel => {

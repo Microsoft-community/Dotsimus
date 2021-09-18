@@ -5,7 +5,7 @@
   "description": "Automatic moderation of toxic chat messages.",
   "main": "src/index.js",
   "scripts": {
-    "start": "pm2 flush; pm2 start src/index.js --log logs.log --log-date-format 'MM-DD HH:mm' --watch --watch-delay 10000 --restart-delay 10000; pm2 logs",
+    "start": "pm2 flush; pm2 start src/index.js --log logs.log --log-date-format 'MM-DD HH:mm' --watch --watch-delay 10000 --restart-delay 10000 --ignore-watch 'events.json, logs.log'; pm2 logs",
     "startwor": "pm2 flush; pm2 start src/index.js --watch --watch-delay 10000 --restart-delay 10000; pm2 logs",
     "stop": "pm2 stop src/index.js"
   },

@@ -28,7 +28,10 @@ module.exports = {
             .setDescription('⚠️ [Owner command] Restarts the bot.'))
         .addSubcommand(subcommand => subcommand
             .setName('usage')
-            .setDescription('Shows how many times commands were used and when they were used last.')),
+            .setDescription('Shows how many times commands were used and when they were used last.'))
+        .addSubcommand(subcommand => subcommand
+            .setName('submit-a-review')
+            .setDescription('Explains the importance of reviews and guides on where to submit one.')),
     async execute (client, interaction) {
         switch (interaction.options.getSubcommand()) {
             case 'me':
@@ -100,7 +103,7 @@ module.exports = {
                         .setFooter('Partial analytics collection started since August 20th, 2021.')
                         .setColor('#ffbd2e');
                 parsedAnalytics.sort((a, b) => (a.used - b.used)).reverse()
-                usageEmbed.addFields(parsedAnalytics.map((command, key) => {
+                usageEmbed.addFields(parsedAnalytics.filter(command => command.type === "command").map((command, key) => {
                     return {
                         name: `${key + 1} - ${command.name}`,
                         value: `Used ${command.used > 1 ? `${command.used} times` : `${command.used} time`} | Last used <t:${apiDateToTimestamp(command.lastUsed)}:R>`,
@@ -111,6 +114,24 @@ module.exports = {
                     embeds: [usageEmbed],
                     ephemeral: true
                 });
+                break;
+            case 'submit-a-review':
+                const reviewsButtonsRow = new MessageActionRow()
+                    .addComponents(
+                        new MessageButton()
+                            .setEmoji('💖')
+                            .setLabel('Submit a review')
+                            .setURL('https://top.gg/bot/731190736996794420#reviews')
+                            .setStyle('LINK'),
+                        new MessageButton()
+                            .setLabel('Join Dotsimus Server')
+                            .setURL('https://discord.gg/XAFXecKFRG')
+                            .setStyle('LINK')
+                    );
+                    interaction.reply({
+                        content: 'Reviews significantly help to amplify the voice of the users and help to find focus areas for further Dotsimus development, if you\'d like to leave some feedback please do so on [Top.GG](https://top.gg/bot/731190736996794420#reviews). It\'s highly appreciated ☺️!',
+                        components: [reviewsButtonsRow]
+                    });
                 break;
             default:
                 break;
