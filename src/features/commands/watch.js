@@ -41,7 +41,7 @@ module.exports = {
         )
         
         if (!interaction.guild) {
-            interaction.reply({ content: 'You can only track keywords in servers', ephemeral: true });
+            interaction.reply({ content: 'You can only use this command in servers!', ephemeral: true });
             return;
         }
 
@@ -64,7 +64,7 @@ module.exports = {
                     const common = string.indexOf(trackingWord)
                     if (common >= 0) {
                         interaction.reply({
-                            content: `You can't watch the same keyword \`(${trackingWord})\` multiple times.`,
+                            content: `You can't watch the same keyword \`${trackingWord}\` multiple times.`,
                             ephemeral: true,
                         })
                         return
@@ -112,7 +112,7 @@ module.exports = {
                             .setStyle(`SECONDARY`)
                     )
                 db.getWatchedKeywords(interaction.user.id, interaction.guild.id).then(keywords => {
-                    if (keywords.length === 0) {
+                    if (!keywords.length || !keywords[0].watchedWords.length) {
                         interaction.reply({
                             content: `You aren't tracking any keywords for this server. Track words by using the \`/watch\` command!`,
                             ephemeral: true,
@@ -155,7 +155,11 @@ module.exports = {
                 break;
             case "list":
                 db.getWatchedKeywords(interaction.user.id, interaction.guild.id).then(keywords => {
-                    const list = keywords[0].watchedWords.length > 5 ? keywords[0].watchedWords.slice(1) : keywords[0].watchedWords
+                    if (!keywords.length || !keywords[0].watchedWords.length) {
+                        interaction.reply({ content: 'You aren\'t tracking any keywords for this server. Track words by using the /watch command!', ephemeral: true });
+                        return;
+                    }
+                    const list = keywords[0].watchedWords.length > 5 ? keywords[0].watchedWords.slice(1) : keywords[0].watchedWords;
 
                     const listEmbed = new MessageEmbed()
                           .setColor('#0099ff')
