@@ -39,6 +39,11 @@ module.exports = {
         const refreshWatchedCollection = () => (
             watchedKeywordsCollection = db.getWatchedKeywords()
         )
+        
+        if (!interaction.guild) {
+            interaction.reply({ content: 'You can only track keywords in servers', ephemeral: true });
+            return;
+        }
 
         switch (interaction.options._subcommand) {
             case "watch":
