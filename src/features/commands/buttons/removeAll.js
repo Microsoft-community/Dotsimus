@@ -1,8 +1,7 @@
 const {
     Client
 } = require('discord.js'),
-    db = require('../../../db'),
-    perspective = require('../../../api/perspective');
+    db = require('../../../db');
 
 module.exports = {
     name: 'removeAll',
@@ -21,7 +20,7 @@ module.exports = {
                     refreshWatchedCollection()
                 })
                 interaction.update({
-                    content: `Removed all keywords being tracked.`,
+                    content: 'Successfully disabled keywords tracking.',
                     components: [],
                     ephemeral: true,
                 })
@@ -29,7 +28,7 @@ module.exports = {
             } catch (error) {
                 console.log(error)
                 interaction.reply({
-                    content: `Something went wrong:\n${error}`,
+                    content: 'Something went wrong.',
                     ephemeral: true
                 })
             }
