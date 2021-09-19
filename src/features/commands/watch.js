@@ -61,15 +61,14 @@ module.exports = {
                     }
                     const string = watching.join(' ');
                     trackingWord = keyword.toLowerCase();
-                    const common = string.indexOf(trackingWord)
-                    /*
+                    const common = string.indexOf(trackingWord);
                     if (common >= 0) {
                         interaction.reply({
                             content: `You can't watch the same keyword \`${trackingWord}\` multiple times.`,
                             ephemeral: true,
                         })
                         return;
-                    }*/
+                    }
                     if (keyword.length < 3 || !keyword || keyword === 'null') {
                         interaction.reply({
                             content: `Keyword must be of 3 or more characters.`,
