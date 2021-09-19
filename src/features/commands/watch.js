@@ -3,12 +3,12 @@ const {
     MessageSelectMenu,
     MessageButton,
     MessageEmbed
-} = require('discord.js');
-const {
+} = require('discord.js'),
+ {
     SlashCommandBuilder
 } = require('@discordjs/builders'),
-    wait = require('util').promisify(setTimeout);
-const db = require('../../db')
+    wait = require('util').promisify(setTimeout),
+    db = require('../../db');
 module.exports = {
     type: 'slash',
     data: new SlashCommandBuilder()
@@ -17,14 +17,14 @@ module.exports = {
         .addSubcommand(subcommand =>
             subcommand
                 .setName('remove')
-                .setDescription('Unwatches keywords.'))
+                .setDescription('Allows to remove tracked keywords.'))
         .addSubcommand(subcommand =>
             subcommand
-                .setName('watch')
+                .setName('add')
                 .setDescription('Sends a direct message to you whenever keyword that you track gets mentioned.')
                 .addStringOption(option =>
                     option.setName('keyword')
-                        .setDescription('The keyword you want to track.')
+                        .setDescription('Allows to set up tracking for preferred keywords.')
                         .setRequired(true)))
         .addSubcommand(subcommand =>
             subcommand
@@ -46,7 +46,7 @@ module.exports = {
         }
 
         switch (interaction.options._subcommand) {
-            case "watch":
+            case "add":
                 let watching = [];
                 let length;
                 db.getWatchedKeywords(interaction.user.id, interaction.guild.id).then(keywords => {
@@ -64,7 +64,7 @@ module.exports = {
                     const common = string.indexOf(trackingWord);
                     if (common >= 0) {
                         interaction.reply({
-                            content: `You can't watch the same keyword \`${trackingWord}\` multiple times.`,
+                            content: `You're already tracking this keyword.`,
                             ephemeral: true,
                         })
                         return;
@@ -104,12 +104,8 @@ module.exports = {
                     .addComponents(
                         new MessageButton()
                             .setCustomId(`removeAll`)
-                            .setLabel(`Remove all keywords`)
-                            .setStyle(`DANGER`),
-                        new MessageButton()
-                            .setCustomId(`doNothing`)
-                            .setLabel(`Don't remove anything`)
-                            .setStyle(`SECONDARY`)
+                            .setLabel(`Disable tracking`)
+                            .setStyle(`DANGER`)
                     )
                 db.getWatchedKeywords(interaction.user.id, interaction.guild.id).then(keywords => {
                     if (!keywords.length || !keywords[0].watchedWords.length) {
@@ -132,13 +128,13 @@ module.exports = {
                             keywordList.addComponents(
                                 new MessageSelectMenu()
                                     .setCustomId('keywords')
-                                    .setPlaceholder('Nothing Selected')
+                                    .setPlaceholder('Nothing is Selected')
                                     .setMinValues(1)
                                     .setMaxValues(nonDuplicateList.length)
                                     .addOptions(components),
                             );
                             interaction.reply({
-                                content: `Select the keywords you want to remove.`,
+                                content: `Select keywords that you want to remove.`,
                                 components: [keywordList, Buttons],
                                 ephemeral: true,
                             })
@@ -156,7 +152,7 @@ module.exports = {
             case "list":
                 db.getWatchedKeywords(interaction.user.id, interaction.guild.id).then(keywords => {
                     if (!keywords.length || !keywords[0].watchedWords.length) {
-                        interaction.reply({ content: 'You aren\'t tracking any keywords for this server. Track words by using the /watch command!', ephemeral: true });
+                        interaction.reply({ content: 'You aren\'t tracking any keywords for this server. Track keywords by using the /watch command!', ephemeral: true });
                         return;
                     }
                     const list = keywords[0].watchedWords.length > 5 ? keywords[0].watchedWords.slice(1) : keywords[0].watchedWords;
@@ -164,9 +160,7 @@ module.exports = {
                     const listEmbed = new MessageEmbed()
                           .setColor('#0099ff')
                           .setTitle('Your tracked keywords')
-                          .setDescription(list.map((keyword, index) => `${index + 1}. \`${keyword}\` \n`).join(''))
-                          .setTimestamp();
-
+                          .setDescription(list.map((keyword, index) => `${index + 1}. \`${keyword}\` \n`).join(''));
                     interaction.reply({
                         embeds: [ listEmbed ],
                         ephemeral: true,
