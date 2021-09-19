@@ -62,13 +62,14 @@ module.exports = {
                     const string = watching.join(' ');
                     trackingWord = keyword.toLowerCase();
                     const common = string.indexOf(trackingWord)
+                    /*
                     if (common >= 0) {
                         interaction.reply({
                             content: `You can't watch the same keyword \`${trackingWord}\` multiple times.`,
                             ephemeral: true,
                         })
-                        return
-                    }
+                        return;
+                    }*/
                     if (keyword.length < 3 || !keyword || keyword === 'null') {
                         interaction.reply({
                             content: `Keyword must be of 3 or more characters.`,
@@ -119,13 +120,13 @@ module.exports = {
                         })
                     } else {
                         try {
-                            const list = keywords[0].watchedWords
-                            let components = []
-                            for (i = 0; i < list.length; i++) {
+                            const nonDuplicateList = Array.from(new Set(keywords[0].watchedWords));
+                            let components = [];
+                            for (i = 0; i < nonDuplicateList.length; i++) {
                                 const value = {
-                                    label: `${list[i]}`,
-                                    description: `Remove ${list[i]} from watched keywords.`,
-                                    value: `${list[i]}`
+                                    label: `${nonDuplicateList[i]}`,
+                                    description: `Remove ${nonDuplicateList[i]} from watched keywords.`,
+                                    value: `${nonDuplicateList[i]}`
                                 }
                                 components.push(value)
                             }
@@ -134,7 +135,7 @@ module.exports = {
                                     .setCustomId('keywords')
                                     .setPlaceholder('Nothing Selected')
                                     .setMinValues(1)
-                                    .setMaxValues(list.length)
+                                    .setMaxValues(nonDuplicateList.length)
                                     .addOptions(components),
                             );
                             interaction.reply({
