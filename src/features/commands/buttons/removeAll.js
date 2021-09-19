@@ -8,8 +8,8 @@ module.exports = {
     type: 'button',
     description: 'Removes all watched keywords.',
     async execute(client, interaction) {
-        let trackingWord;
-        let watchedKeywordsCollection = db.getWatchedKeywords(),
+        let trackingWord,
+            watchedKeywordsCollection = db.getWatchedKeywords(),
             activeUsersCollection = [];
         const refreshWatchedCollection = () => (
             watchedKeywordsCollection = db.getWatchedKeywords()
