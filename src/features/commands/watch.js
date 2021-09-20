@@ -83,10 +83,11 @@ module.exports = {
 
                                 const watchedEmbed = new MessageEmbed()
                                       .setColor('#0099ff')
-                                      .setTitle(`Keyword tracking for \`${trackingWord}\` has been set up successfully on "${interaction.guild.name}" server.`)
-                                      .setDescription(`Currently tracked keywords for this server:\n${list.map((keyword, index) => `${index + 1}. \`${keyword}\` \n`).join('')}`)
+                                      .setTitle(`Your currently tracked keywords on this server`)
+                                      .setDescription(`${list.map((keyword, index) => `• \`${keyword}\` \n`).join('')}`)
                                       .setFooter(`You can watch ${5 - list.length} more keyword(s).`);
                                 interaction.reply({
+                                    content: `Keyword tracking for \`${trackingWord}\` has been set up successfully.`,
                                     embeds: [ watchedEmbed ],
                                     ephemeral: true,
                                 })
