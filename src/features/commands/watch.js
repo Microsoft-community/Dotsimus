@@ -76,6 +76,13 @@ module.exports = {
                         })
                         return;
                     } 
+                    if (length === 5) {
+                        interaction.reply({
+                            content: `You cannot track more than 5 keywords.`,
+                            ephemeral: true,
+                        })
+                        return;
+                    }
                     try {
                         db.watchKeyword(interaction.user.id, interaction.guild.id, trackingWord).then(resp => {
                             refreshWatchedCollection().then(resp => db.getWatchedKeywords(interaction.user.id, interaction.guild.id).then(keywords => {
