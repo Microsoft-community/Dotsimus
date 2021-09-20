@@ -85,10 +85,18 @@ class ReportEmbed {
         let embed = new MessageEmbed()
             .setTitle(`Report`)
             .setAuthor(reportObject.reportedUser.tag, reportObject.reportedUser.displayAvatarURL())
-            .addFields(
-                { name: 'User ID', value: reportObject.reportedUser.toString() },
-                { name: 'Type', value: reportObject.reportedContent.reportType }
+            .addField('User ID', reportObject.reportedUser.toString());
+
+        if (!reportObject.reportedContent.getContent()) {
+            embed = embed.addField('Type', 'Attachment/Other');
+        } else {
+            embed = embed.addFields(
+                { name: 'Type', value: reportObject.reportedContent.reportType },
+                { name: 'Content', Value: reportObject.reportedContent.getContent() }
             );
+        }
+
+        embed = embed.addField('Context link', reportObject.reportedContent.link);
 
         if (reportObject.reason) {
             embed = embed.addFields(
@@ -99,11 +107,6 @@ class ReportEmbed {
         Object.entries(reportObject.reportedContent.fields).forEach(([key, value]) => {
             embed = embed.addFields({ name: key, value });
         });
-
-        embed = embed.addFields(
-            { name: 'Content', value: reportObject.reportedContent.getContent() },
-            { name: 'Context link', value: reportObject.reportedContent.link }
-        );
 
         return embed;
     }
