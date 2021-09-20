@@ -87,6 +87,16 @@ class ReportEmbed {
             .setAuthor(reportObject.reportedUser.tag, reportObject.reportedUser.displayAvatarURL())
             .addField('User ID', reportObject.reportedUser.toString());
 
+        if (reportObject.reason) {
+            embed = embed.addFields(
+                { name: 'Rules', value: ReportEmbed.normalizeReason(reportObject.reason), inline: true }
+            );
+        }
+    
+            Object.entries(reportObject.reportedContent.fields).forEach(([key, value]) => {
+                embed = embed.addFields({ name: key, value });
+            });
+
         if (!reportObject.reportedContent.getContent()) {
             embed = embed.addField('Type', 'Attachment/Other');
         } else {
@@ -97,16 +107,6 @@ class ReportEmbed {
         }
 
         embed = embed.addField('Context link', reportObject.reportedContent.link);
-
-        if (reportObject.reason) {
-            embed = embed.addFields(
-                { name: 'Rules', value: ReportEmbed.normalizeReason(reportObject.reason), inline: true }
-            );
-        }
-
-        Object.entries(reportObject.reportedContent.fields).forEach(([key, value]) => {
-            embed = embed.addFields({ name: key, value });
-        });
 
         return embed;
     }
