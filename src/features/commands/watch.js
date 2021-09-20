@@ -81,8 +81,13 @@ module.exports = {
                             refreshWatchedCollection().then(resp => db.getWatchedKeywords(interaction.user.id, interaction.guild.id).then(keywords => {
                                 const list = keywords[0].watchedWords.length > 5 ? keywords[0].watchedWords.slice(1) : keywords[0].watchedWords
 
+                                const watchedEmbed = new MessageEmbed()
+                                      .setColor('#0099ff')
+                                      .setTitle(`Keyword tracking for \`${trackingWord}\` has been set up successfully on "${interaction.guild.name}" server.`)
+                                      .setDescription(`Currently tracked keywords for this server:\n${list.map((keyword, index) => `${index + 1}. \`${keyword}\` \n`).join('')}`)
+                                      .setFooter(`You can watch ${5 - list.length} more keyword(s).`);
                                 interaction.reply({
-                                    content: `\`${trackingWord}\` keyword tracking is set up successfully on **${interaction.guild.name}** server.\nCurrently tracked keywords for the server:\n${list.map((keyword, index) => `${index + 1}. \`${keyword}\` \n`).join('')}*You can watch* ***${5 - list.length}*** *more keywords.*`,
+                                    embeds: [ watchedEmbed ],
                                     ephemeral: true,
                                 })
                             }).then(refreshWatchedCollection()))
