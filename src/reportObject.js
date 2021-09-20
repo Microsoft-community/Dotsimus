@@ -102,7 +102,7 @@ class ReportEmbed {
         } else {
             embed = embed.addFields(
                 { name: 'Type', value: reportObject.reportedContent.reportType },
-                { name: 'Content', Value: reportObject.reportedContent.getContent() }
+                { name: 'Content', value: reportObject.reportedContent.getContent() }
             );
         }
 
