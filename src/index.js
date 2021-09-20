@@ -486,7 +486,7 @@ client.on('messageCreate', message => {
         const watchCommandSlashMigrationNoticeEmbed = new MessageEmbed()
 	           .setColor('#0099ff')
 	           .setTitle('The !watch (or !track) command has been migrated to a new home!')
-	           .setDescription('You can now use it along with other slash commands.\nType `/watch watch` to use it.')
+	           .setDescription('You can now use it along with other slash commands.\nType `/watch add` to use it.')
 	           .setTimestamp();
         message.channel.send({ embeds: [watchCommandSlashMigrationNoticeEmbed] });
         break;
