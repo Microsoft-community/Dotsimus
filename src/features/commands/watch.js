@@ -82,7 +82,7 @@ module.exports = {
                                 const list = keywords[0].watchedWords.length > 5 ? keywords[0].watchedWords.slice(1) : keywords[0].watchedWords
 
                                 interaction.reply({
-                                    content: `\`${trackingWord}\` keyword tracking is set up successfully on this server.\nCurrently tracked keywords for the server:\n${list.map((keyword) => `⦿. \`${keyword}\` \n`).join('')}*You can watch* ***${5 - list.length}*** *more keywords.*`,
+                                    content: `\`${trackingWord}\` keyword tracking is set up successfully on this server.\n${list.map((keyword) => `⦿. \`${keyword}\` \n`).join('')}*You can watch* ***${5 - list.length}*** *more keywords.*`,
                                     ephemeral: true,
                                 })
                             }).then(refreshWatchedCollection()))
