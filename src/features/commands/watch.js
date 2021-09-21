@@ -88,7 +88,9 @@ module.exports = {
                                         .setColor('#0099ff')
                                         .setTitle('Your tracked keywords for this server')
                                         .setDescription(list.map((keyword) => `⦿ ${keyword} \n`).join(''))
-                                        .setFooter(`You can watch ${5 - list.length} more keyword(s)`);
+                                        .setFooter(`${list.length === 5 ? 
+                                            'You cannot track more than 5 keywords.' : 
+                                            `You can track ${5 - list.length} more ${list.length >= 4 ? 'keyword' : 'keywords'}.`}\n❗️Direct messages must be enabled for this feature to work.`);
                                 interaction.reply({
                                     content: `\`${trackingWord}\` keyword tracking is set up successfully on this server.`,
                                     embeds: [listEmbed],
@@ -99,10 +101,8 @@ module.exports = {
 
                     } catch (error) {
                         console.log(error);
-                        // TODO: there's actually no proper checking here, thus it is not possible to know whether user has DMs enabled, this issue is present due to migration
-                        // TODO: Add button which would lead user to Dotsimus server
                         interaction.reply({
-                            content: 'Allow Direct Messages from server members in this server for this feature to work or join [Dotsimus development](https://discord.gg/HjUwRygMCg) server and enable them there.',
+                            content: 'Something went wrong.',
                             ephemeral: true,
                         })
                     }
