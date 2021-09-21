@@ -4,10 +4,9 @@ const {
     MessageButton,
     MessageEmbed
 } = require('discord.js'),
- {
-    SlashCommandBuilder
-} = require('@discordjs/builders'),
-    wait = require('util').promisify(setTimeout),
+    {
+        SlashCommandBuilder
+    } = require('@discordjs/builders'),
     db = require('../../db');
 module.exports = {
     type: 'slash',
@@ -30,7 +29,7 @@ module.exports = {
             subcommand
                 .setName('list')
                 .setDescription('Lists tracked keywords.')),
-    async execute(client, interaction) {
+    async execute (client, interaction) {
 
         let keyword = interaction.options.getString('keyword');
         let trackingWord;
@@ -39,7 +38,7 @@ module.exports = {
         const refreshWatchedCollection = () => (
             watchedKeywordsCollection = db.getWatchedKeywords()
         )
-        
+
         if (!interaction.guild) {
             interaction.reply({ content: 'You can only use this command in servers!', ephemeral: true });
             return;
@@ -75,7 +74,7 @@ module.exports = {
                             ephemeral: true,
                         })
                         return;
-                    } 
+                    }
                     if (length === 5) {
                         interaction.reply({
                             content: `You cannot track more than 5 keywords.`,
@@ -86,13 +85,12 @@ module.exports = {
                     try {
                         db.watchKeyword(interaction.user.id, interaction.guild.id, trackingWord).then(resp => {
                             refreshWatchedCollection().then(resp => db.getWatchedKeywords(interaction.user.id, interaction.guild.id).then(keywords => {
-                                const list = keywords[0].watchedWords.length > 5 ? keywords[0].watchedWords.slice(1) : keywords[0].watchedWords
-                                
-                                const listEmbed = new MessageEmbed()
-                                    .setColor('#0099ff')
-                                    .setTitle('Your tracked keywords for this server')
-                                    .setDescription(list.map((keyword) => `⦿ \`${keyword}\` \n`).join(''))
-                                    .setFooter(`You can watch ${5 - list.length} more keyword(s)`);
+                                const list = keywords[0].watchedWords.length > 5 ? keywords[0].watchedWords.slice(1) : keywords[0].watchedWords,
+                                    listEmbed = new MessageEmbed()
+                                        .setColor('#0099ff')
+                                        .setTitle('Your tracked keywords for this server')
+                                        .setDescription(list.map((keyword) => `⦿ ${keyword} \n`).join(''))
+                                        .setFooter(`You can watch ${5 - list.length} more keyword(s)`);
                                 interaction.reply({
                                     content: `\`${trackingWord}\` keyword tracking is set up successfully on this server.`,
                                     embeds: [listEmbed],
@@ -103,8 +101,10 @@ module.exports = {
 
                     } catch (error) {
                         console.log(error);
+                        // TODO: there's actually no proper checking here, thus it is not possible to know whether user has DMs enabled, this issue is present due to migration
+                        // TODO: Add button which would lead user to Dotsimus server
                         interaction.reply({
-                            content: 'Allow Direct Messages from server members in this server for this feature to work.',
+                            content: 'Allow Direct Messages from server members in this server for this feature to work or join [Dotsimus development](https://discord.gg/HjUwRygMCg) server and enable them there.',
                             ephemeral: true,
                         })
                     }
@@ -165,17 +165,19 @@ module.exports = {
             case "list":
                 db.getWatchedKeywords(interaction.user.id, interaction.guild.id).then(keywords => {
                     if (!keywords.length || !keywords[0].watchedWords.length) {
-                        interaction.reply({ content: 'You aren\'t tracking any keywords for this server. Track keywords by using the /watch command!', ephemeral: true });
+                        interaction.reply({
+                            content: 'You aren\'t tracking any keywords for this server. Track keywords by using the /watch command!',
+                            ephemeral: true
+                        });
                         return;
                     }
-                    const list = keywords[0].watchedWords.length > 5 ? keywords[0].watchedWords.slice(1) : keywords[0].watchedWords;
-
-                    const listEmbed = new MessageEmbed()
-                          .setColor('#0099ff')
-                          .setTitle('Your tracked keywords for this server')
-                          .setDescription(list.map((keyword) => `⦿ \`${keyword}\` \n`).join(''));
+                    const list = keywords[0].watchedWords.length > 5 ? keywords[0].watchedWords.slice(1) : keywords[0].watchedWords,
+                        listEmbed = new MessageEmbed()
+                            .setColor('#0099ff')
+                            .setTitle('Your tracked keywords for this server')
+                            .setDescription(list.map((keyword) => `⦿ ${keyword} \n`).join(''));
                     interaction.reply({
-                        embeds: [ listEmbed ],
+                        embeds: [listEmbed],
                         ephemeral: true,
                     })
                 });
