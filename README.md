@@ -24,7 +24,6 @@ Machine learning powered moderation brings misbehaving, toxic users to moderator
 ## Track topics, names or keywords,stay in the loop of things!
 Keywords tracking will make sure that you know whenever you're mentioned and missed! It can also be used to track topics that you find interesting.
 
-`/watch remove <word>`
   
 `/watch add`
 
