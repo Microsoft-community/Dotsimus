@@ -4,10 +4,9 @@ const {
     MessageButton,
     MessageEmbed
 } = require('discord.js'),
- {
-    SlashCommandBuilder
-} = require('@discordjs/builders'),
-    wait = require('util').promisify(setTimeout),
+    {
+        SlashCommandBuilder
+    } = require('@discordjs/builders'),
     db = require('../../db');
 module.exports = {
     type: 'slash',
@@ -30,16 +29,14 @@ module.exports = {
             subcommand
                 .setName('list')
                 .setDescription('Lists tracked keywords.')),
-    async execute(client, interaction) {
-
-        let keyword = interaction.options.getString('keyword');
-        let trackingWord;
-        let watchedKeywordsCollection = db.getWatchedKeywords(),
-            activeUsersCollection = [];
+    async execute (client, interaction) {
+        let keyword = interaction.options.getString('keyword'),
+            trackingWord,
+            watchedKeywordsCollection = db.getWatchedKeywords();
         const refreshWatchedCollection = () => (
             watchedKeywordsCollection = db.getWatchedKeywords()
         )
-        
+
         if (!interaction.guild) {
             interaction.reply({ content: 'You can only use this command in servers!', ephemeral: true });
             return;
@@ -47,8 +44,8 @@ module.exports = {
 
         switch (interaction.options._subcommand) {
             case "add":
-                let watching = [];
-                let length;
+                let watching = [],
+                    length;
                 db.getWatchedKeywords(interaction.user.id, interaction.guild.id).then(keywords => {
                     if (keywords.length === 0) {
                         length = 0
@@ -75,14 +72,28 @@ module.exports = {
                             ephemeral: true,
                         })
                         return;
-                    } 
+                    }
+                    if (length === 5) {
+                        interaction.reply({
+                            content: `You cannot track more than 5 keywords.`,
+                            ephemeral: true,
+                        })
+                        return;
+                    }
                     try {
                         db.watchKeyword(interaction.user.id, interaction.guild.id, trackingWord).then(resp => {
                             refreshWatchedCollection().then(resp => db.getWatchedKeywords(interaction.user.id, interaction.guild.id).then(keywords => {
-                                const list = keywords[0].watchedWords.length > 5 ? keywords[0].watchedWords.slice(1) : keywords[0].watchedWords
-
+                                const list = keywords[0].watchedWords.length > 5 ? keywords[0].watchedWords.slice(1) : keywords[0].watchedWords,
+                                    listEmbed = new MessageEmbed()
+                                        .setColor('#0099ff')
+                                        .setTitle('Your tracked keywords for this server')
+                                        .setDescription(list.map((keyword) => `⦿ ${keyword} \n`).join(''))
+                                        .setFooter(`${list.length === 5 ? 
+                                            'You cannot track more than 5 keywords.' : 
+                                            `You can track ${5 - list.length} more ${list.length >= 4 ? 'keyword' : 'keywords'}.`}\n❗️Direct messages must be enabled for this feature to work.`);
                                 interaction.reply({
-                                    content: `\`${trackingWord}\` keyword tracking is set up successfully on **${interaction.guild.name}** server.\nCurrently tracked keywords for the server:\n${list.map((keyword, index) => `${index + 1}. \`${keyword}\` \n`).join('')}*You can watch* ***${5 - list.length}*** *more keywords.*`,
+                                    content: `\`${trackingWord}\` keyword tracking is set up successfully on this server.`,
+                                    embeds: [listEmbed],
                                     ephemeral: true,
                                 })
                             }).then(refreshWatchedCollection()))
@@ -91,7 +102,7 @@ module.exports = {
                     } catch (error) {
                         console.log(error);
                         interaction.reply({
-                            content: 'Allow Direct Messages from server members in this server for this feature to work.',
+                            content: 'Something went wrong.',
                             ephemeral: true,
                         })
                     }
@@ -152,17 +163,19 @@ module.exports = {
             case "list":
                 db.getWatchedKeywords(interaction.user.id, interaction.guild.id).then(keywords => {
                     if (!keywords.length || !keywords[0].watchedWords.length) {
-                        interaction.reply({ content: 'You aren\'t tracking any keywords for this server. Track keywords by using the /watch command!', ephemeral: true });
+                        interaction.reply({
+                            content: 'You aren\'t tracking any keywords for this server. Track keywords by using the /watch command!',
+                            ephemeral: true
+                        });
                         return;
                     }
-                    const list = keywords[0].watchedWords.length > 5 ? keywords[0].watchedWords.slice(1) : keywords[0].watchedWords;
-
-                    const listEmbed = new MessageEmbed()
-                          .setColor('#0099ff')
-                          .setTitle('Your tracked keywords')
-                          .setDescription(list.map((keyword, index) => `${index + 1}. \`${keyword}\` \n`).join(''));
+                    const list = keywords[0].watchedWords.length > 5 ? keywords[0].watchedWords.slice(1) : keywords[0].watchedWords,
+                        listEmbed = new MessageEmbed()
+                            .setColor('#0099ff')
+                            .setTitle('Your tracked keywords for this server')
+                            .setDescription(list.map((keyword) => `⦿ ${keyword} \n`).join(''));
                     interaction.reply({
-                        embeds: [ listEmbed ],
+                        embeds: [listEmbed],
                         ephemeral: true,
                     })
                 });
