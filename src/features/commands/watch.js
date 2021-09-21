@@ -80,9 +80,16 @@ module.exports = {
                         db.watchKeyword(interaction.user.id, interaction.guild.id, trackingWord).then(resp => {
                             refreshWatchedCollection().then(resp => db.getWatchedKeywords(interaction.user.id, interaction.guild.id).then(keywords => {
                                 const list = keywords[0].watchedWords.length > 5 ? keywords[0].watchedWords.slice(1) : keywords[0].watchedWords
+                                
+                                const listEmbed = new MessageEmbed()
+                                    .setColor('#0099ff')
+                                    .setTitle('Your tracked keywords for this server')
+                                    .setDescription(list.map((keyword) => `⦿ \`${keyword}\` \n`).join(''))
+                                    .setFooter(`You can watch ${5 - list.length} more keyword(s)`);
 
                                 interaction.reply({
-                                    content: `\`${trackingWord}\` keyword tracking is set up successfully on **${interaction.guild.name}** server.\nCurrently tracked keywords for the server:\n${list.map((keyword, index) => `${index + 1}. \`${keyword}\` \n`).join('')}*You can watch* ***${5 - list.length}*** *more keywords.*`,
+                                    content: `\`${trackingWord}\` keyword tracking is set up successfully on this server.`,
+                                    embeds: [listEmbed],
                                     ephemeral: true,
                                 })
                             }).then(refreshWatchedCollection()))
@@ -159,8 +166,8 @@ module.exports = {
 
                     const listEmbed = new MessageEmbed()
                           .setColor('#0099ff')
-                          .setTitle('Your tracked keywords')
-                          .setDescription(list.map((keyword, index) => `${index + 1}. \`${keyword}\` \n`).join(''));
+                          .setTitle('Your tracked keywords for this server')
+                          .setDescription(list.map((keyword) => `⦿ \`${keyword}\` \n`).join(''));
                     interaction.reply({
                         embeds: [ listEmbed ],
                         ephemeral: true,
