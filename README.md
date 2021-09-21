@@ -26,7 +26,7 @@ Keywords tracking will make sure that you know whenever you're mentioned and mis
 
 `/watch remove <word>`
   
-`/watch add <word>`
+`/watch add`
 
 ## Point users to rules easily!
 Dotsimus allows you to guide new users through rules without hitting them with a wall of text.
