@@ -21,10 +21,9 @@ OWNER=BOT_OWNER_ID
 ## Automated moderation (Premium feature)
 Machine learning powered moderation brings misbehaving, toxic users to moderators attention quicker than you can say hop.
 
-## Track topics, names or keywords,stay in the loop of things!
+## Track topics, names or keywords, stay in the loop of things!
 Keywords tracking will make sure that you know whenever you're mentioned and missed! It can also be used to track topics that you find interesting.
 
-  
 `/watch add`
 
 ## Point users to rules easily!
