@@ -30,11 +30,9 @@ module.exports = {
                 .setName('list')
                 .setDescription('Lists tracked keywords.')),
     async execute (client, interaction) {
-
-        let keyword = interaction.options.getString('keyword');
-        let trackingWord;
-        let watchedKeywordsCollection = db.getWatchedKeywords(),
-            activeUsersCollection = [];
+        let keyword = interaction.options.getString('keyword'),
+            trackingWord,
+            watchedKeywordsCollection = db.getWatchedKeywords();
         const refreshWatchedCollection = () => (
             watchedKeywordsCollection = db.getWatchedKeywords()
         )
@@ -46,8 +44,8 @@ module.exports = {
 
         switch (interaction.options._subcommand) {
             case "add":
-                let watching = [];
-                let length;
+                let watching = [],
+                    length;
                 db.getWatchedKeywords(interaction.user.id, interaction.guild.id).then(keywords => {
                     if (keywords.length === 0) {
                         length = 0
