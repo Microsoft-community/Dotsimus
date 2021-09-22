@@ -48,6 +48,8 @@ module.exports = {
     async execute (client, interaction) {
         // disabled for Apple community
         const isPremium = await db.getServerConfig(interaction.guild.id).then(config => config[0]?.isSubscribed)
+        const reportedMessage = interaction.options.getMessage('message');
+        
         if (interaction.guild.id === '332309672486895637') {
             return interaction.reply({
                 content: 'This functionality is currently disabled on this server, learn more over at [Dotsimus.com](https://dotsimus.com/).',
@@ -67,6 +69,13 @@ module.exports = {
                 ephemeral: true
             });
         }
+        
+        if (reportedMessage.author.bot) {
+            return await interaction.reply({
+                content: 'Message reports can only be used on members.',
+                ephemeral: true
+            });
+        }
 
         const rules = await fetchRules(interaction.guild.id);
         if (!rules) {
@@ -82,8 +91,6 @@ module.exports = {
                 ephemeral: true
             });
         }
-
-        const reportedMessage = interaction.options.getMessage('message');
 
         let challenge;
         try {
@@ -359,11 +366,17 @@ async function handleSendReport (client, interaction, message, ruleList) {
         return;
     }
 
-    const embed = Report.ReportEmbed.createBasicReportEmbed(report);
+    const basicEmbed = Report.ReportEmbed.createBasicReportEmbed(report);
+    const thumbnailEmbedArray = Report.ReportEmbed.createThumbnailEmbedArray(report)
+
+    let embeds = [basicEmbed];
+    thumbnailEmbedArray.forEach(embed => {
+        embeds.push(embed)
+    })
 
     interaction.reply({
         content: `${createReportText(ruleList)}. ${genericReportText} Your report:`,
-        embeds: [embed],
+        embeds: embeds,
         ephemeral: true
     });
 }
