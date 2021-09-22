@@ -17,7 +17,7 @@ class ReportedContentInterface {
      * Returns whether or not the content is the same or has changed since then
      * @returns True if same.
      */
-    isSame() {
+    isSame () {
         throw "unimplemented";
         return false;
     }
@@ -25,7 +25,7 @@ class ReportedContentInterface {
     /**
      * Called when the report has been approved.
      */
-    approve() {
+    approve () {
         throw "unimplemented";
     }
 
@@ -33,7 +33,7 @@ class ReportedContentInterface {
      * Returns the content text to display.
      * @returns content string.
      */
-    getContent() {
+    getContent () {
         throw "unimplemented";
         return "";
     }
@@ -46,7 +46,7 @@ class ReportObject {
         this.owner = author;
         this.reportedContent = content;
         this.reportedUser = reportedUser;
-        this.signalers = [ author ];
+        this.signalers = [author];
         this.reason = reason;
         this.investigation = 0;
         this.thread = 0;
@@ -55,18 +55,18 @@ class ReportObject {
         this.actionTaken = null;
     }
 
-    setOwner(user) {
+    setOwner (user) {
         this.owner = user;
-        this.signalers = [ user ];
+        this.signalers = [user];
     }
 
-    boost(user) {
+    boost (user) {
         this.signalers.push(user);
     }
 }
 
 class ReportEmbed {
-    static normalizeReason(rules) {
+    static normalizeReason (rules) {
         if (Array.isArray(rules)) {
             let ruleStr = '';
             rules.forEach((element, index) => {
@@ -81,14 +81,11 @@ class ReportEmbed {
             return rules.toString();
         }
     }
-    static createBasicReportEmbed(reportObject) {
+    static createBasicReportEmbed (reportObject) {
         let embed = new MessageEmbed()
             .setTitle(`Report`)
             .setAuthor(reportObject.reportedUser.tag, reportObject.reportedUser.displayAvatarURL())
-            .addFields(
-                { name: 'User ID', value: reportObject.reportedUser.toString() },
-                { name: 'Type', value: reportObject.reportedContent.reportType }
-            );
+            .addFields({ name: 'User ID', value: reportObject.reportedUser.toString(), inline: true });
 
         if (reportObject.reason) {
             embed = embed.addFields(
@@ -97,18 +94,24 @@ class ReportEmbed {
         }
 
         Object.entries(reportObject.reportedContent.fields).forEach(([key, value]) => {
-            embed = embed.addFields({ name: key, value });
+            embed = embed.addFields({ name: key, value: value, inline: true });
         });
 
-        embed = embed.addFields(
-            { name: 'Content', value: reportObject.reportedContent.getContent() },
-            { name: 'Context link', value: reportObject.reportedContent.link }
-        );
+        if (!reportObject.reportedContent.getContent()) {
+            embed = embed.addFields({ name: 'Type', value: 'Attachment/Other', inline: false });
+        } else {
+            embed = embed.addFields(
+                { name: 'Type', value: reportObject.reportedContent.reportType, inline: true },
+                { name: 'Content', value: reportObject.reportedContent.getContent(), inline: false }
+            );
+        }
+
+        embed = embed.addField('Context link', reportObject.reportedContent.link);
 
         return embed;
     }
 
-    static createModeratorReportEmbed(reportObject) {
+    static createModeratorReportEmbed (reportObject) {
         let reporters = reportObject.owner.toString();
         if (reportObject.signalers.length > 1) {
             // add boosters to the list
