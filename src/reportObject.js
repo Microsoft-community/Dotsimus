@@ -83,32 +83,44 @@ class ReportEmbed {
     }
     static createBasicReportEmbed(reportObject) {
         let embed = new MessageEmbed()
-            .setTitle(`Report`)
-            .setAuthor(reportObject.reportedUser.tag, reportObject.reportedUser.displayAvatarURL())
-            .addField('User ID', reportObject.reportedUser.toString());
+            .setTitle(`❗ Message Reported`)
+            .setURL(reportObject.reportedContent.link)
+            .setAuthor(reportObject.reportedUser.tag, reportObject.reportedUser.displayAvatarURL());
 
         if (reportObject.reason) {
-            embed = embed.addFields(
-                { name: 'Rules', value: ReportEmbed.normalizeReason(reportObject.reason), inline: true }
-            );
+            embed = embed.addField('Rule(s)', ReportEmbed.normalizeReason(reportObject.reason), true);
         }
     
-            Object.entries(reportObject.reportedContent.fields).forEach(([key, value]) => {
-                embed = embed.addFields({ name: key, value });
-            });
+        let footerContent = `User ID: ${reportObject.reportedUser.id}`;
+        Object.entries(reportObject.reportedContent.fields).forEach(([key, value]) => {
+            footerContent += `  •  ${key}: ${value}`;
+        });
+        embed = embed.setFooter(footerContent)
 
         if (!reportObject.reportedContent.getContent()) {
-            embed = embed.addField('Type', 'Attachment/Other');
+            embed = embed.addField('Type', 'Attachment(s)', true);
         } else {
             embed = embed.addFields(
-                { name: 'Type', value: reportObject.reportedContent.reportType },
-                { name: 'Content', value: reportObject.reportedContent.getContent() }
+                { name: 'Type', value: reportObject.reportedContent.reportType, inline: true },
+                { name: 'Content', value: reportObject.reportedContent.getContent().length > 1024 ? reportObject.reportedContent.getContent().slice(0, 1021).padEnd(1024, '.') : reportObject.reportedContent.getContent(), inline: true }
             );
         }
 
-        embed = embed.addField('Context link', reportObject.reportedContent.link);
-
         return embed;
+    }
+    
+    static createThumbnailEmbedArray(reportObject) {
+        const embeds = [];
+        let attachmentCount = 0;
+        reportObject.reportedContent.message.attachments.forEach(attachment => {
+            let urlSplits = attachment.url.split('/');
+            let embed = new MessageEmbed()
+                .setTitle(urlSplits[urlSplits.length - 1])
+                .setImage(attachment.url)
+                .setFooter(`${attachmentCount += + 1}  •  Attachment ID: ${urlSplits[5]}`);
+            embeds.push(embed);
+        });
+        return embeds;
     }
 
     static createModeratorReportEmbed(reportObject) {
@@ -141,7 +153,12 @@ class ReportEmbed {
             }
         }
 
-        return embed;
+        let embeds = [embed];
+        ReportEmbed.createThumbnailEmbedArray(reportObject).forEach(thumbnailEmbed => {
+            embeds.push(thumbnailEmbed)
+        })
+
+        return embeds;
     }
 };
 
