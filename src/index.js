@@ -284,6 +284,15 @@ client.on('messageCreate', message => {
                   }
                 )
                 .setFooter(`${message.channel.id} ${sentMessage.id}`);
+		    
+              message.attachments.forEach(attachment => {
+                  let urlSplits = attachment.url.split('/');
+                  let imageEmbed = new MessageEmbed()
+                      .setTitle(urlSplits[urlSplits.length - 1])
+                      .setImage(attachment.url)
+                      .setFooter(`${attachmentCount += + 1}  •  Attachment ID: ${urlSplits[5]}`);
+                  investigationEmbeds.push(imageEmbed);
+              })
               const reportActions = new MessageActionRow()
                 .addComponents(
                   new MessageButton()
