@@ -84,6 +84,7 @@ class ReportEmbed {
 
     static createBasicReportEmbed (reportObject) {
         let embed = new MessageEmbed()
+            .setColor('#ffbd2e')
             .setTitle(`❗ Message Reported`)
             .setURL(reportObject.reportedContent.link)
             .setAuthor(reportObject.reportedUser.tag, reportObject.reportedUser.displayAvatarURL());
@@ -116,6 +117,7 @@ class ReportEmbed {
         reportObject.reportedContent.message.attachments.forEach(attachment => {
             let urlSplits = attachment.url.split('/');
             let embed = new MessageEmbed()
+                .setColor('#ffbd2e')
                 .setTitle(urlSplits[urlSplits.length - 1])
                 .setImage(attachment.url)
                 .setFooter(`${attachmentCount += + 1}  •  Attachment ID: ${urlSplits[5]}`);
