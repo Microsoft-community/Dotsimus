@@ -272,7 +272,7 @@ client.on('messageCreate', message => {
               channelMembersWithAccess = await client.guilds.cache.get(server.id).channels.fetch(alert.channelId).then(channel => (channel.members.filter((member) => ((member.permissions.serialize().KICK_MEMBERS || hardCodedApplePerms(member)) && member.presence !== null && member.presence?.status !== 'offline' && member.user?.bot === false)))),
               channelMembersWithAccessAll = await client.guilds.cache.get(server.id).channels.fetch(alert.channelId).then(channel => (channel.members.filter((member) => ((member.permissions.serialize().KICK_MEMBERS || hardCodedApplePerms(member)) && member.user?.bot === false)))),
               serverThreads = await client.guilds.cache.get(server.id).channels.fetch(alert.channelId).then((threads) => threads.threads),
-              matchingThread = await serverThreads.fetchArchived().then(thread => thread.threads.filter(y => y.name.split(/ +/g).slice(-1)[0] === member.id).first());
+              matchingThread = await serverThreads.fetch().then(thread => thread.threads.filter(y => y.name.split(/ +/g).slice(-1)[0] === member.id).first());
 
             message.channel.send(infractionMessageResponse).then(async sentMessage => {
               const investigationEmbed = new MessageEmbed()
