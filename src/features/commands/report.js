@@ -47,7 +47,7 @@ module.exports = {
 
     async execute (client, interaction) {
         // disabled for Apple community
-        const isPremium = true;
+        const isPremium = await db.getServerConfig(interaction.guild.id).then(config => config[0]?.isSubscribed)
         const reportedMessage = interaction.options.getMessage('message');
         if (interaction.guild.id === '332309672486895637') {
             return interaction.reply({
