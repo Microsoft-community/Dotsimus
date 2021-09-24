@@ -69,7 +69,7 @@ module.exports = {
         }
         if (reportedMessage.author.bot) {
             return await interaction.reply({
-                content: 'Message reports can only be used on bots.',
+                content: 'Message reports can not be used on bots.',
                 ephemeral: true
             });
         }
