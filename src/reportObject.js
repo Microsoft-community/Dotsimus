@@ -85,7 +85,7 @@ class ReportEmbed {
     static createBasicReportEmbed (reportObject) {
         let embed = new MessageEmbed()
             .setColor('#ffbd2e')
-            .setTitle(`❗ Message Reported`)
+            .setTitle(`❗ Investigate reported message`)
             .setURL(reportObject.reportedContent.link)
             .setAuthor(reportObject.reportedUser.tag, reportObject.reportedUser.displayAvatarURL());
 
