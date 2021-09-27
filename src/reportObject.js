@@ -87,6 +87,7 @@ class ReportEmbed {
             .setColor('#ffbd2e')
             .setTitle(`❗ Investigate reported message`)
             .setURL(reportObject.reportedContent.link)
+            .addFields({ name: 'User ID', value: reportObject.reportedUser.toString(), inline: true }) // other part of the code is reliant on this
             .setAuthor(reportObject.reportedUser.tag, reportObject.reportedUser.displayAvatarURL());
 
         if (reportObject.reason) {
@@ -95,7 +96,7 @@ class ReportEmbed {
     
         let footerContent = `User ID: ${reportObject.reportedUser.id}`;
         Object.entries(reportObject.reportedContent.fields).forEach(([key, value]) => {
-            footerContent += `  •  ${key}: ${value}`;
+            embed = embed.addFields({ name: key, value: value, inline: true }); // other part of the code is reliant on this
         });
         embed = embed.setFooter(footerContent)
 
@@ -104,7 +105,8 @@ class ReportEmbed {
         } else {
             embed = embed.addFields(
                 { name: 'Type', value: reportObject.reportedContent.reportType, inline: true },
-                { name: 'Content', value: reportObject.reportedContent.getContent().length > 1024 ? reportObject.reportedContent.getContent().slice(0, 1021).padEnd(1024, '.') : reportObject.reportedContent.getContent(), inline: true }
+                { name: 'Content', value: reportObject.reportedContent.getContent().length > 1024 ? reportObject.reportedContent.getContent().slice(0, 1021).padEnd(1024, '.') : reportObject.reportedContent.getContent(), inline: true },
+                { name: 'Context link', value: reportObject.reportedContent.link, inline: false }
             );
         }
 
@@ -119,6 +121,7 @@ class ReportEmbed {
             let embed = new MessageEmbed()
                 .setColor('#ffbd2e')
                 .setTitle(urlSplits[urlSplits.length - 1])
+                .setDescription(attachment.url)
                 .setImage(attachment.url)
                 .setFooter(`${attachmentCount += + 1}  •  Attachment ID: ${urlSplits[5]}`);
             embeds.push(embed);
@@ -137,6 +140,7 @@ class ReportEmbed {
         }
 
         let embed = ReportEmbed.createBasicReportEmbed(reportObject)
+            .setDescription(`${reporters} has reported this message.`)
             .addFields(
                 { name: 'Status', value: reportObject.status, inline: true },
                 { name: 'Reported by', value: reporters, inline: true }

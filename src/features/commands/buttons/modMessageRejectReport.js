@@ -41,7 +41,7 @@ module.exports = {
         reportObject.acceptor = interaction.member;
 
         await reportObject.investigation.edit({
-            embeds: [ Reports.ReportEmbed.createModeratorReportEmbed(reportObject) ],
+            embeds: Reports.ReportEmbed.createModeratorReportEmbed(reportObject),
             components: []
         });
 

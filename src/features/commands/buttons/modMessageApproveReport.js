@@ -42,7 +42,7 @@ module.exports = {
         reportObject.reportedContent.approve();
 
         await reportObject.investigation.edit({
-            embeds: [ Reports.ReportEmbed.createModeratorReportEmbed(reportObject) ],
+            embeds: Reports.ReportEmbed.createModeratorReportEmbed(reportObject),
             components: []
         });
 
