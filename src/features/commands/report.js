@@ -49,7 +49,7 @@ module.exports = {
         // disabled for Apple community
         const isPremium = await db.getServerConfig(interaction.guild.id).then(config => config[0]?.isSubscribed)
         const reportedMessage = interaction.options.getMessage('message');
-        if (interaction.guild.id === '332309672486895637') {
+        if (interaction.guild.id === '332309672486895637' || interaction.guild.id === '150662382874525696') {
             return interaction.reply({
                 content: 'This functionality is currently disabled on this server, learn more over at [Dotsimus.com](https://dotsimus.com/).',
                 ephemeral: true
