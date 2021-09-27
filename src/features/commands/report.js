@@ -48,6 +48,7 @@ module.exports = {
     async execute (client, interaction) {
         // disabled for Apple community
         const isPremium = await db.getServerConfig(interaction.guild.id).then(config => config[0]?.isSubscribed)
+        const reportedMessage = interaction.options.getMessage('message');
         if (interaction.guild.id === '332309672486895637') {
             return interaction.reply({
                 content: 'This functionality is currently disabled on this server, learn more over at [Dotsimus.com](https://dotsimus.com/).',
@@ -60,10 +61,15 @@ module.exports = {
                 ephemeral: true
             });
         }
-
         if (!interaction.guild.rulesChannelId) {
             return await interaction.reply({
-                content: `Reports are supported only in community guilds.`,
+                content: 'Reports are supported only in community guilds.',
+                ephemeral: true
+            });
+        }
+        if (reportedMessage.author.bot) {
+            return await interaction.reply({
+                content: 'Message reports can not be used on bots.',
                 ephemeral: true
             });
         }
@@ -82,8 +88,6 @@ module.exports = {
                 ephemeral: true
             });
         }
-
-        const reportedMessage = interaction.options.getMessage('message');
 
         let challenge;
         try {
@@ -359,11 +363,17 @@ async function handleSendReport (client, interaction, message, ruleList) {
         return;
     }
 
-    const embed = Report.ReportEmbed.createBasicReportEmbed(report);
+    const reportEmbed = Report.ReportEmbed.createBasicReportEmbed(report);
+    const attachmentEmbedArray = Report.ReportEmbed.createAttachmentEmbedArray(report)
+
+    let embedArray = [reportEmbed];
+    attachmentEmbedArray.forEach(attachmentEmbed => {
+        embedArray.push(attachmentEmbed)
+    })
 
     interaction.reply({
         content: `${createReportText(ruleList)}. ${genericReportText} Your report:`,
-        embeds: [embed],
+        embeds: embedArray,
         ephemeral: true
     });
 }
