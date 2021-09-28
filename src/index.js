@@ -471,13 +471,6 @@ client.on('messageCreate', message => {
       //     }
       //   })
       //   break;
-      case 'grant':
-        try {
-          grantAccess(message, mention, userArgFormat, server, isModerator);
-        } catch (error) {
-          console.error(error)
-        }
-        break;
       case 'eval':
       case 'dot':
         if (message.author.id === process.env.OWNER) {
@@ -652,21 +645,4 @@ Reason: \`${reason}\``)
       return { toxicity: NaN, insult: NaN, combined: NaN }
     }
   }
-})
-
-const grantAccess = (message, mention, user, server, isModerator) => {
-  if (!isModerator || server.id !== '150662382874525696') return;
-  const role = message.guild.roles.cache.find(role => role.id === '191569917542268928'),
-    member = message.guild.members.cache.get(user);
-  if (mention && role) {
-    user = mention.user.id;
-    message.guild.members.cache.get(user).roles.add(role)
-    message.reply('user has been granted access to the server.');
-  } else {
-    message.guild.members.cache.get(user).roles.add(role)
-    message.reply('user has been granted access to the server.');
-  }
-  if (!Number.isInteger(+user)) {
-    message.channel.send('Invalid user ID or mention provided.');
-  }
-}
+}) 
