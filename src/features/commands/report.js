@@ -1,5 +1,5 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const { MessageActionRow, MessageButton, MessageSelectMenu, MessageSelectOptionData, Constants, MessageEmbed } = require('discord.js');
+const { MessageActionRow, MessageButton, MessageSelectMenu, MessageAttachment, Constants, MessageEmbed } = require('discord.js');
 const { report } = require('process');
 const { promisify } = require('util')
 const Report = require('../../reportObject.js');
@@ -50,8 +50,10 @@ module.exports = {
         const isPremium = await db.getServerConfig(interaction.guild.id).then(config => config[0]?.isSubscribed)
         const reportedMessage = interaction.options.getMessage('message');
         if (interaction.guild.id === '332309672486895637' || interaction.guild.id === '150662382874525696') {
+            const ohSimusAsset = new MessageAttachment('./src/assets/images/ohsimus.png');
             return interaction.reply({
-                content: 'This functionality is currently disabled on this server, learn more over at [Dotsimus.com](https://dotsimus.com/).',
+                content: 'Oh snap! This feature is currently disabled by the moderation team.',
+                files: [ohSimusAsset],
                 ephemeral: true
             });
         }
