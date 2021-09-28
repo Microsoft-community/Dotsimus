@@ -1,5 +1,7 @@
 const { SlashCommandBuilder } = require('@discordjs/builders'),
-    wait = require('util').promisify(setTimeout);
+    wait = require('util').promisify(setTimeout),
+    { MessageAttachment } = require('discord.js');
+
 
 module.exports = {
     type: 'slash',
@@ -14,8 +16,10 @@ module.exports = {
                 .addChoice('Tails', 'tails')),
     async execute (client, interaction) {
         if (interaction.guild.id === '150662382874525696') {
+            const ohSimusAsset = new MessageAttachment('./src/assets/images/ohsimus.png');
             return interaction.reply({
-                content: 'This functionality is currently disabled on this server, learn more over at [Dotsimus.com](https://dotsimus.com/).',
+                content: 'Oh snap! This feature is currently disabled by the moderation team.',
+                files: [ohSimusAsset],
                 ephemeral: true
             });
         }
