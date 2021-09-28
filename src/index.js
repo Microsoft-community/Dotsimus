@@ -507,9 +507,6 @@ client.on('messageCreate', message => {
 	           .setTimestamp();
         message.channel.send({ embeds: [watchCommandSlashMigrationNoticeEmbed1] });
         break;
-      case 'setalerts':
-        message.channel.send(user.isAdmin ? 'true' : 'false')
-        break;
       case 'repeat':
       case 'dotpeat':
         if (user.isAdmin) {
