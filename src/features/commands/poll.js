@@ -134,7 +134,7 @@ module.exports = {
                             )
                             .setImage(quickChartClient.getUrl());
 
-                        interaction.reply({ embeds: [resultsEmbed], ephemeral: true });
+                        interaction.reply({ embeds: [resultsEmbed]});
                     }).catch(err => {
                         interaction.reply({ content: "Something went wrong.", ephemeral: true });
                     });
