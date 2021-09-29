@@ -1,6 +1,5 @@
 const {
     MessageActionRow,
-    MessageSelectMenu,
     MessageButton,
     MessageEmbed
 } = require('discord.js'),
