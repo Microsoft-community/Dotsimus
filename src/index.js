@@ -471,13 +471,6 @@ client.on('messageCreate', message => {
       //     }
       //   })
       //   break;
-      case 'grant':
-        try {
-          grantAccess(message, mention, userArgFormat, server, isModerator);
-        } catch (error) {
-          console.error(error)
-        }
-        break;
       case 'eval':
       case 'dot':
         if (message.author.id === process.env.OWNER) {
@@ -513,9 +506,6 @@ client.on('messageCreate', message => {
 	           .setDescription('You can now use it along with other slash commands.\nType `/watch remove` to use it in an overhauled way.')
 	           .setTimestamp();
         message.channel.send({ embeds: [watchCommandSlashMigrationNoticeEmbed1] });
-        break;
-      case 'setalerts':
-        message.channel.send(user.isAdmin ? 'true' : 'false')
         break;
       case 'repeat':
       case 'dotpeat':
@@ -568,51 +558,6 @@ client.on('messageCreate', message => {
           }
         }
         break;
-      // document
-      // make admin only
-      // set up db
-      // better command name? alertsSetup?
-      // ask whether infraction message should be deleted
-      // ask for mute role ID
-      case 'setupalerts':
-        message.channel.send('[1/3] Enter channel ID for alerts channel.').then(() => {
-          const filter = m => m.author.id === message.author.id,
-            collector = message.channel.createMessageCollector(filter, { max: 3, time: 60000 });
-          collector.next.then(collectorMessage => {
-            if (isNaN(collectorMessage.content)) {
-              collector.stop('error')
-              return Promise.reject('Invalid value provided.')
-            };
-          }).then(() => {
-            message.channel.send('[2/3] Enter alerts treshold, recommended value: `0.85` /n Expected answer: Value from `0.1` to `1`').then(() => {
-              collector.next.then(collectorMessage => {
-                if (isNaN(collectorMessage.content)) {
-                  collector.stop('error')
-                  return Promise.reject('Invalid value provided.')
-                } else {
-                  message.channel.send('[3/3] Should alerts ping with `@here`? /n Expected answers: Yes/No')
-                }
-              })
-            })
-          });
-          collector.on('end', (collected, reason) => {
-            console.log(reason);
-            // switch case for errors time, error, limit, default
-            if (reason === 'limit') {
-              const collectionValues = collected.map(user => user.content)
-              console.log(collected.size);
-              console.log(collectionValues);
-              message.channel.send(`Alerts setup completed
-**Channel ID:** ${collectionValues[0]}
-**Alerts treshold:** ${collectionValues[1]} 
-**Moderation Alert:** ${collectionValues[2]}`)
-            } else {
-              message.channel.send(`Alerts setup failed
-Reason: \`${reason}\``)
-            }
-          });
-        });
-        break;
     }
   }
 
@@ -652,21 +597,4 @@ Reason: \`${reason}\``)
       return { toxicity: NaN, insult: NaN, combined: NaN }
     }
   }
-})
-
-const grantAccess = (message, mention, user, server, isModerator) => {
-  if (!isModerator || server.id !== '150662382874525696') return;
-  const role = message.guild.roles.cache.find(role => role.id === '191569917542268928'),
-    member = message.guild.members.cache.get(user);
-  if (mention && role) {
-    user = mention.user.id;
-    message.guild.members.cache.get(user).roles.add(role)
-    message.reply('user has been granted access to the server.');
-  } else {
-    message.guild.members.cache.get(user).roles.add(role)
-    message.reply('user has been granted access to the server.');
-  }
-  if (!Number.isInteger(+user)) {
-    message.channel.send('Invalid user ID or mention provided.');
-  }
-}
+}) 
