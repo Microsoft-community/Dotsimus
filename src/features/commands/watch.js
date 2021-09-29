@@ -75,7 +75,7 @@ module.exports = {
                     }
                     if (keyword.length >= 100) {
                         interaction.reply({
-                            content: `Keyword cannot be longer than 100 characters.`,
+                            content: 'Keyword cannot be longer than 100 characters.',
                             ephemeral: true,
                         })
                         return;
