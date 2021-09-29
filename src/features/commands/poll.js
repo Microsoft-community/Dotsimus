@@ -133,7 +133,7 @@ module.exports = {
 
                         const resultsEmbed = new MessageEmbed()
                             .setColor("#0099ff")
-                            .setTitle(`Poll results`)
+                            .setTitle('Poll results')
                             .addFields(
                                 { name: 'Owner', value: `<@${polls[0].userId}>` },
                                 { name: 'Votes', value: stringEmbed },
@@ -143,7 +143,6 @@ module.exports = {
 
                         interaction.reply({ embeds: [resultsEmbed] });
                     }).catch(err => {
-                        const ohSimusAsset = new MessageAttachment('./src/assets/images/ohsimus.png');
                         interaction.reply({ content: "Something went wrong.", ephemeral: true });
                     });
                 });
