@@ -38,7 +38,6 @@ const Sentry = require('@sentry/node'),
   devClientId = '793068568601165875',
   devGuildId = '280600603741257728';
 
-
 for (const file of commandFiles) {
   const command = require(`./features/commands/${file}`);
   if (command.type !== 'button' || command.type !== 'selectMenu') commandsArray.push(command.data.toJSON());
@@ -257,7 +256,11 @@ client.on('messageCreate', message => {
               name: `Third message (Toxicity: ${Math.round(Number(messages[2].values.toxicity) * 100)}%, Insult: ${Math.round(Number(messages[2].values.insult) * 100)}%)`,
               value: messages[2].message.length > 1024 ? messages[2].message.slice(0, 1021).padEnd(1024, '.') : messages[2].message, inline: false
             } : { name: 'Third message', value: 'No recent message found.' },
-            removedMessage = message.content;
+            removedMessage = message.content,
+            removedMessageAttachmentArray = [];
+          message.attachments.forEach(attachment => {
+            removedMessageAttachmentArray.push(attachment.url);
+          })
           message.delete({ reason: "Removed potentially toxic message." }).catch(() => {
             console.info(
               `Could not delete message ${message.content} | ${message.id}.`
@@ -284,6 +287,18 @@ client.on('messageCreate', message => {
                   }
                 )
                 .setFooter(`${message.channel.id} ${sentMessage.id}`);
+
+              const embedArray = [investigationEmbed];
+              let attachmentCount = 0;
+              removedMessageAttachmentArray.forEach(attachmentUrl => {
+                let urlSplits = attachmentUrl.split('/');
+                let attachmentEmbed = new MessageEmbed()
+                  .setColor('#ffbd2e')
+                  .setTitle(`Trigger attachment: ${urlSplits[urlSplits.length - 1]}`)
+                  .setImage(attachmentUrl)
+                  .setFooter(`${attachmentCount += + 1}  •  Attachment ID: ${urlSplits[5]}`);
+                embedArray.push(attachmentEmbed);
+              })
               const reportActions = new MessageActionRow()
                 .addComponents(
                   new MessageButton()
@@ -331,7 +346,7 @@ client.on('messageCreate', message => {
                 }
                 await thread.send({
                   content: '@here',
-                  embeds: [investigationEmbed],
+                  embeds: embedArray,
                   components: [reportActions]
                 }).then(async sentReport => {
                   const pins = await thread.messages.fetchPinned().then(pinned => {
@@ -355,7 +370,7 @@ client.on('messageCreate', message => {
                   }
                   thread.send({
                     content: '@here',
-                    embeds: [investigationEmbed],
+                    embeds: embedArray,
                     components: [reportActions]
                   }).then(async sentReport => {
                     const pins = await thread.messages.fetchPinned().then(pinned => {
