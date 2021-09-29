@@ -143,25 +143,3 @@ module.exports = {
         }
     },
 };
-
-/*function convertNumToEmoji(number) {
-    let emoji;
-    switch (number) {
-        case 1:
-            emoji = '1️⃣';
-            break;
-        case 2:
-            emoji = '2️⃣';
-            break;
-        case 3:
-            emoji = '3️⃣';
-            break;
-        case 4:
-            emoji = '4️⃣';
-            break;
-        case 5:
-            emoji = '5️⃣';
-            break;
-    }
-    return emoji;
-}*/
