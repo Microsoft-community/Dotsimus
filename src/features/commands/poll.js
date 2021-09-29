@@ -2,8 +2,7 @@ const {
     MessageActionRow,
     MessageSelectMenu,
     MessageButton,
-    MessageEmbed,
-    MessageAttachment
+    MessageEmbed
 } = require('discord.js'),
     {
         SlashCommandBuilder
