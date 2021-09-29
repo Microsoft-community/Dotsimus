@@ -134,7 +134,7 @@ module.exports = {
 
                         const resultsEmbed = new MessageEmbed()
                             .setColor("#0099ff")
-                            .setTitle(`Poll results`)
+                            .setTitle('Poll results')
                             .addFields(
                                 { name: 'Owner', value: `<@${polls[0].userId}>` },
                                 { name: 'Votes', value: stringEmbed },
