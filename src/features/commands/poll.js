@@ -40,7 +40,7 @@ module.exports = {
                 .addStringOption(option =>
                     option.setName('choice-d').setDescription('4th choice.'))
                 .addStringOption(option =>
-                    option.setName('choice-e').setDescription('5th choice.')))
+                    option.setName('choice-e').setDescription('Fifth choice.')))
         .addSubcommand(subcommand =>
             subcommand
                 .setName('list')
