@@ -2,7 +2,8 @@ const {
     MessageActionRow,
     MessageSelectMenu,
     MessageButton,
-    MessageEmbed
+    MessageEmbed,
+    MessageAttachment
 } = require('discord.js'),
     {
         SlashCommandBuilder
@@ -67,10 +68,18 @@ module.exports = {
                         const publicPollEmbed = new MessageEmbed()
                             .setColor("#0099ff")
                             .setTitle(`Poll: ${pollTitle}`)
-                            .setDescription(`You can vote [here](https://strawpoll.com/${response.pollId}).`)
+                            .addField("Choices", pollChoices.map(choice => `⦿ ${choice}`).join(''))
                             .setFooter(`Poll ID: ${response.pollId}`);
 
-                        interaction.reply({ embeds: [publicPollEmbed] });
+                            const Buttons = new MessageActionRow()
+                                .addComponents(
+                                    new MessageButton()
+                                        .setLabel(`Vote`)
+                                        .setURL(`https://strawpoll.com/${response.pollId}`)
+                                        .setStyle('LINK')
+                                )
+
+                        interaction.reply({ embeds: [publicPollEmbed], components: [Buttons] });
                     });
                 });
                 break;
@@ -118,7 +127,7 @@ module.exports = {
                         }
 
                         quickChartClient.setConfig({
-                            type: 'bar',
+                            type: 'horizontalBar',
                             data: { labels: answers, datasets: [{ label: 'Votes', data: votes }] },
                         });
 
@@ -126,15 +135,17 @@ module.exports = {
 
                         const resultsEmbed = new MessageEmbed()
                             .setColor("#0099ff")
-                            .setTitle("Poll results")
+                            .setTitle(`Poll results`)
                             .addFields(
+                                { name: 'Owner', value: `<@${polls[0].userId}>` },
                                 { name: 'Votes', value: stringEmbed },
                                 { name: 'Votes chart', value: `[Chart image link](${quickChartClient.getUrl()})` }
                             )
                             .setImage(quickChartClient.getUrl());
 
-                        interaction.reply({ embeds: [resultsEmbed]});
+                        interaction.reply({ embeds: [resultsEmbed] });
                     }).catch(err => {
+                        const ohSimusAsset = new MessageAttachment('./src/assets/images/ohsimus.png');
                         interaction.reply({ content: "Something went wrong.", ephemeral: true });
                     });
                 });
