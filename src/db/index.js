@@ -6,7 +6,8 @@ const Sentry = require('@sentry/node'),
   serversConfigSchema = require('./schemas/serversConfig'),
   saveMessageSchema = require('./schemas/saveMessageSchema'),
   watchKeywordSchema = require('./schemas/watchKeywordSchema'),
-  blockedReportSchema = require('./schemas/blockedReport');
+  blockedReportSchema = require('./schemas/blockedReport'),
+  pollSchema = require('./schemas/pollSchema');
 
 if (process.env.DEVELOPMENT !== 'true') Sentry.init({ dsn: process.env.SENTRY_DSN });
 
@@ -25,7 +26,8 @@ const Alert = mongoose.model('Alert', alertSchema),
   ServersConfig = mongoose.model('ServersConfig', serversConfigSchema),
   SaveMessage = mongoose.model('userInfractions', saveMessageSchema),
   WatchKeyword = mongoose.model('watchedKeywords', watchKeywordSchema),
-  BlockedReport = mongoose.model('blockedReport', blockedReportSchema)
+  BlockedReport = mongoose.model('blockedReport', blockedReportSchema),
+  Poll = mongoose.model('Polls', pollSchema)
   TTL = 30 * 1000,
   cache = new Map();
 const cachify = (originalFn) => {
@@ -351,5 +353,35 @@ module.exports = {
     } catch(e) {
       return false;
     }
-  }
+  },
+  createPoll: async function (userId, serverId, pollTitle) {
+    const query = { userId, serverId }
+    try {
+      return new Promise((resolve, reject) => {
+        Poll.findOneAndUpdate(query, {
+          'serverId': serverId,
+          'userId': userId,
+          $push: { 'polls': pollTitle }
+        }, {
+          upsert: true
+        }, (error, data) => {
+          if (error) {
+            console.error(error);
+            return reject(error);
+          }
+          resolve(data);
+        });
+      });
+    } catch (e) {
+      console.error(e);
+      throw 'Failed to add a poll.';
+    }
+  },
+  getPolls: async function (serverId) {
+    if (serverId) {
+      return await Poll.find({ serverId }).lean()
+    } else {
+      return await Poll.find({}).lean();
+    }
+  },
 }
