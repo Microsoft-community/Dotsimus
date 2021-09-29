@@ -128,8 +128,8 @@ module.exports = {
                             .setColor("#0099ff")
                             .setTitle("Poll results")
                             .addFields(
-                                { name: 'In text', value: stringEmbed },
-                                { name: 'In a chart', value: `[Chart image link](${quickChartClient.getUrl()})` }
+                                { name: 'Votes', value: stringEmbed },
+                                { name: 'Votes chart', value: `[Chart image link](${quickChartClient.getUrl()})` }
                             )
                             .setImage(quickChartClient.getUrl());
 
