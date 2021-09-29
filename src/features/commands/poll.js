@@ -44,7 +44,7 @@ module.exports = {
         .addSubcommand(subcommand =>
             subcommand
                 .setName('list')
-                .setDescription('Lists all polls that are created and are active in this server.'))
+                .setDescription('Lists polls that were created in this server.'))
         .addSubcommand(subcommand =>
             subcommand
                 .setName('results')
