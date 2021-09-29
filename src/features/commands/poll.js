@@ -115,7 +115,7 @@ module.exports = {
                         for (let i = 0; i < resp.pollAnswersArray.length; i++) {
                             answers.push(resp.pollAnswersArray[i].answer);
                             votes.push(resp.pollAnswersArray[i].votes);
-                            stringEmbed += `Votes for choice \`${resp.pollAnswersArray[i].answer}\`: ${resp.pollAnswersArray[i].votes}\n`;
+                            stringEmbed += `${resp.pollAnswersArray[i].answer}: ${resp.pollAnswersArray[i].votes}\n`;
                         }
 
                         quickChartClient.setConfig({
