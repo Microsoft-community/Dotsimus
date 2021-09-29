@@ -107,9 +107,9 @@ module.exports = {
                     }
                     strawpoll.getStrawpollResults(pollId).then(resp => {
                         const quickChartClient = new QuickChart();
-                        let answers = [];
-                        let votes = [];
-                        let stringEmbed = '';
+                        let answers = [],
+                        votes = [],
+                        stringEmbed = '';
 
                         for (let i = 0; i < resp.pollAnswersArray.length; i++) {
                             answers.push(resp.pollAnswersArray[i].answer);
