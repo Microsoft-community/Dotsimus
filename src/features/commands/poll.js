@@ -70,8 +70,7 @@ module.exports = {
                             .setDescription(`You can vote [here](https://strawpoll.com/${response.pollId}).`)
                             .setFooter(`Poll ID: ${response.pollId}`);
 
-                        interaction.reply({ content: `Poll "${pollTitle}" has been created successfully on this server.`, ephemeral: true });
-                        interaction.channel.send({ embeds: [publicPollEmbed] });
+                        interaction.reply({ embeds: [publicPollEmbed] });
                     });
                 });
                 break;
