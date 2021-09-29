@@ -51,7 +51,7 @@ module.exports = {
                                 .setStyle('LINK'),
                             new MessageButton()
                                 .setLabel('Get Dotsimus')
-                                .setURL('https://Dotsimus.com')
+                                .setURL('https://discord.com/oauth2/authorize?client_id=731190736996794420&permissions=67497175&redirect_uri=https%3A%2F%2Fdotsimus.com&response_type=code&scope=bot%20identify%20applications.commands')
                                 .setStyle('LINK')
                         ),
                     embedResponse = new MessageEmbed()
