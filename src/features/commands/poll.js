@@ -67,7 +67,7 @@ module.exports = {
                         const publicPollEmbed = new MessageEmbed()
                             .setColor("#0099ff")
                             .setTitle(`Poll: ${pollTitle}`)
-                            .addField("Choices", pollChoices.map(choice => `⦿ ${choice}`).join(''))
+                            .addField("Choices", pollChoices.map(choice => `⦿ ${choice}`).join('\n'))
                             .setFooter(`Poll ID: ${response.pollId}`);
 
                             const Buttons = new MessageActionRow()
