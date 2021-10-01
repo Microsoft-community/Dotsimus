@@ -67,7 +67,7 @@ module.exports = {
                         const publicPollEmbed = new MessageEmbed()
                             .setColor("#0099ff")
                             .setTitle(`Poll: ${pollTitle}`)
-                            .addField("Choices", pollChoices.map(choice => `⦿ ${choice}`).join('\n'))
+                            .addField("Choices", pollChoices.map(choice => `⦿ ${choice}: 0`).join('\n'))
                             .setFooter(`Poll ID: ${response.pollId}`);
 
                             const Buttons = new MessageActionRow()
@@ -80,6 +80,7 @@ module.exports = {
 
                         interaction.reply({ embeds: [publicPollEmbed], components: [Buttons] });
                     });
+                    setInterval(() => updateResults(pollTitle, response.pollId, interaction), 60000);
                 });
                 break;
             case "list":
@@ -152,3 +153,31 @@ module.exports = {
         }
     },
 };
+
+function updateResults(pollTitle, pollId, interaction) {
+    strawpoll.getStrawpollResults(pollId).then(resp => {
+        let votes = [],
+        stringEmbed = "";
+
+        for (let i = 0; i < resp.pollAnswersArray.length; i++) {
+            votes.push(resp.pollAnswersArray[i].votes);
+            stringEmbed += `⦿ ${resp.pollAnswersArray[i].answer}: ${resp.pollAnswersArray[i].votes}\n`;
+        }
+
+        const publicPollEmbed2 = new MessageEmbed()
+            .setColor("#0099ff")
+            .setTitle(`Poll: ${pollTitle}`)
+            .addField("Choices", stringEmbed)
+            .setFooter(`Poll ID: ${pollId}`);
+
+        const Buttons = new MessageActionRow()
+            .addComponents(
+                new MessageButton()
+                    .setLabel(`Vote`)
+                    .setURL(`https://strawpoll.com/${pollId}`)
+                    .setStyle('LINK')
+            )
+
+        interaction.editReply({ embeds: [publicPollEmbed2], components: [Buttons] });
+    });
+}
