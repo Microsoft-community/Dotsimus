@@ -1,15 +1,12 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { MessageActionRow, MessageButton, MessageSelectMenu, MessageSelectOptionData, MessageAttachment, Constants, MessageEmbed } = require('discord.js');
-const { report } = require('process');
 const { promisify } = require('util')
 const Report = require('../../reportObject.js');
 const UserCases = require('../../userCases.js');
 const db = require('../../db');
 const { fetchRules } = require('./../../api/discord-gating');
-const { values } = require('lodash');
 const wait = promisify(setTimeout);
 const MessageReports = require('../../reportTypes/message.js');
-const { assert } = require('console');
 
 function getMessageId (linkOrId) {
     if (!isNaN(linkOrId)) {
