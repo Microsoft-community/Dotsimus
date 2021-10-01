@@ -16,7 +16,7 @@ module.exports = {
             .setColor('#ffbd2e')
             .addFields(interaction.message.embeds[0].fields)
             .setTimestamp()
-            .setFooter(`${interaction.user.tag} | ${interaction.user.id}`, `https://cdn.discordapp.com/avatars/${interaction.user.id}/${interaction.user.avatar}.png`)
+            .setFooter(`${interaction.user.tag} | ${interaction.user.id}`, `${interaction.user.displayAvatarURL()}`)
         interaction.channel.send({
             embeds: [embedResponse]
         })

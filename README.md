@@ -13,7 +13,7 @@ SENTRY_DSN=SENTRY_KEY
 OWNER=BOT_OWNER_ID
 ```
 
-2. Add bot to your server https://discordapp.com/oauth2/authorize?&client_id=YOUR_CLIENT_ID_HERE&scope=bot&permissions=0
+2. Add bot to your server https://discord.com/oauth2/authorize?&client_id=YOUR_CLIENT_ID_HERE&scope=bot&permissions=0
 
 3. Run `npm install && npm start`.
 

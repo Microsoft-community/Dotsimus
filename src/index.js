@@ -205,14 +205,14 @@ client.on('messageCreate', message => {
                 .addFields(
                   { name: 'Message Author', value: `<@${message.author.id}>`, inline: true },
                   { name: 'Author ID', value: message.author.id, inline: true },
-                  { name: 'Channel', value: `${server.name}/${message.channel.name} | 🔗 [Message link](https://discordapp.com/channels/${server.id}/${message.channel.id}/${message.id})` }
+                  { name: 'Channel', value: `${server.name}/${message.channel.name} | 🔗 [Message link](${message.url})` }
                 )
                 .setTimestamp()
                 .setFooter(`Stop tracking with !unwatch command in ${server.name} server.`)
                 .setColor('#7289da'),
                 trackingNoticeUser = new MessageEmbed()
                   .setTitle(`❗ Tracked keyword triggered`)
-                  .setDescription(`**"${word}"** mentioned in [**${server.name}/${message.channel.name}**.](https://discordapp.com/channels/${server.id}/${message.channel.id}/${message.id})`)
+                  .setDescription(`**"${word}"** mentioned in [**${server.name}/${message.channel.name}**.](${message.url})`)
                   .setTimestamp()
                   .setFooter(`Stop tracking with !unwatch command in ${server.name} server.`)
                   .setColor('#7289da');
@@ -332,7 +332,7 @@ client.on('messageCreate', message => {
                 { name: 'User ID', value: `${message.author.id}`, inline: true },
                 { name: 'Is user new?', value: `${user.isNew ? "Yes" : "No"}`, inline: true },
                 { name: 'Total infractions', value: `${totalInfractions >= 1 ? totalInfractions : 'No infractions present.'}`, inline: true },
-                { name: 'Channel', value: `<#${message.channel.id}> | 🔗 [Message link](https://discordapp.com/channels/${server.id}/${message.channel.id}/${sentMessage.id})` }
+                { name: 'Channel', value: `<#${message.channel.id}> | 🔗 [Message link](${sentMessage.url})` }
               )
               // respond to shut up dotsimus
               // alertRecipient = alert.channelId === '792393096020885524' ? `<@${process.env.OWNER}>` : '@here';
