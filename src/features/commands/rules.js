@@ -94,7 +94,7 @@ module.exports = {
                     const rulesAll = fetchedRules.form_fields[0].values.map((rule, index) => ({ name: 'Rule ' + (index + 1), value: rule })),
                         rulesEmbed = new MessageEmbed()
                             .setTitle(`${client.guilds.cache.get(interaction.guildId).name} rules`)
-                            .setDescription(fetchedRules.description)
+                            .setDescription(fetchedRules.description ?? 'No description provided.')
                             .setColor('#e4717a')
                             .setFooter('Last updated: ' + new Date(fetchedRules.version).toUTCString())
                             .addFields(rulesAll);
