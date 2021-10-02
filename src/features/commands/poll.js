@@ -1,4 +1,5 @@
-const {
+const { apiDateToTimestamp, updateResults } = require("../../utils"),
+ {
     MessageActionRow,
     MessageButton,
     MessageEmbed,
@@ -10,6 +11,7 @@ const {
     db = require('../../db'),
     strawpoll = require('../../api/strawpoll'),
     QuickChart = require('quickchart-js');
+
 module.exports = {
     type: 'slash',
     data: new SlashCommandBuilder()
@@ -63,30 +65,38 @@ module.exports = {
             case "create":
                 const multipleAnswersAllowed = interaction.options.getBoolean('allow-multiple-answers', true);
                 strawpoll.createStrawpoll(pollTitle, pollChoices, multipleAnswersAllowed).then(response => {
+                    const publicPollEmbed = new MessageEmbed()
+                        .setColor("#0099ff")
+                        .setTitle(`Poll: ${pollTitle}`)
+                        .addField("Choices", pollChoices.map(choice => `⦿ ${choice}: **0**`).join('\n'))
+                        .addField("Last refresh", `<t:${apiDateToTimestamp(Date.now())}:R>`)
+                        .setFooter(`Poll ID: ${response.pollId}`, interaction.guild.iconURL({ format: "webp" }));
                     db.createPoll(interaction.member.user.id, interaction.guild.id, `${pollTitle}:${response.pollId}`).then(resp => {
-                        const publicPollEmbed = new MessageEmbed()
-                            .setColor("#0099ff")
-                            .setTitle(`Poll: ${pollTitle}`)
-                            .addField("Choices", pollChoices.map(choice => `⦿ ${choice}: 0`).join('\n'))
-                            .setFooter(`Poll ID: ${response.pollId}`);
-
                         const Buttons = new MessageActionRow()
                             .addComponents(
                                 new MessageButton()
                                     .setLabel(`Vote`)
                                     .setURL(`https://strawpoll.com/${response.pollId}`)
-                                    .setStyle('LINK')
-                            )
+                                    .setStyle('LINK'),
+                                new MessageButton()
+                                    .setCustomId('refreshVotes')
+                                    .setLabel(`Refresh results`)
+                                    .setStyle('PRIMARY')
+                            );
 
-                        interaction.reply({ embeds: [publicPollEmbed], components: [Buttons] });
+                        interaction.reply({
+                            embeds: [publicPollEmbed],
+                            components: [Buttons]
+                        });
                     });
-                    let maintainPollUpdates = true;
-                    setTimeout(function () {
-                        maintainPollUpdates = false;
-                    }, 900000); // maintains poll refreshing for 15 minutes
-                    while (maintainPollUpdates) {
-                        setInterval(() => updateResults(pollTitle, response.pollId, interaction), 60000);
-                    }
+                    let time = 15; 
+                    const timeValue = setInterval((interval) => {
+                        updateResults(interaction, publicPollEmbed)
+                        time = time - 1;
+                        if (time <= 0) {
+                            clearInterval(timeValue);
+                        }
+                    }, 60000); // refreshes every minute for 15 minutes
                 });
                 break;
             case "list":
@@ -159,31 +169,3 @@ module.exports = {
         }
     },
 };
-
-function updateResults (pollTitle, pollId, interaction) {
-    strawpoll.getStrawpollResults(pollId).then(resp => {
-        let votes = [],
-            stringEmbed = "";
-
-        for (let i = 0; i < resp.pollAnswersArray.length; i++) {
-            votes.push(resp.pollAnswersArray[i].votes);
-            stringEmbed += `⦿ ${resp.pollAnswersArray[i].answer}: ${resp.pollAnswersArray[i].votes}\n`;
-        }
-
-        const publicPollEmbed2 = new MessageEmbed()
-            .setColor("#0099ff")
-            .setTitle(`Poll: ${pollTitle}`)
-            .addField("Choices", stringEmbed)
-            .setFooter(`Poll ID: ${pollId}`);
-
-        const Buttons = new MessageActionRow()
-            .addComponents(
-                new MessageButton()
-                    .setLabel(`Vote`)
-                    .setURL(`https://strawpoll.com/${pollId}`)
-                    .setStyle('LINK')
-            )
-
-        interaction.editReply({ embeds: [publicPollEmbed2], components: [Buttons] });
-    });
-}
