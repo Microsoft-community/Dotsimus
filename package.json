@@ -13,9 +13,9 @@
   "license": "MIT",
   "dependencies": {
     "@discordjs/rest": "^0.1.0-canary.0",
-    "@sentry/node": "6.12.0",
+    "@sentry/node": "6.13.2",
     "@top-gg/sdk": "^3.1.2",
-    "async-mutex": "^0.3.1",
+    "async-mutex": "^0.3.2",
     "canvas": "^2.8.0",
     "chalk": "^4.1.2",
     "discord-api-types": "^0.23.1",

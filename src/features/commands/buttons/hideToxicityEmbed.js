@@ -1,6 +1,4 @@
-const { Client } = require('discord.js'),
-    db = require('../../../db'),
-    perspective = require('../../../api/perspective');
+const { Client } = require('discord.js');
 
 module.exports = {
     name: 'hideToxicityEmbed',
@@ -9,7 +7,7 @@ module.exports = {
     async execute (client, interaction) {
         if(interaction.isButton()) {
             interaction.update({
-                content: 'Alright. Won\'t send this',
+                content: 'Message won\'t be shown.',
                 components: []
             })
         }

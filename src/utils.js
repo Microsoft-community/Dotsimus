@@ -1,4 +1,5 @@
-const fs = require('fs');
+const fs = require('fs'),
+    strawpoll = require('./api/strawpoll');
 
 const getTime = () => {
     const today = new Date()
@@ -90,4 +91,25 @@ const collectCommandAnalytics = async (commandName, subCommandName) => {
     }
 }
 
-module.exports = { getTime, toxicityReport, getStatusColor, capitalizeFirstLetter, getDate, getDaysSince, collectCommandAnalytics };
+const apiDateToTimestamp = (date) => {
+    const dateObj = new Date(date);
+    return Math.floor(dateObj.getTime() / 1000);
+};
+
+const updateResults = (interaction, embed) => {
+    const pollEmbed = embed, pollId = embed.footer.text.split(' ').at(-1);
+
+    strawpoll.getStrawpollResults(pollId).then(response => {
+        let votes = [], stringEmbed = "";
+
+        for (let i = 0; i < response.pollAnswersArray.length; i++) {
+            votes.push(response.pollAnswersArray[i].votes);
+            stringEmbed += `⦿ ${response.pollAnswersArray[i].answer}: **${response.pollAnswersArray[i].votes}**\n`;
+        }
+        pollEmbed.fields[0].value = stringEmbed;
+        pollEmbed.fields[1].value = `<t:${apiDateToTimestamp(Date.now())}:R>`;
+        interaction.message ? interaction.message.edit({ embeds: [pollEmbed] }) : interaction.editReply({ embeds: [pollEmbed] });
+    });
+};
+
+module.exports = { getTime, toxicityReport, getStatusColor, capitalizeFirstLetter, getDate, getDaysSince, collectCommandAnalytics, apiDateToTimestamp, updateResults };
