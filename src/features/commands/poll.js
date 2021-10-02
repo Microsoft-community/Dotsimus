@@ -50,7 +50,7 @@ module.exports = {
                 .setName('results')
                 .setDescription('Displays results of a poll.')
                 .addStringOption(option => option.setName("poll-id").setDescription("The poll ID to get results from.").setRequired(true))),
-    async execute(client, interaction) {
+    async execute (client, interaction) {
         const pollTitle = interaction.options.getString("title");
         const pollChoices = [interaction.options.getString("choice-a"), interaction.options.getString("choice-b"), interaction.options.getString("choice-c"), interaction.options.getString("choice-d"), interaction.options.getString("choice-e")].filter((a) => a);
 
@@ -70,13 +70,13 @@ module.exports = {
                             .addField("Choices", pollChoices.map(choice => `⦿ ${choice}: 0`).join('\n'))
                             .setFooter(`Poll ID: ${response.pollId}`);
 
-                            const Buttons = new MessageActionRow()
-                                .addComponents(
-                                    new MessageButton()
-                                        .setLabel(`Vote`)
-                                        .setURL(`https://strawpoll.com/${response.pollId}`)
-                                        .setStyle('LINK')
-                                )
+                        const Buttons = new MessageActionRow()
+                            .addComponents(
+                                new MessageButton()
+                                    .setLabel(`Vote`)
+                                    .setURL(`https://strawpoll.com/${response.pollId}`)
+                                    .setStyle('LINK')
+                            )
 
                         interaction.reply({ embeds: [publicPollEmbed], components: [Buttons] });
                     });
@@ -123,8 +123,8 @@ module.exports = {
                     strawpoll.getStrawpollResults(pollId).then(resp => {
                         const quickChartClient = new QuickChart();
                         let answers = [],
-                        votes = [],
-                        stringEmbed = '';
+                            votes = [],
+                            stringEmbed = '';
 
                         for (let i = 0; i < resp.pollAnswersArray.length; i++) {
                             answers.push(resp.pollAnswersArray[i].answer);
@@ -160,10 +160,10 @@ module.exports = {
     },
 };
 
-function updateResults(pollTitle, pollId, interaction) {
+function updateResults (pollTitle, pollId, interaction) {
     strawpoll.getStrawpollResults(pollId).then(resp => {
         let votes = [],
-        stringEmbed = "";
+            stringEmbed = "";
 
         for (let i = 0; i < resp.pollAnswersArray.length; i++) {
             votes.push(resp.pollAnswersArray[i].votes);
