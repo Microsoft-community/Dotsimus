@@ -110,7 +110,7 @@ client.on('interactionCreate', async interaction => {
       client.commands.get(interaction.customId)?.execute(client, interaction)
     }
     !interaction.isButton() ? client.commands.get(interaction.commandName)?.execute(client, interaction, activeUsersCollection) : client.commands.get(interaction.customId)?.execute(client, interaction, activeUsersCollection);
-    !interaction.isButton() ? collectCommandAnalytics(interaction.commandName, interaction.options?._subcommand) : collectCommandAnalytics(interaction.customId);
+    if (process.env.DEVELOPMENT !== 'true') !interaction.isButton() ? collectCommandAnalytics(interaction.commandName, interaction.options?._subcommand) : collectCommandAnalytics(interaction.customId);
   } catch (error) {
     console.error(error);
   }
