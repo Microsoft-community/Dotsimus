@@ -36,7 +36,7 @@ module.exports = {
                     .addComponents(
                         new MessageButton()
                             .setLabel('Get back to chat')
-                            .setURL(`discord://-/channels/${interaction.guildId}/${removedMessageInfo[0]}/${removedMessageInfo[1]}`)
+                            .setURL(`https://discord.com/channels/${interaction.guildId}/${removedMessageInfo[0]}/${removedMessageInfo[1]}`)
                             .setStyle('LINK')
                     );
                 member.send({
