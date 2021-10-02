@@ -10,29 +10,31 @@ const path = require('path');
 async function drawDot(text, color = [0, 0, 0]) {
     const template = await Canvas.loadImage(path.join(__dirname, config.template));
 
-    // the base is the template image so use its dimensions
+    // use the template dimensions
     const canvas = Canvas.createCanvas(template.width, template.height);
     const context = canvas.getContext('2d');
     context.drawImage(template, 0, 0, template.width, template.height);
 
     // return the dimension for writing the text
     const boxArea = getBoxArea(canvas, template);
+    const boxDelta = getBoxDelta(boxArea);
 
+    // fillStyle requires HTML # color
     const htmlColor = rgbToHex(color);
 
     dimensions = [];
-    context.font = getFontSize(context, boxArea, 'sans-serif', text, dimensions);
+    context.font = getFontSize(context, boxDelta, 'sans-serif', text, dimensions);
     context.fillStyle = htmlColor;
 
     // calculate the position to make the text centered to the box area
-    const textOffset = calculateCenter(boxArea, dimensions);
+    const textOffset = calculateCenter(boxDelta, dimensions);
 
     context.fillText(text, boxArea[0][0] + textOffset[0], boxArea[0][1] + textOffset[1]);
 
     return canvas.toBuffer();
 }
 
-function calculateCenter(boxArea, dimensions) {
+function calculateCenter(boxDelta, dimensions) {
     const widthRemaining = boxDelta[0] - dimensions[0];
     const heightRemaining = boxDelta[1] - dimensions[1];
 
@@ -45,8 +47,9 @@ function calculateCenter(boxArea, dimensions) {
     return [widthDeltaCenter, heightDeltaCenter];
 }
 
-function getFontSize(context, boxArea, font, text, dimensions) {
-    // get the start font size
+function getFontSize(context, boxDelta, font, text, dimensions) {
+    // get the starting font size
+    const maxFontSize = boxDelta[0] < boxDelta[1] ? boxDelta[0] : boxDelta[1];
     let fontSize = maxFontSize;
     let nextSize = fontSize;
     let measured, measuredHeight;
@@ -93,18 +96,18 @@ function getBoxArea(canvas, template) {
     }
 }
 
+function getBoxDelta(boxArea) {
+    return [
+        boxArea[1][0] - boxArea[0][0],
+        boxArea[1][1] - boxArea[0][1]
+    ];
+}
+
 const config = {
     template: '../../assets/img/template.png',
     // [minArea] [maxArea]
     boxArea: [[775, 75], [1455, 530]]
 }
-
-const boxDelta = [
-    config.boxArea[1][0] - config.boxArea[0][0],
-    config.boxArea[1][1] - config.boxArea[0][1]
-];
-
-const maxFontSize = boxDelta[0] < boxDelta[1] ? boxDelta[0] : boxDelta[1];
 
 module.exports = {
     drawDot
