@@ -112,6 +112,7 @@ module.exports = {
                         listEmbed = new MessageEmbed()
                             .setColor('#0099ff')
                             .setTitle(`Created polls (${title.length})`)
+                            .setDescription(title.map((pollTitle) => `⦿ [${pollTitle.split(':')[0]}](https://strawpoll.com/${pollTitle.split(':')[1]}) - ${pollTitle.split(':')[1]}`).join('\n'));
                     interaction.reply({
                         embeds: [listEmbed],
                         ephemeral: true,
