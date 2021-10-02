@@ -61,6 +61,15 @@ module.exports = {
             return;
         }
 
+        if (interaction.guild.id === '150662382874525696') {
+            const ohSimusAsset = new MessageAttachment('./src/assets/images/ohsimus.png');
+            return interaction.reply({
+                content: 'Oh snap! This feature is currently disabled by the moderation team.',
+                files: [ohSimusAsset],
+                ephemeral: true
+            });
+        }
+
         switch (interaction.options._subcommand) {
             case "create":
                 const multipleAnswersAllowed = interaction.options.getBoolean('allow-multiple-answers', true);
