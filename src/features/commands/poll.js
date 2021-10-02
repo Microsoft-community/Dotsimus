@@ -80,7 +80,13 @@ module.exports = {
 
                         interaction.reply({ embeds: [publicPollEmbed], components: [Buttons] });
                     });
-                    setInterval(() => updateResults(pollTitle, response.pollId, interaction), 60000);
+                    let maintainPollUpdates = true;
+                    setTimeout(function () {
+                        maintainPollUpdates = false;
+                    }, 900000); // maintains poll refreshing for 15 minutes
+                    while (maintainPollUpdates) {
+                        setInterval(() => updateResults(pollTitle, response.pollId, interaction), 60000);
+                    }
                 });
                 break;
             case "list":
