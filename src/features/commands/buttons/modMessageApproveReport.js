@@ -9,15 +9,24 @@ module.exports = {
     type: 'button',
     description: 'Notify all reporters that this report is a valid one',
     async execute (client, interaction) {
-        interaction.deferUpdate();
+        await interaction.deferReply({ ephemeral: true });
+
+        if (!interaction.member.permissions.serialize().KICK_MEMBERS) {
+            interaction.editReply({
+                content: 'Insufficient permission to execute this command.',
+                ephemeral: true
+            });
+            return;
+        }
 
         let reportData;
         try {
             reportData = await MessageReports.Storage.findByGeneratedReport(client, interaction.message);
         } catch(e) {
-            await interaction.reply({
+            await interaction.editReply({
                 content: e.message
             });
+            console.error(e);
             return;
         }
 
@@ -33,13 +42,17 @@ module.exports = {
         reportObject.reportedContent.approve();
 
         await reportObject.investigation.edit({
-            embeds: [ Reports.ReportEmbed.createModeratorReportEmbed(reportObject) ],
+            embeds: Reports.ReportEmbed.createModeratorReportEmbed(reportObject),
             components: []
         });
 
         if (reportObject.thread) {
             await reportObject.thread.setArchived(true);
         }
+
+        interaction.editReply({
+            content: `Approved by ${interaction.member.toString()}`
+        });
     }
 };
 

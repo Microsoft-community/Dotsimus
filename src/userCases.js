@@ -1,5 +1,7 @@
 db = require('./db');
 
+const { Permissions } = require('discord.js');
+
 class UserCase {
     constructor(thread, message) {
         this.thread = thread;
@@ -13,21 +15,29 @@ module.exports = {
      * @param {*} client
      * @param {*} guild which guild to create the case on.
      * @param {*} user which user this case belongs to.
-     * @param {*} embed
+     * @param {*} embeds
      * @param {*} components
      * @param {*} reason the reason as to why this case is being created.
      * @returns user case object.
      */
-    async createCase(client, guild, user, embed, components, reason) {
+    async createCase(client, guild, user, embeds, components, reason) {
         const channel = await this.getChannelForCases(client, guild);
+        if (!channel.permissionsFor(client.user).has([Permissions.FLAGS.MANAGE_THREADS, Permissions.FLAGS.MANAGE_MESSAGES, Permissions.FLAGS.VIEW_CHANNEL])) {
+            throw new Error('insufficient_channel_perms');
+        }
+
         const thread = await this.findThreadCase(channel, user);
 
         if (thread) {
+            if (!thread.permissionsFor(client.user).has([Permissions.FLAGS.SEND_MESSAGES, Permissions.FLAGS.MANAGE_MESSAGES])) {
+                throw new Error('insufficient_thread_perms');
+            }
+    
             await thread.setArchived(false);
 
-            userCase = await createCaseOnThread(thread, embed, components);
+            userCase = await createCaseOnThread(thread, embeds, components);
         } else {
-            userCase = await createThreadCase(channel, user, embed, components, reason);
+            userCase = await createThreadCase(channel, user, embeds, components, reason);
         }
 
         // pin the latest case
@@ -38,16 +48,16 @@ module.exports = {
     /**
      * This method will modify an existing case by removing the message and creating a new message.
      * @param {*} message the case's message to modify
-     * @param {*} embed
+     * @param {*} embeds
      * @param {*} components
      * @returns new user case.
      */
-    async modifyCase(message, embed, components) {
+    async modifyCase(message, embeds, components) {
         await message.delete();
         const thread = message.channel;
 
         // create a new case so mods get pinged again
-        const userCase = await createCaseOnThread(thread, embed, components);
+        const userCase = await createCaseOnThread(thread, embeds, components);
 
         // pin the latest case
         pinCase(userCase);
@@ -69,10 +79,20 @@ module.exports = {
     async findThreadCase(channel, user) {
         // fetch all threads, even archived one
         let threadList = await channel.threads.fetch({ active: true });
+        const thread = await this.findThreadCaseList(threadList, user);
+        if (thread) {
+            return thread;
+        }
+
+        // have to fetch active and archived threads separately
         threadList = await channel.threads.fetch({ archived: {
             fetchAll: true
         } });
     
+        return await this.findThreadCaseList(threadList, user);
+    },
+
+    async findThreadCaseList(threadList, user) {
         return await threadList.threads.find(
             thread => {
                 return thread.name.split(/ +/g).slice(-1)[0] === user.id;
@@ -83,12 +103,12 @@ module.exports = {
 
 module.exports.UserCase = UserCase;
 
-async function createCaseOnThread(thread, embed, components) {
+async function createCaseOnThread(thread, embeds, components) {
     await thread.setArchived(false);
 
     const message = await thread.send({
         content: '@here',
-        embeds: [embed],
+        embeds: embeds,
         components: components
     });
 
@@ -99,7 +119,7 @@ async function createCaseOnThread(thread, embed, components) {
     return new UserCase(thread, message);
 }
 
-async function createThreadCase(channel, user, embed, components, reason) {
+async function createThreadCase(channel, user, embeds, components, reason) {
     try {
         const thread = await channel.threads.create({
             name: `${user.username.slice(0, 10)} ${user.id}`,
@@ -107,7 +127,7 @@ async function createThreadCase(channel, user, embed, components, reason) {
             reason: reason,
         });
 
-        return await createCaseOnThread(thread, embed, components);
+        return await createCaseOnThread(thread, embeds, components);
     } catch(e) {
         console.log(`Couldn't create a thread on this server: ${e}`);
         throw e;
@@ -118,5 +138,8 @@ async function pinCase(userCase) {
     // fetch & unpin the latest pinned message
     const pins = await userCase.thread.messages.fetchPinned();
     if (pins.size >= 49) pins.last().unpin();
-    userCase.message.pin(true);
+    try {
+        userCase.message.pin(true);
+    } catch(e) {
+    }
 }

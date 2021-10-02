@@ -17,7 +17,7 @@ const { SlashCommandBuilder } = require('@discordjs/builders'),
                         .setTitle(`${guildMember.user.username}#${guildMember.user.discriminator}`)
                         .setColor(`${getStatusColor(guildMember?.presence?.status)}`)
                         .setDescription(`${guildMember?.presence?.activities[0]?.state ?? ''} \n`)
-                        .setThumbnail(`https://cdn.discordapp.com/avatars/${guildMember.user.id}/${guildMember.user.avatar}.png`)
+                        .setThumbnail(guildMember.user.displayAvatarURL())
                         .setFooter(`User ID: ${guildMember.user.id} - user created on ${getDate(guildMember.user.createdAt, 'en')}`)
                         .addFields(
                             {
@@ -51,7 +51,7 @@ const { SlashCommandBuilder } = require('@discordjs/builders'),
                         .setTitle(`${user.username}#${user.discriminator}`)
                         .setColor(`${getStatusColor(user?.presence?.status)}`)
                         .setDescription(`${user?.presence?.status ? capitalizeFirstLetter(user?.presence?.status) : 'No description is set.'}`)
-                        .setThumbnail(`${user.avatar ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png` : 'https://cdn.discordapp.com/avatars/731190736996794420/acb75c08b6eb67c01a5a4cf6e5e567a1.png'}`)
+                        .setThumbnail(user.displayAvatarURL())
                         .setFooter(`User ID: ${user.id}`)
                         .addFields(
                             {
@@ -85,7 +85,7 @@ const sendWarningEmbed = (client, interaction, user) => {
                 infoEmbed = new Discord.MessageEmbed()
                     .setTitle(`Infractions for ${guildMember.user.username}#${guildMember.user.discriminator}`)
                     .setColor(`${getStatusColor(guildMember?.presence?.status)}`)
-                    .setThumbnail(`https://cdn.discordapp.com/avatars/${guildMember.user.id}/${guildMember.user.avatar}.png`)
+                    .setThumbnail(guildMember.user.displayAvatarURL())
                     .setFooter(`User ID: ${guildMember.user.id} - user created on ${getDate(guildMember.user.createdAt, 'en')}`)
                     .addFields(
                         {
@@ -123,7 +123,7 @@ const sendWarningEmbed = (client, interaction, user) => {
                 const infoEmbed = new Discord.MessageEmbed()
                     .setTitle(`${user.tag}`)
                     .setColor(`${getStatusColor(user?.presence?.status)}`)
-                    .setThumbnail(`https://cdn.discordapp.com/avatars/${guildMember.user.id}/${guildMember.user.avatar}.png`)
+                    .setThumbnail(guildMember.user.displayAvatarURL())
                     .setFooter(`User ID: ${user.id} - user created on ${getDate(user.createdAt)}`)
                     .addFields(
                         {

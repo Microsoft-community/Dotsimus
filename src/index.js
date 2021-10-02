@@ -4,9 +4,23 @@ const {
   Collection,
   MessageEmbed,
   MessageActionRow,
+  Options,
   MessageButton
 } = require('discord.js'),
-  client = new Client({ intents: ["GUILDS", "GUILD_MESSAGES", "DIRECT_MESSAGES", "GUILD_MESSAGE_TYPING", "GUILD_PRESENCES"], partials: ["CHANNEL"] });
+  client = new Client(
+    { 
+//       Temporarily disabled due to breaking /watch functionality
+//       makeCache: Options.cacheWithLimits({
+//         MessageManager: 200, 
+//         // UserManager: 100,
+//         // GuildMemberManager: 100,
+//         PresenceManager: 0,
+//         // GuildChannelManager: 0,
+//         ReactionManager: 0,
+//         ThreadManager: 0
+//       }),
+      intents: ["GUILDS", "GUILD_MESSAGES", "DIRECT_MESSAGES", "GUILD_MESSAGE_TYPING", "GUILD_PRESENCES"], partials: ["CHANNEL"] 
+  });
 //   client = new Discord.Client({ partials: ['MESSAGE', "USER", 'REACTION'], intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES] }),
 const Sentry = require('@sentry/node'),
   chalk = require('chalk'),
@@ -17,16 +31,16 @@ const Sentry = require('@sentry/node'),
   fs = require('fs'),
   commandFiles = fs.readdirSync('./src/features/commands/').filter(file => file.endsWith('.js')),
   buttonFiles = fs.readdirSync('./src/features/commands/buttons/').filter(file => file.endsWith('.js')),
+  menuFiles = fs.readdirSync('./src/features/commands/selectMenus/').filter(file => file.endsWith('.js')),
   { REST } = require('@discordjs/rest'),
   { Routes } = require('discord-api-types/v9'),
   commandsArray = [],
   devClientId = '793068568601165875',
   devGuildId = '280600603741257728';
 
-
 for (const file of commandFiles) {
   const command = require(`./features/commands/${file}`);
-  if (command.type !== 'button') commandsArray.push(command.data.toJSON());
+  if (command.type !== 'button' || command.type !== 'selectMenu') commandsArray.push(command.data.toJSON());
 }
 
 const rest = new REST({ version: '9' }).setToken(process.env.DEVELOPMENT !== 'true' ? process.env.BOT_TOKEN : process.env.BOT_TOKEN_DEV);
@@ -52,6 +66,10 @@ commandFiles.map(file => {
 buttonFiles.map(file => {
   const command = require(`./features/commands/buttons/${file}`);
   client.commands.set(command.name, command);
+})
+menuFiles.map(file => {
+  const command = require(`./features/commands/selectMenus/${file}`);
+  client.commands.set(command.name, command)
 })
 
 if (process.env.DEVELOPMENT !== 'true') Sentry.init({ dsn: process.env.SENTRY_DSN });
@@ -88,6 +106,9 @@ client.on('ready', () => {
 });
 client.on('interactionCreate', async interaction => {
   try {
+    if(interaction.isSelectMenu()){
+      client.commands.get(interaction.customId)?.execute(client, interaction)
+    }
     !interaction.isButton() ? client.commands.get(interaction.commandName)?.execute(client, interaction, activeUsersCollection) : client.commands.get(interaction.customId)?.execute(client, interaction, activeUsersCollection);
     !interaction.isButton() ? collectCommandAnalytics(interaction.commandName, interaction.options?._subcommand) : collectCommandAnalytics(interaction.customId);
   } catch (error) {
@@ -184,14 +205,14 @@ client.on('messageCreate', message => {
                 .addFields(
                   { name: 'Message Author', value: `<@${message.author.id}>`, inline: true },
                   { name: 'Author ID', value: message.author.id, inline: true },
-                  { name: 'Channel', value: `${server.name}/${message.channel.name} | 🔗 [Message link](https://discordapp.com/channels/${server.id}/${message.channel.id}/${message.id})` }
+                  { name: 'Channel', value: `${server.name}/${message.channel.name} | 🔗 [Message link](${message.url})` }
                 )
                 .setTimestamp()
                 .setFooter(`Stop tracking with !unwatch command in ${server.name} server.`)
                 .setColor('#7289da'),
                 trackingNoticeUser = new MessageEmbed()
                   .setTitle(`❗ Tracked keyword triggered`)
-                  .setDescription(`**"${word}"** mentioned in [**${server.name}/${message.channel.name}**.](https://discordapp.com/channels/${server.id}/${message.channel.id}/${message.id})`)
+                  .setDescription(`**"${word}"** mentioned in [**${server.name}/${message.channel.name}**.](${message.url})`)
                   .setTimestamp()
                   .setFooter(`Stop tracking with !unwatch command in ${server.name} server.`)
                   .setColor('#7289da');
@@ -216,8 +237,7 @@ client.on('messageCreate', message => {
       });
     })
   })
-  if (server.isPremium && !(message.member.permissions.serialize().KICK_MEMBERS || message.member.permissions.serialize().BAN_MEMBERS || message.member.roles.cache.some(role => role.id === '332343869163438080'))) {
-  // if (server.isPremium) {
+  if (server.isPremium && !(message.member.permissions.serialize().KICK_MEMBERS || message.member.permissions.serialize().BAN_MEMBERS || message.member.roles.cache.some(role => role.id === '332343869163438080')) || process.env.DEVELOPMENT === 'true') {
     getToxicity(message.content, message, false).then(toxicity => {
       // console.info(`${getTime()} #${message.channel.name} ${message.author.username}: ${message.content} | ${chalk.red((Number(toxicity.toxicity) * 100).toFixed(2))} ${chalk.red((Number(toxicity.insult) * 100).toFixed(2))}`)
       const messageToxicity = toxicity.toxicity;
@@ -235,7 +255,11 @@ client.on('messageCreate', message => {
               name: `Third message (Toxicity: ${Math.round(Number(messages[2].values.toxicity) * 100)}%, Insult: ${Math.round(Number(messages[2].values.insult) * 100)}%)`,
               value: messages[2].message.length > 1024 ? messages[2].message.slice(0, 1021).padEnd(1024, '.') : messages[2].message, inline: false
             } : { name: 'Third message', value: 'No recent message found.' },
-            removedMessage = message.content;
+            removedMessage = message.content,
+            removedMessageAttachmentArray = [];
+          message.attachments.forEach(attachment => {
+            removedMessageAttachmentArray.push(attachment.url);
+          })
           message.delete({ reason: "Removed potentially toxic message." }).catch(() => {
             console.info(
               `Could not delete message ${message.content} | ${message.id}.`
@@ -262,6 +286,18 @@ client.on('messageCreate', message => {
                   }
                 )
                 .setFooter(`${message.channel.id} ${sentMessage.id}`);
+
+              const embedArray = [investigationEmbed];
+              let attachmentCount = 0;
+              removedMessageAttachmentArray.forEach(attachmentUrl => {
+                let urlSplits = attachmentUrl.split('/');
+                let attachmentEmbed = new MessageEmbed()
+                  .setColor('#ffbd2e')
+                  .setTitle(`Trigger attachment: ${urlSplits[urlSplits.length - 1]}`)
+                  .setImage(attachmentUrl)
+                  .setFooter(`${attachmentCount += + 1}  •  Attachment ID: ${urlSplits[5]}`);
+                embedArray.push(attachmentEmbed);
+              })
               const reportActions = new MessageActionRow()
                 .addComponents(
                   new MessageButton()
@@ -271,8 +307,7 @@ client.on('messageCreate', message => {
                   new MessageButton()
                     .setCustomId('reportApprovalUnmuteAction')
                     .setLabel('Approve & unmute')
-                    .setStyle('SUCCESS')
-                    .setDisabled(true),
+                    .setStyle('SUCCESS'),
                   new MessageButton()
                     .setCustomId('reportRejectionAction')
                     .setLabel('Reject & unmute')
@@ -296,7 +331,7 @@ client.on('messageCreate', message => {
                 { name: 'User ID', value: `${message.author.id}`, inline: true },
                 { name: 'Is user new?', value: `${user.isNew ? "Yes" : "No"}`, inline: true },
                 { name: 'Total infractions', value: `${totalInfractions >= 1 ? totalInfractions : 'No infractions present.'}`, inline: true },
-                { name: 'Channel', value: `<#${message.channel.id}> | 🔗 [Message link](https://discordapp.com/channels/${server.id}/${message.channel.id}/${sentMessage.id})` }
+                { name: 'Channel', value: `<#${message.channel.id}> | 🔗 [Message link](${sentMessage.url})` }
               )
               // respond to shut up dotsimus
               // alertRecipient = alert.channelId === '792393096020885524' ? `<@${process.env.OWNER}>` : '@here';
@@ -310,7 +345,7 @@ client.on('messageCreate', message => {
                 }
                 await thread.send({
                   content: '@here',
-                  embeds: [investigationEmbed],
+                  embeds: embedArray,
                   components: [reportActions]
                 }).then(async sentReport => {
                   const pins = await thread.messages.fetchPinned().then(pinned => {
@@ -334,7 +369,7 @@ client.on('messageCreate', message => {
                   }
                   thread.send({
                     content: '@here',
-                    embeds: [investigationEmbed],
+                    embeds: embedArray,
                     components: [reportActions]
                   }).then(async sentReport => {
                     const pins = await thread.messages.fetchPinned().then(pinned => {
@@ -435,13 +470,6 @@ client.on('messageCreate', message => {
       //     }
       //   })
       //   break;
-      case 'grant':
-        try {
-          grantAccess(message, mention, userArgFormat, server, isModerator);
-        } catch (error) {
-          console.error(error)
-        }
-        break;
       case 'eval':
       case 'dot':
         if (message.author.id === process.env.OWNER) {
@@ -462,34 +490,21 @@ client.on('messageCreate', message => {
         break;
       case 'watch':
       case 'track':
-        if (!args[0] || args[0]?.length < 3) {
-          message.react("❌")
-          message.author.send('❌ Keyword must be longer than 2 characters.')
-        } else {
-          const trackingWord = args[0].toLowerCase();
-          try {
-            db.watchKeyword(message.author.id, server.id, trackingWord).then(resp => {
-              refreshWatchedCollection().then(resp => db.getWatchedKeywords(message.author.id, server.id).then(keywords => {
-                const list = keywords[0].watchedWords.length === 6 ? keywords[0].watchedWords.slice(1) : keywords[0].watchedWords
-                message.react("✅")
-                message.author.send(`\`${trackingWord}\` keyword tracking is set up successfully on **${server.name}** server.\nCurrently tracked server keywords:\n${list.map((keyword, index) => `${index + 1}. ${keyword} \n`).join('')}\nYou can track up to 5 keywords.`)
-              }))
-            })
-
-          } catch (error) {
-            message.reply('allow direct messages from server members in this server for this feature to work.')
-          }
-        }
+        const watchCommandSlashMigrationNoticeEmbed = new MessageEmbed()
+	           .setColor('#0099ff')
+	           .setTitle('The !watch (or !track) command has been migrated to a new home!')
+	           .setDescription('You can now use it along with other slash commands.\nType `/watch add` to use it.')
+	           .setTimestamp();
+        message.channel.send({ embeds: [watchCommandSlashMigrationNoticeEmbed] });
         break;
       case 'unwatch':
       case 'untrack':
-        db.removeWatchedKeyword(message.author.id, server.id).then(resp => {
-          refreshWatchedCollection()
-        })
-        message.react("✅")
-        break;
-      case 'setalerts':
-        message.channel.send(user.isAdmin ? 'true' : 'false')
+        const watchCommandSlashMigrationNoticeEmbed1 = new MessageEmbed()
+	           .setColor('#0099ff')
+	           .setTitle('The !unwatch (or !untrack) command has been migrated to a new home!')
+	           .setDescription('You can now use it along with other slash commands.\nType `/watch remove` to use it in an overhauled way.')
+	           .setTimestamp();
+        message.channel.send({ embeds: [watchCommandSlashMigrationNoticeEmbed1] });
         break;
       case 'repeat':
       case 'dotpeat':
@@ -542,51 +557,6 @@ client.on('messageCreate', message => {
           }
         }
         break;
-      // document
-      // make admin only
-      // set up db
-      // better command name? alertsSetup?
-      // ask whether infraction message should be deleted
-      // ask for mute role ID
-      case 'setupalerts':
-        message.channel.send('[1/3] Enter channel ID for alerts channel.').then(() => {
-          const filter = m => m.author.id === message.author.id,
-            collector = message.channel.createMessageCollector(filter, { max: 3, time: 60000 });
-          collector.next.then(collectorMessage => {
-            if (isNaN(collectorMessage.content)) {
-              collector.stop('error')
-              return Promise.reject('Invalid value provided.')
-            };
-          }).then(() => {
-            message.channel.send('[2/3] Enter alerts treshold, recommended value: `0.85` /n Expected answer: Value from `0.1` to `1`').then(() => {
-              collector.next.then(collectorMessage => {
-                if (isNaN(collectorMessage.content)) {
-                  collector.stop('error')
-                  return Promise.reject('Invalid value provided.')
-                } else {
-                  message.channel.send('[3/3] Should alerts ping with `@here`? /n Expected answers: Yes/No')
-                }
-              })
-            })
-          });
-          collector.on('end', (collected, reason) => {
-            console.log(reason);
-            // switch case for errors time, error, limit, default
-            if (reason === 'limit') {
-              const collectionValues = collected.map(user => user.content)
-              console.log(collected.size);
-              console.log(collectionValues);
-              message.channel.send(`Alerts setup completed
-**Channel ID:** ${collectionValues[0]}
-**Alerts treshold:** ${collectionValues[1]} 
-**Moderation Alert:** ${collectionValues[2]}`)
-            } else {
-              message.channel.send(`Alerts setup failed
-Reason: \`${reason}\``)
-            }
-          });
-        });
-        break;
     }
   }
 
@@ -626,21 +596,4 @@ Reason: \`${reason}\``)
       return { toxicity: NaN, insult: NaN, combined: NaN }
     }
   }
-})
-
-const grantAccess = (message, mention, user, server, isModerator) => {
-  if (!isModerator || server.id !== '150662382874525696') return;
-  const role = message.guild.roles.cache.find(role => role.id === '191569917542268928'),
-    member = message.guild.members.cache.get(user);
-  if (mention && role) {
-    user = mention.user.id;
-    message.guild.members.cache.get(user).roles.add(role)
-    message.reply('user has been granted access to the server.');
-  } else {
-    message.guild.members.cache.get(user).roles.add(role)
-    message.reply('user has been granted access to the server.');
-  }
-  if (!Number.isInteger(+user)) {
-    message.channel.send('Invalid user ID or mention provided.');
-  }
-}
+}) 

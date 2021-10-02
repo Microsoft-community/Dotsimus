@@ -1,8 +1,9 @@
 const fetch = require('request-promise-native');
 
 // ~15mins caching would be great, wouldn't it?
+// it'd also be kinda neat if this could be done with discord.js rest and routes
 const fetchRules = async (guildID) => {
-    const response = await fetch(`https://discordapp.com/api/v8/guilds/${guildID}/member-verification`, {
+    const response = await fetch(`https://discord.com/api/v9/guilds/${guildID}/member-verification`, {
         "headers": {
             "accept": "*/*",
             "accept-language": "en-US",

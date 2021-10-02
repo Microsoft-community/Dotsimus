@@ -5,7 +5,7 @@
   "description": "Automatic moderation of toxic chat messages.",
   "main": "src/index.js",
   "scripts": {
-    "start": "pm2 flush; pm2 start src/index.js --log logs.log --log-date-format 'MM-DD HH:mm' --watch --watch-delay 10000 --restart-delay 10000; pm2 logs",
+    "start": "pm2 flush; pm2 start src/index.js --log logs.log --log-date-format 'MM-DD HH:mm' --watch --watch-delay 10000 --restart-delay 10000 --ignore-watch 'events.json, logs.log'; pm2 logs",
     "startwor": "pm2 flush; pm2 start src/index.js --watch --watch-delay 10000 --restart-delay 10000; pm2 logs",
     "stop": "pm2 stop src/index.js"
   },
@@ -13,15 +13,14 @@
   "license": "MIT",
   "dependencies": {
     "@discordjs/rest": "^0.1.0-canary.0",
-    "@sentry/node": "6.11.0",
+    "@sentry/node": "6.12.0",
     "@top-gg/sdk": "^3.1.2",
     "async-mutex": "^0.3.1",
     "canvas": "^2.8.0",
     "chalk": "^4.1.2",
-    "discord-api-types": "^0.22.0",
+    "discord-api-types": "^0.23.1",
     "discord.js": "^13.1.0",
     "dotenv": "^10.0.0",
-    "lodash": "^4.17.21",
     "mongoose": "^5.13.7",
     "request": "^2.88.2",
     "request-promise-native": "^1.0.9"

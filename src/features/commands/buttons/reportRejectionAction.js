@@ -11,9 +11,9 @@ module.exports = {
                 flaggedUserInfo = await client.users.fetch(interaction.message.embeds[0].fields.filter(field => field.name === 'User ID').map(field => field.value)[0]).then(user => { return user }),
                 reinstatedMessage = new MessageEmbed()
                     .setColor('#32CD32')
-                    .setAuthor(`${flaggedUserInfo.username}#${flaggedUserInfo.discriminator}`, `https://cdn.discordapp.com/avatars/${interaction.message.embeds[0].fields.filter(field => field.name === 'User ID').map(field => field.value)[0]}/${flaggedUserInfo.avatar}.png`, `https://discord.com/users/${interaction.message.embeds[0].fields.filter(field => field.name === 'User ID').map(field => field.value)[0]}`)
+                    .setAuthor(`${flaggedUserInfo.username}#${flaggedUserInfo.discriminator}`, flaggedUserInfo.displayAvatarURL(), `https://discord.com/users/${flaggedUserInfo.id}`)
                     .setDescription(`${interaction.message.embeds[0].fields[0].value}`)
-                    .setFooter('Message reinstated by the moderation team.', `https://cdn.discordapp.com/icons/${interaction.guildId}/${interaction.guild.icon}.webp`);
+                    .setFooter('Message reinstated by the moderation team.', interaction.guild.iconURL({ format: "webp" }));
             let reportRejectionEphemeralMsg = 'Report rejected, user is notified & unmuted.'
             client.guilds.cache.get(interaction.guildId).members.fetch(interaction.message.embeds[0].fields.filter(field => field.name === 'User ID').map(field => field.value)[0]).then(async member => {
                 member.roles.remove(await db.getAlerts(interaction.guildId).then(alerts => {
@@ -23,7 +23,7 @@ module.exports = {
                     .addComponents(
                         new MessageButton()
                             .setLabel('Go to message')
-                            .setURL(`https://discordapp.com/channels/${interaction.guildId}/${removedMessageInfo[0]}/${removedMessageInfo[1]}`)
+                            .setURL(`https://discord.com/channels/${interaction.guildId}/${removedMessageInfo[0]}/${removedMessageInfo[1]}`)
                             .setStyle('LINK')
                     );
                 member.send({
@@ -65,7 +65,7 @@ module.exports = {
                     components: []
                 })
         } else {
-            interaction.reply({ ephemeral: true, content: Math.random() < 0.9 ? 'You do not have permission to use this command.' : 'You nasty devil, you don\'t take no for an answer?' })
+            interaction.reply({ ephemeral: true, content: Math.random() < 0.9 ? 'You do not have permissions to use this action.' : 'You nasty devil, you don\'t take no for an answer?' })
         }
     },
 };
