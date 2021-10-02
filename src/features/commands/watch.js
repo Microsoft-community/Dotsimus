@@ -73,6 +73,13 @@ module.exports = {
                         })
                         return;
                     }
+                    if (keyword.length >= 100) {
+                        interaction.reply({
+                            content: 'Keyword cannot be longer than 100 characters.',
+                            ephemeral: true,
+                        })
+                        return;
+                    }
                     if (length === 5) {
                         interaction.reply({
                             content: `You cannot track more than 5 keywords.`,
