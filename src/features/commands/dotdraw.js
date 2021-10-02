@@ -15,6 +15,14 @@ type: 'slash',
         ),
 
     async execute (client, interaction) {
+        if (!interaction.member.permissions.serialize().MANAGE_MESSAGES) {
+            interaction.reply({
+                content: 'Insufficient permission to execute this command.',
+                ephemeral: true
+            });
+            return;
+        }
+    
         const text = interaction.options._hoistedOptions[0].value;
         const image = await drawDot(text);
 
