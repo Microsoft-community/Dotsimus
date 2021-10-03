@@ -79,7 +79,7 @@ module.exports = {
                         .addField("Choices", pollChoices.map(choice => `⦿ ${choice}: **0**`).join('\n'))
                         .addField("Last refresh", `<t:${apiDateToTimestamp(Date.now())}:R>`)
                         .setFooter(`Poll ID: ${response.pollId}`, interaction.guild.iconURL({ format: "webp" }));
-                    db.createPoll(interaction.member.user.id, interaction.guild.id, `${pollTitle}:${response.pollId}`).then(resp => {
+                    db.createPoll(interaction.guild.id, { "pollId": response.pollId, "pollTitle": pollTitle, "pollCreatorId": interaction.member.user.id }).then(resp => {
                         const Buttons = new MessageActionRow()
                             .addComponents(
                                 new MessageButton()
@@ -116,11 +116,11 @@ module.exports = {
                         });
                         return;
                     }
-                    const title = polls[0].polls,
+                    const poll = polls[0].polls,
                         listEmbed = new MessageEmbed()
                             .setColor('#0099ff')
-                            .setTitle(`Created polls (${title.length})`)
-                            .setDescription(title.map((pollTitle) => `⦿ [${pollTitle.split(':')[0]}](https://strawpoll.com/${pollTitle.split(':')[1]}) - ${pollTitle.split(':')[1]}`).join('\n'));
+                            .setTitle(`Created polls (${poll.length})`)
+                            .setDescription(poll.map((pollArr) => `⦿ [${pollArr.pollTitle}](https://strawpoll.com/${pollArr.pollId}) - ${pollArr.pollId}`).join('\n'));
                     interaction.reply({
                         embeds: [listEmbed],
                         ephemeral: true,
@@ -147,7 +147,7 @@ module.exports = {
                         for (let i = 0; i < resp.pollAnswersArray.length; i++) {
                             answers.push(resp.pollAnswersArray[i].answer);
                             votes.push(resp.pollAnswersArray[i].votes);
-                            stringEmbed += `${resp.pollAnswersArray[i].answer}: ${resp.pollAnswersArray[i].votes}\n`;
+                            stringEmbed += `${resp.pollAnswersArray[i].answer}: **${resp.pollAnswersArray[i].votes}**\n`;
                         }
 
                         quickChartClient.setConfig({
@@ -161,7 +161,6 @@ module.exports = {
                             .setColor("#0099ff")
                             .setTitle('Poll results')
                             .addFields(
-                                { name: 'Owner', value: `<@${polls[0].userId}>` },
                                 { name: 'Votes', value: stringEmbed },
                                 { name: 'Votes chart', value: `[Chart image link](${quickChartClient.getUrl()})` }
                             )
