@@ -26,7 +26,7 @@ module.exports = {
         if (text.length > 30) {
             const ohSimusAsset = new MessageAttachment('./src/assets/images/ohsimus.png');
             interaction.reply({
-                content: 'Refrain from using too many characters.',
+                content: 'Oh snap! It looks like there are too many characters to draw.',
                 files: [ohSimusAsset],
                 ephemeral: true
             });
