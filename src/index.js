@@ -5,6 +5,7 @@ const {
   MessageEmbed,
   MessageActionRow,
   Options,
+  Permissions,
   MessageButton
 } = require('discord.js'),
   client = new Client(
@@ -173,8 +174,8 @@ client.on('messageCreate', message => {
     user = {
       id: message.author.id,
       name: message.author.username,
-      isAdmin: message.member.permissions.serialize().ADMINISTRATOR,
-      isModerator: message.member.permissions.serialize().KICK_MEMBERS || message.member.permissions.serialize().BAN_MEMBERS,
+      isAdmin: message.member.permissions.has(Permissions.FLAGS.ADMINISTRATOR),
+      isModerator: message.member.permissions.has(Permissions.FLAGS.KICK_MEMBERS) || message.member.permissions.has(Permissions.FLAGS.BAN_MEMBERS),
       isNew: Math.round(new Date() - message.member.joinedAt) / (1000 * 60 * 60 * 24) <= 7,
       isRegular: Math.round(new Date() - message.member.joinedAt) / (1000 * 60 * 60 * 24) >= 30,
     };
@@ -198,7 +199,7 @@ client.on('messageCreate', message => {
             try {
               if (watchedKeywordsGuild.userId === message.author.id
                 || isWatcherActive
-                || !message.channel.permissionsFor(watchedKeywordsGuild.userId).serialize()['VIEW_CHANNEL']) return;
+                || !message.channel.permissionsFor(watchedKeywordsGuild.userId).has(Permissions.FLAGS.VIEW_CHANNEL)) return;
               const trackingNoticeMod = new MessageEmbed()
                 .setTitle(`❗ Tracked keyword "${word}" triggered`)
                 .setDescription(message.content)
@@ -217,7 +218,7 @@ client.on('messageCreate', message => {
                   .setFooter(`Stop tracking with !unwatch command in ${server.name} server.`)
                   .setColor('#7289da');
               // enabled informative tracking for everyone
-              user.send((message.channel.permissionsFor(watchedKeywordsGuild.userId).serialize()['KICK_MEMBERS'] || message.channel.permissionsFor(watchedKeywordsGuild.userId).serialize()['BAN_MEMBERS']) ? { embeds: [trackingNoticeMod] } : { embeds: [trackingNoticeMod] }).catch(error => {
+              user.send((message.channel.permissionsFor(watchedKeywordsGuild.userId).has(Permissions.FLAGS.KICK_MEMBERS) || message.channel.permissionsFor(watchedKeywordsGuild.userId).has(Permissions.FLAGS.BAN_MEMBERS)) ? { embeds: [trackingNoticeMod] } : { embeds: [trackingNoticeMod] }).catch(error => {
                 console.info(`Could not send DM to ${watchedKeywordsGuild.userId}, tracking is being disabled.`);
                 db.removeWatchedKeyword(watchedKeywordsGuild.userId, server.id).then(resp => {
                   refreshWatchedCollection()
@@ -237,7 +238,7 @@ client.on('messageCreate', message => {
       });
     })
   })
-  if (server.isPremium && !(message.member.permissions.serialize().KICK_MEMBERS || message.member.permissions.serialize().BAN_MEMBERS || message.member.roles.cache.some(role => role.id === '332343869163438080')) || process.env.DEVELOPMENT === 'true') {
+  if (server.isPremium && !(message.member.permissions.has(Permissions.FLAGS.KICK_MEMBERS) || message.member.permissions.has(Permissions.FLAGS.BAN_MEMBERS) || message.member.roles.cache.has('332343869163438080')) || process.env.DEVELOPMENT === 'true') {
     getToxicity(message.content, message, false).then(toxicity => {
       // console.info(`${getTime()} #${message.channel.name} ${message.author.username}: ${message.content} | ${chalk.red((Number(toxicity.toxicity) * 100).toFixed(2))} ${chalk.red((Number(toxicity.insult) * 100).toFixed(2))}`)
       const messageToxicity = toxicity.toxicity;
@@ -267,9 +268,9 @@ client.on('messageCreate', message => {
           }).then(async () => {
             if (role) member.roles.add(role);
             const infractionMessageResponse = role ? 'Message has been flagged for review, awaiting moderation response.' : 'Message has been flagged for a review, ⚠ user is not muted.',
-              hardCodedApplePerms = (data) => data.roles.cache.some(role => role.id === '332343869163438080'),
-              channelMembersWithAccess = await client.guilds.cache.get(server.id).channels.fetch(alert.channelId).then(channel => (channel.members.filter((member) => ((member.permissions.serialize().KICK_MEMBERS || hardCodedApplePerms(member)) && member.presence !== null && member.presence?.status !== 'offline' && member.user?.bot === false)))),
-              channelMembersWithAccessAll = await client.guilds.cache.get(server.id).channels.fetch(alert.channelId).then(channel => (channel.members.filter((member) => ((member.permissions.serialize().KICK_MEMBERS || hardCodedApplePerms(member)) && member.user?.bot === false)))),
+              hardCodedApplePerms = (data) => data.roles.cache.has('332343869163438080'),
+              channelMembersWithAccess = await client.guilds.cache.get(server.id).channels.fetch(alert.channelId).then(channel => (channel.members.filter((member) => ((member.permissions.has(Permissions.FLAGS.KICK_MEMBERS) || hardCodedApplePerms(member)) && member.presence !== null && member.presence?.status !== 'offline' && member.user?.bot === false)))),
+              channelMembersWithAccessAll = await client.guilds.cache.get(server.id).channels.fetch(alert.channelId).then(channel => (channel.members.filter((member) => ((member.permissions.has(Permissions.FLAGS.KICK_MEMBERS) || hardCodedApplePerms(member)) && member.user?.bot === false)))),
               serverThreads = await client.guilds.cache.get(server.id).channels.fetch(alert.channelId).then((threads) => threads.threads),
               matchingThread = await serverThreads.fetchArchived().then(thread => thread.threads.filter(y => y.name.split(/ +/g).slice(-1)[0] === member.id).first());
 
@@ -450,7 +451,7 @@ client.on('messageCreate', message => {
       command = args.shift().toLowerCase(),
       commandMessage = args.join(' '),
       mention = message.mentions.members.first(),
-      isModerator = message.member.permissions.serialize().KICK_MEMBERS || message.member.permissions.serialize().BAN_MEMBERS;
+      isModerator = message.member.permissions.has(Permissions.FLAGS.KICK_MEMBERS) || message.member.permissions.has(Permissions.FLAGS.BAN_MEMBERS);
     let userArgFormat = args.length === 0 ? message.author.id : args[0];
     switch (command) {
       // case 'flags':
