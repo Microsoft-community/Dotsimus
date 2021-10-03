@@ -57,10 +57,31 @@ module.exports = {
                 .catch(console.error);
             const updatedEmbed = interaction.message.embeds[0]
                 .setColor('#e91e63')
-                .setFooter('');
+                .setFooter(''),
+                actionMessage = `Report rejected, user is notified and unmuted by <@${interaction.member.id}>`,
+                investigationNoticeButtons = new MessageActionRow()
+                    .addComponents(
+                        new MessageButton()
+                            .setLabel('Open thread')
+                            .setURL(interaction.message.url)
+                            .setStyle('LINK'));
+
+            db.getAlerts(interaction.guild.id).then(alerts => alerts.forEach(alert => {
+                const sendMessageToChannel = async (channelId) => {
+                    const channel = await client.guilds.cache.get(interaction.guildId).channels.fetch(channelId),
+                        investigationNotice = new MessageEmbed()
+                            .setColor('#e91e63')
+                            .setTitle('Report rejected, user is notified and unmuted')
+                            .addField('Message', interaction.message.embeds[0].fields[0].value)
+                            .addField('User', interaction.message.embeds[0].fields.filter(field => field.name === 'User').map(field => field.value)[0])
+                            .setDescription(`Rejected by <@${interaction.member.id}>`);
+                    channel.send({ embeds: [investigationNotice], components: [investigationNoticeButtons] }).catch(console.error);
+                }
+                sendMessageToChannel(alert.channelId);
+            }));
             interaction.message.edit(
                 {
-                    content: `Report rejected by <@${interaction.member.id}>`,
+                    content: actionMessage,
                     embeds: [updatedEmbed],
                     components: []
                 })
