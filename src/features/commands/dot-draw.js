@@ -33,7 +33,7 @@ module.exports = {
             return;
         }
 
-        image = await drawDot(text),
+        const image = await drawDot(text),
             attachment = new MessageAttachment(image, 'dot.png');
 
         await interaction.reply({
