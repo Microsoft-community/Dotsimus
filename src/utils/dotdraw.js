@@ -22,7 +22,7 @@ async function drawDot (text, color = [0, 0, 0]) {
     const htmlColor = rgbToHex(color);
 
     dimensions = [];
-    context.font = getFontSize(context, boxDelta, config.font, text, dimensions);
+    context.font = getFontSize(context, boxDelta, config.font.name, text, dimensions);
     context.fillStyle = htmlColor;
 
     // calculate the position to make the text centered to the box area
@@ -53,7 +53,7 @@ function getFontSize (context, boxDelta, font, text, dimensions) {
 
     do {
         fontSize = nextSize;
-        context.font = `${fontSize}px ${font}`;
+        context.font = `${fontSize}px \"${font}\"`;
         nextSize -= config.reduceSize;
 
         measured = context.measureText(text);
@@ -103,12 +103,29 @@ function getBoxDelta (boxArea) {
     ];
 }
 
+class NormalFont {
+    constructor(name) {
+        this.name = name;
+    }
+}
+
+class CustomFont {
+    constructor(path, name) {
+        this.path = path;
+        this.name = name;
+    }
+}
+
 const config = {
     template: '../../assets/img/template.png',
     // [minArea] [maxArea]
     boxArea: [[775, 75], [1455, 530]],
     reduceSize: 10,
-    font: 'sans-serif'
+    font: new CustomFont('../../assets/fonts/whitney-book.ttf', 'Whitney Book')
+}
+
+if (config.font instanceof CustomFont) {
+    Canvas.registerFont(path.join(__dirname, config.font.path), { family: config.font.name });
 }
 
 module.exports = {

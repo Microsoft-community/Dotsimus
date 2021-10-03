@@ -22,8 +22,18 @@ module.exports = {
             });
             return;
         }
-        const text = interaction.options._hoistedOptions[0].value,
-            image = await drawDot(text),
+        const text = interaction.options._hoistedOptions[0].value;
+        if (text.length > 30) {
+            const ohSimusAsset = new MessageAttachment('./src/assets/images/ohsimus.png');
+            interaction.reply({
+                content: 'Oh snap! It looks like there are too many characters to draw.',
+                files: [ohSimusAsset],
+                ephemeral: true
+            });
+            return;
+        }
+
+        const image = await drawDot(text),
             attachment = new MessageAttachment(image, 'dot.png');
 
         await interaction.reply({
