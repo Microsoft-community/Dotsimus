@@ -23,7 +23,7 @@ module.exports = {
             return;
         }
         const text = interaction.options._hoistedOptions[0].value;
-        if (text.length > 50) {
+        if (text.length > 30) {
             const ohSimusAsset = new MessageAttachment('./src/assets/images/ohsimus.png');
             interaction.reply({
                 content: 'Refrain from using too many characters.',
