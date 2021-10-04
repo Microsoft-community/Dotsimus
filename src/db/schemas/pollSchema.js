@@ -2,5 +2,5 @@ const mongoose = require('mongoose')
 
 module.exports = new mongoose.Schema({
     serverId: String,
-    polls: { pollId: String, pollTitle: String, pollCreatorId: String }
+    polls: { pollId: String, pollTitle: String, pollCreatorId: String, pollCreatedTimestamp: String }
 })

@@ -79,7 +79,7 @@ module.exports = {
                         .addField("Choices", pollChoices.map(choice => `⦿ ${choice}: **0**`).join('\n'))
                         .addField("Last refresh", `<t:${apiDateToTimestamp(Date.now())}:R>`)
                         .setFooter(`Poll ID: ${response.pollId}`, interaction.guild.iconURL({ format: "webp" }));
-                    db.createPoll(interaction.guild.id, { "pollId": response.pollId, "pollTitle": pollTitle, "pollCreatorId": interaction.member.user.id }).then(resp => {
+                    db.createPoll(interaction.guild.id, { "pollId": response.pollId, "pollTitle": pollTitle, "pollCreatorId": interaction.member.user.id, "pollCreatedTimestamp": Date.now().toString() }).then(resp => {
                         const Buttons = new MessageActionRow()
                             .addComponents(
                                 new MessageButton()
@@ -120,7 +120,7 @@ module.exports = {
                         listEmbed = new MessageEmbed()
                             .setColor('#0099ff')
                             .setTitle(`Created polls (${poll.length})`)
-                            .setDescription(poll.map((pollArr) => `⦿ [${pollArr.pollTitle}](https://strawpoll.com/${pollArr.pollId}) - ${pollArr.pollId}`).join('\n'));
+                            .setDescription(poll.map((pollArr) => `⦿ [${pollArr.pollTitle}](https://strawpoll.com/${pollArr.pollId}) - ${pollArr.pollId} - <t:${Math.round(pollArr.pollCreatedTimestamp / 1000)}:R>`).join('\n'));
                     interaction.reply({
                         embeds: [listEmbed],
                         ephemeral: true,
