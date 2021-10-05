@@ -95,8 +95,8 @@ const refreshServersConfigListing = () => {
   })
   serversConfig = serversConfigStore;
 }
-let watchedKeywordsCollection = db.getWatchedKeywords(),
-  activeUsersCollection = [];
+// let watchedKeywordsCollection = db.getWatchedKeywords(),
+ let activeUsersCollection = [];
 
 client.on('ready', () => {
   console.info(chalk.green(`Logged in as ${client.user.tag}!`));
@@ -116,9 +116,9 @@ client.on('interactionCreate', async interaction => {
     console.error(error);
   }
 });
-const refreshWatchedCollection = () => (
-  watchedKeywordsCollection = db.getWatchedKeywords()
-)
+// const refreshWatchedCollection = () => (
+//   watchedKeywordsCollection = db.getWatchedKeywords()
+// )
 
 client.on('typingStart', ({ channel, user }) => {
   if (channel.type === "dm") return;
@@ -179,7 +179,7 @@ client.on('messageCreate', message => {
       isNew: Math.round(new Date() - message.member.joinedAt) / (1000 * 60 * 60 * 24) <= 7,
       isRegular: Math.round(new Date() - message.member.joinedAt) / (1000 * 60 * 60 * 24) >= 30,
     };
-  watchedKeywordsCollection.then(entireCollection => {
+  db.getWatchedKeywords().then(entireCollection => {
     entireCollection.filter(watchedKeywordsCollection => watchedKeywordsCollection.serverId === server.id).map(watchedKeywordsGuild => {
       const words = watchedKeywordsGuild.watchedWords;
       const isWatcherActive = activeUsersCollection.filter(userActivity => userActivity.userId === watchedKeywordsGuild.userId).filter(function (serverFilter) {
@@ -191,7 +191,7 @@ client.on('messageCreate', message => {
           const guild = client.guilds.cache.get(server.id);
           if (!guild.members.cache.get(watchedKeywordsGuild.userId)) {
             db.removeWatchedKeyword(watchedKeywordsGuild.userId, server.id).then(resp => {
-              refreshWatchedCollection()
+              // refreshWatchedCollection()
               console.info('Removed watcher: ' + watchedKeywordsGuild.userId)
               return;
             })
@@ -217,12 +217,10 @@ client.on('messageCreate', message => {
                   .setTimestamp()
                   .setFooter(`Stop tracking with !unwatch command in ${server.name} server.`)
                   .setColor('#7289da');
-              // enabled informative tracking for everyone
-              refreshWatchedCollection() // TODO: make a proper fix for this
               user.send((message.channel.permissionsFor(watchedKeywordsGuild.userId).has(Permissions.FLAGS.KICK_MEMBERS) || message.channel.permissionsFor(watchedKeywordsGuild.userId).has(Permissions.FLAGS.BAN_MEMBERS)) ? { embeds: [trackingNoticeMod] } : { embeds: [trackingNoticeMod] }).catch(error => {
                 console.info(`Could not send DM to ${watchedKeywordsGuild.userId}, tracking is being disabled.`);
                 db.removeWatchedKeyword(watchedKeywordsGuild.userId, server.id).then(resp => {
-                  refreshWatchedCollection()
+                  // refreshWatchedCollection()
                 })
               });
             } catch (error) {
