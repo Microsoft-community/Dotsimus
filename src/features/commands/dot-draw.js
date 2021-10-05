@@ -13,7 +13,7 @@ module.exports = {
                 .setRequired(true)
         ),
     async execute (client, interaction) {
-        if (!interaction.member.permissions.has(Permissions.FLAGS.MANAGE_MESSAGES) || !interaction.member.id === process.env.OWNER) {
+        if (!interaction.member.permissions.has(Permissions.FLAGS.MANAGE_MESSAGES) && interaction.member.id !== process.env.OWNER && interaction.guild.id !== '553939036490956801') {
             const ohSimusAsset = new MessageAttachment('./src/assets/images/ohsimus.png');
             interaction.reply({
                 content: 'Oh snap! You don\'t have sufficient permissions to execute this command.',
