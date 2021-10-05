@@ -9,19 +9,19 @@ const {
   MessageButton
 } = require('discord.js'),
   client = new Client(
-    { 
-//       Temporarily disabled due to breaking /watch functionality
-//       makeCache: Options.cacheWithLimits({
-//         MessageManager: 200, 
-//         // UserManager: 100,
-//         // GuildMemberManager: 100,
-//         PresenceManager: 0,
-//         // GuildChannelManager: 0,
-//         ReactionManager: 0,
-//         ThreadManager: 0
-//       }),
-      intents: ["GUILDS", "GUILD_MESSAGES", "DIRECT_MESSAGES", "GUILD_MESSAGE_TYPING", "GUILD_PRESENCES"], partials: ["CHANNEL"] 
-  });
+    {
+      //       Temporarily disabled due to breaking /watch functionality
+      //       makeCache: Options.cacheWithLimits({
+      //         MessageManager: 200, 
+      //         // UserManager: 100,
+      //         // GuildMemberManager: 100,
+      //         PresenceManager: 0,
+      //         // GuildChannelManager: 0,
+      //         ReactionManager: 0,
+      //         ThreadManager: 0
+      //       }),
+      intents: ["GUILDS", "GUILD_MESSAGES", "DIRECT_MESSAGES", "GUILD_MESSAGE_TYPING", "GUILD_PRESENCES"], partials: ["CHANNEL"]
+    });
 //   client = new Discord.Client({ partials: ['MESSAGE', "USER", 'REACTION'], intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES] }),
 const Sentry = require('@sentry/node'),
   chalk = require('chalk'),
@@ -107,7 +107,7 @@ client.on('ready', () => {
 });
 client.on('interactionCreate', async interaction => {
   try {
-    if(interaction.isSelectMenu()){
+    if (interaction.isSelectMenu()) {
       client.commands.get(interaction.customId)?.execute(client, interaction)
     }
     !interaction.isButton() ? client.commands.get(interaction.commandName)?.execute(client, interaction, activeUsersCollection) : client.commands.get(interaction.customId)?.execute(client, interaction, activeUsersCollection);
@@ -289,7 +289,8 @@ client.on('messageCreate', message => {
                 .setFooter(`${message.channel.id} ${sentMessage.id}`);
 
               const embedArray = [investigationEmbed];
-              let attachmentCount = 0;
+              let attachmentCount = 0,
+                itemsProcessed = 0;
               removedMessageAttachmentArray.forEach(attachmentUrl => {
                 let urlSplits = attachmentUrl.split('/');
                 let attachmentEmbed = new MessageEmbed()
@@ -334,40 +335,10 @@ client.on('messageCreate', message => {
                 { name: 'Total infractions', value: `${totalInfractions >= 1 ? totalInfractions : 'No infractions present.'}`, inline: true },
                 { name: 'Channel', value: `<#${message.channel.id}> | 🔗 [Message link](${sentMessage.url})` }
               )
-              // respond to shut up dotsimus
               // alertRecipient = alert.channelId === '792393096020885524' ? `<@${process.env.OWNER}>` : '@here';
-              if (matchingThread !== undefined) {
-                await matchingThread.setArchived(false)
-                thread = matchingThread
-                if (channelMembersWithAccess.map(user => user).length > 0) {
-                  channelMembersWithAccess.forEach(moderator => thread.members.add(moderator))
-                } else {
-                  channelMembersWithAccessAll.forEach(moderator => thread.members.add(moderator))
-                }
-                await thread.send({
-                  content: '@here',
-                  embeds: embedArray,
-                  components: [reportActions]
-                }).then(async sentReport => {
-                  const pins = await thread.messages.fetchPinned().then(pinned => {
-                    return pinned
-                  })
-                  if (pins.size >= 49) pins.last().unpin();
-                  sentReport.pin(true)
-                }).catch(console.error);
-
-              } else {
-                serverThreads.create({
-                  name: `${message.author.username.slice(0, 10)} ${message.author.id}`,
-                  autoArchiveDuration: 1440,
-                  reason: `Infraction received for user ${message.author.id}`,
-                }).then(async newThread => {
-                  thread = newThread
-                  if (channelMembersWithAccess.map(user => user).length > 0) {
-                    channelMembersWithAccess.forEach(moderator => thread.members.add(moderator))
-                  } else {
-                    channelMembersWithAccessAll.forEach(moderator => thread.members.add(moderator))
-                  }
+              const sendReport = (selectedThreadMods, thread) => {
+                itemsProcessed++
+                if (itemsProcessed === selectedThreadMods.size) {
                   thread.send({
                     content: '@here',
                     embeds: embedArray,
@@ -379,6 +350,36 @@ client.on('messageCreate', message => {
                     if (pins.size >= 49) pins.last().unpin();
                     sentReport.pin(true)
                   }).catch(console.error);
+                }
+              }
+              if (matchingThread !== undefined) {
+                await matchingThread.setArchived(false)
+                thread = matchingThread
+                if (channelMembersWithAccess.map(user => user).length > 0) {
+                  channelMembersWithAccess.forEach(moderator => {
+                    thread.members.add(moderator).then(() => sendReport(channelMembersWithAccess, thread))
+                  })
+                } else {
+                  channelMembersWithAccessAll.forEach(moderator => {
+                    thread.members.add(moderator).then(() => sendReport(channelMembersWithAccessAll, thread))
+                  })
+                }
+              } else {
+                serverThreads.create({
+                  name: `${message.author.username.slice(0, 10)} ${message.author.id}`,
+                  autoArchiveDuration: 1440,
+                  reason: `Infraction received for user ${message.author.id}`,
+                }).then(async newThread => {
+                  thread = newThread
+                  if (channelMembersWithAccess.map(user => user).length > 0) {
+                    channelMembersWithAccess.forEach(moderator =>
+                      thread.members.add(moderator).then(() => sendReport(channelMembersWithAccess, thread))
+                    )
+                  } else {
+                    channelMembersWithAccessAll.forEach(moderator =>
+                      thread.members.add(moderator).then(() => sendReport(channelMembersWithAccessAll, thread))
+                    )
+                  }
                 })
               }
             })
@@ -388,7 +389,7 @@ client.on('messageCreate', message => {
 
       if ((((messageToxicity >= .85 || toxicity.insult >= .95) && user.isNew) || (messageToxicity >= .85 || toxicity.combined >= .85))) {
         // console.info(`${getTime()} #${message.channel.name} ${message.author.username}: ${message.content} | ${chalk.red((Number(messageToxicity) * 100).toFixed(2))} ${chalk.red((Number(toxicity.insult) * 100).toFixed(2))}`)
-        if (Math.random() < 0.8) message.channel.sendTyping();
+        if (Math.random() < 0.5) message.channel.sendTyping();
         const evaluatedMessages = [];
         async function getLatestUserMessages (userId) {
           await message.channel.messages.fetch({
@@ -492,19 +493,19 @@ client.on('messageCreate', message => {
       case 'watch':
       case 'track':
         const watchCommandSlashMigrationNoticeEmbed = new MessageEmbed()
-	           .setColor('#0099ff')
-	           .setTitle('The !watch (or !track) command has been migrated to a new home!')
-	           .setDescription('You can now use it along with other slash commands.\nType `/watch add` to use it.')
-	           .setTimestamp();
+          .setColor('#0099ff')
+          .setTitle('The !watch (or !track) command has been migrated to a new home!')
+          .setDescription('You can now use it along with other slash commands.\nType `/watch add` to use it.')
+          .setTimestamp();
         message.channel.send({ embeds: [watchCommandSlashMigrationNoticeEmbed] });
         break;
       case 'unwatch':
       case 'untrack':
         const watchCommandSlashMigrationNoticeEmbed1 = new MessageEmbed()
-	           .setColor('#0099ff')
-	           .setTitle('The !unwatch (or !untrack) command has been migrated to a new home!')
-	           .setDescription('You can now use it along with other slash commands.\nType `/watch remove` to use it in an overhauled way.')
-	           .setTimestamp();
+          .setColor('#0099ff')
+          .setTitle('The !unwatch (or !untrack) command has been migrated to a new home!')
+          .setDescription('You can now use it along with other slash commands.\nType `/watch remove` to use it in an overhauled way.')
+          .setTimestamp();
         message.channel.send({ embeds: [watchCommandSlashMigrationNoticeEmbed1] });
         break;
       case 'repeat':
@@ -597,4 +598,4 @@ client.on('messageCreate', message => {
       return { toxicity: NaN, insult: NaN, combined: NaN }
     }
   }
-}) 
+})
