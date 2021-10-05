@@ -218,6 +218,7 @@ client.on('messageCreate', message => {
                   .setFooter(`Stop tracking with !unwatch command in ${server.name} server.`)
                   .setColor('#7289da');
               // enabled informative tracking for everyone
+              refreshWatchedCollection() // TODO: make a proper fix for this
               user.send((message.channel.permissionsFor(watchedKeywordsGuild.userId).has(Permissions.FLAGS.KICK_MEMBERS) || message.channel.permissionsFor(watchedKeywordsGuild.userId).has(Permissions.FLAGS.BAN_MEMBERS)) ? { embeds: [trackingNoticeMod] } : { embeds: [trackingNoticeMod] }).catch(error => {
                 console.info(`Could not send DM to ${watchedKeywordsGuild.userId}, tracking is being disabled.`);
                 db.removeWatchedKeyword(watchedKeywordsGuild.userId, server.id).then(resp => {
