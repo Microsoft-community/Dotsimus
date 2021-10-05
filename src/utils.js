@@ -107,7 +107,7 @@ const updateResults = (interaction, embed) => {
             stringEmbed += `⦿ ${response.pollAnswersArray[i].answer}: **${response.pollAnswersArray[i].votes}**\n`;
         }
         pollEmbed.fields[0].value = stringEmbed;
-        pollEmbed.fields[1].value = `<t:${apiDateToTimestamp(Date.now())}:R>`;
+        pollEmbed.fields[1].value = `<t:${apiDateToTimestamp(Date.now())}:R> by ${interaction.member}`;
         interaction.message ? interaction.message.edit({ embeds: [pollEmbed] }) : interaction.editReply({ embeds: [pollEmbed] });
     });
 };
