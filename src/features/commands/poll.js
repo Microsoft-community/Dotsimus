@@ -156,6 +156,8 @@ module.exports = {
                             data: { labels: answers, datasets: [{ label: 'Votes', data: votes }] },
                         });
 
+                        quickChartClient.setWidth(500 + (Math.max(...votes) * 100));
+
                         quickChartClient.setBackgroundColor("#ffffff");
 
                         const resultsEmbed = new MessageEmbed()
