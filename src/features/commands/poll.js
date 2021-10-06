@@ -69,6 +69,7 @@ module.exports = {
             });
         }
 
+        await interaction.deferReply();
         switch (interaction.options._subcommand) {
             case "create":
                 const multipleAnswersAllowed = interaction.options.getBoolean('allow-multiple-answers', true);
@@ -92,7 +93,7 @@ module.exports = {
                                     .setStyle('PRIMARY')
                             );
 
-                        interaction.reply({
+                        interaction.editReply({
                             embeds: [publicPollEmbed],
                             components: [Buttons]
                         });
@@ -110,7 +111,7 @@ module.exports = {
             case "list":
                 db.getPolls(interaction.guild.id).then(polls => {
                     if (!polls.length) {
-                        interaction.reply({
+                        interaction.editReply({
                             content: 'There are no polls in this server.',
                             ephemeral: true
                         });
@@ -119,9 +120,9 @@ module.exports = {
                     const poll = polls[0].polls,
                         listEmbed = new MessageEmbed()
                             .setColor('#0099ff')
-                            .setTitle(`Created polls (${poll.length})`)
-                            .setDescription(poll.map((pollArr) => `⦿ [${pollArr.pollTitle}](https://strawpoll.com/${pollArr.pollId}) - ${pollArr.pollId} - <t:${Math.round(pollArr.pollCreatedTimestamp / 1000)}:R>`).join('\n'));
-                    interaction.reply({
+                            .setTitle(`Created polls (${title.length})`)
+                            .setDescription(poll.map((pollArr) => `⦿ [${pollArr.pollTitle}](https://strawpoll.com/${pollArr.pollId}/r) - ${pollArr.pollId}`).join('\n'));
+                    interaction.editReply({
                         embeds: [listEmbed],
                         ephemeral: true,
                     })
@@ -132,7 +133,7 @@ module.exports = {
 
                 db.getPolls(interaction.guild.id).then(polls => {
                     if (!polls.length) {
-                        interaction.reply({
+                        interaction.editReply({
                             content: 'There are no polls in this server.',
                             ephemeral: true
                         });
@@ -166,10 +167,10 @@ module.exports = {
                             )
                             .setImage(quickChartClient.getUrl());
 
-                        interaction.reply({ embeds: [resultsEmbed] });
+                        interaction.editReply({ embeds: [resultsEmbed] });
                     }).catch(err => {
                         const ohSimusAsset = new MessageAttachment('./src/assets/images/ohsimus.png');
-                        interaction.reply({ content: "Something went wrong.", ephemeral: true, files: [ohSimusAsset] });
+                        interaction.editReply({ content: "Something went wrong.", ephemeral: true, files: [ohSimusAsset] });
                     });
                 });
                 break;

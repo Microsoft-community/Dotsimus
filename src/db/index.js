@@ -92,13 +92,13 @@ module.exports = {
       throw 'Failed to add a toxicity record.'
     })
   },
-  getWatchedKeywords: async function (userId, serverId) {
+  getWatchedKeywords: cachify(async function (userId, serverId) {
     if (userId && serverId) {
       return await WatchKeyword.find({ userId, serverId }).lean()
     } else {
       return await WatchKeyword.find({}).lean();
     }
-  },
+  }),
   watchKeyword: function (userId, serverId, watchedWords) {
     const query = { userId, serverId }
     return new Promise((resolve, reject) => {
