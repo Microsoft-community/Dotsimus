@@ -208,6 +208,7 @@ client.on('messageCreate', message => {
                   { name: 'Author ID', value: message.author.id, inline: true },
                   { name: 'Channel', value: `${server.name}/${message.channel.name} | 🔗 [Message link](${message.url})` }
                 )
+                .setThumbnail(message.author.displayAvatarURL({ dynamic: true }))
                 .setFooter(`Stop tracking with /watch remove command in ${server.name} server.`)
               user.send((message.channel.permissionsFor(watchedKeywordsGuild.userId).has(Permissions.FLAGS.KICK_MEMBERS) || message.channel.permissionsFor(watchedKeywordsGuild.userId).has(Permissions.FLAGS.BAN_MEMBERS)) ? { embeds: [trackingNoticeMod] } : { embeds: [trackingNoticeMod] }).catch(error => {
                 console.info(`Could not send DM to ${watchedKeywordsGuild.userId}, tracking is being disabled.`);
