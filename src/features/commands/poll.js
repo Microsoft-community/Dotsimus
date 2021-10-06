@@ -70,6 +70,7 @@ module.exports = {
             });
         }
 
+        await interaction.deferReply();
         switch (interaction.options._subcommand) {
             case "create":
                 const multipleAnswersAllowed = interaction.options.getBoolean('allow-multiple-answers', true);
@@ -93,7 +94,7 @@ module.exports = {
                                     .setStyle('PRIMARY')
                             );
 
-                        interaction.reply({
+                        interaction.editReply({
                             embeds: [publicPollEmbed],
                             components: [Buttons]
                         });
@@ -111,7 +112,7 @@ module.exports = {
             case "list":
                 db.getPolls(interaction.guild.id).then(polls => {
                     if (!polls.length) {
-                        interaction.reply({
+                        interaction.editReply({
                             content: 'There are no polls in this server.',
                             ephemeral: true
                         });
@@ -122,7 +123,7 @@ module.exports = {
                             .setColor('#0099ff')
                             .setTitle(`Created polls (${title.length})`)
                             .setDescription(title.map((pollTitle) => `⦿ [${pollTitle.split(':')[0]}](https://strawpoll.com/${pollTitle.split(':')[1]}) - ${pollTitle.split(':')[1]}`).join('\n'));
-                    interaction.reply({
+                    interaction.editReply({
                         embeds: [listEmbed],
                         ephemeral: true,
                     })
@@ -133,7 +134,7 @@ module.exports = {
 
                 db.getPolls(interaction.guild.id).then(polls => {
                     if (!polls.length) {
-                        interaction.reply({
+                        interaction.editReply({
                             content: 'There are no polls in this server.',
                             ephemeral: true
                         });
@@ -168,10 +169,10 @@ module.exports = {
                             )
                             .setImage(quickChartClient.getUrl());
 
-                        interaction.reply({ embeds: [resultsEmbed] });
+                        interaction.editReply({ embeds: [resultsEmbed] });
                     }).catch(err => {
                         const ohSimusAsset = new MessageAttachment('./src/assets/images/ohsimus.png');
-                        interaction.reply({ content: "Something went wrong.", ephemeral: true, files: [ohSimusAsset] });
+                        interaction.editReply({ content: "Something went wrong.", ephemeral: true, files: [ohSimusAsset] });
                     });
                 });
                 break;
