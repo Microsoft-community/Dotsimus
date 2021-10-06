@@ -70,7 +70,7 @@ module.exports = {
             });
         }
 
-        await interaction.deferReply();
+        await interaction.deferReply({ephemeral: true});
         switch (interaction.options._subcommand) {
             case "create":
                 const multipleAnswersAllowed = interaction.options.getBoolean('allow-multiple-answers', true);
@@ -113,8 +113,7 @@ module.exports = {
                 db.getPolls(interaction.guild.id).then(polls => {
                     if (!polls.length) {
                         interaction.editReply({
-                            content: 'There are no polls in this server.',
-                            ephemeral: true
+                            content: 'There are no polls in this server.'
                         });
                         return;
                     }
@@ -124,8 +123,7 @@ module.exports = {
                             .setTitle(`Created polls (${title.length})`)
                             .setDescription(title.map((pollTitle) => `⦿ [${pollTitle.split(':')[0]}](https://strawpoll.com/${pollTitle.split(':')[1]}/r) - ${pollTitle.split(':')[1]}`).join('\n'));
                     interaction.editReply({
-                        embeds: [listEmbed],
-                        ephemeral: true,
+                        embeds: [listEmbed]
                     })
                 });
                 break;
@@ -172,7 +170,7 @@ module.exports = {
                         interaction.editReply({ embeds: [resultsEmbed], ephemeral: true });
                     }).catch(err => {
                         const ohSimusAsset = new MessageAttachment('./src/assets/images/ohsimus.png');
-                        interaction.editReply({ content: "Something went wrong.", ephemeral: true, files: [ohSimusAsset] });
+                        interaction.editReply({ content: "Something went wrong.", files: [ohSimusAsset] });
                     });
                 });
                 break;
