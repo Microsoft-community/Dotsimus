@@ -208,15 +208,7 @@ client.on('messageCreate', message => {
                   { name: 'Author ID', value: message.author.id, inline: true },
                   { name: 'Channel', value: `${server.name}/${message.channel.name} | 🔗 [Message link](${message.url})` }
                 )
-                .setTimestamp()
-                .setFooter(`Stop tracking with !unwatch command in ${server.name} server.`)
-                .setColor('#7289da'),
-                trackingNoticeUser = new MessageEmbed()
-                  .setTitle(`❗ Tracked keyword triggered`)
-                  .setDescription(`**"${word}"** mentioned in [**${server.name}/${message.channel.name}**.](${message.url})`)
-                  .setTimestamp()
-                  .setFooter(`Stop tracking with !unwatch command in ${server.name} server.`)
-                  .setColor('#7289da');
+                .setFooter(`Stop tracking with /watch remove command in ${server.name} server.`)
               user.send((message.channel.permissionsFor(watchedKeywordsGuild.userId).has(Permissions.FLAGS.KICK_MEMBERS) || message.channel.permissionsFor(watchedKeywordsGuild.userId).has(Permissions.FLAGS.BAN_MEMBERS)) ? { embeds: [trackingNoticeMod] } : { embeds: [trackingNoticeMod] }).catch(error => {
                 console.info(`Could not send DM to ${watchedKeywordsGuild.userId}, tracking is being disabled.`);
                 db.removeWatchedKeyword(watchedKeywordsGuild.userId, server.id).then(resp => {
