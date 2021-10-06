@@ -112,4 +112,18 @@ const updateResults = (interaction, embed) => {
     });
 };
 
-module.exports = { getTime, toxicityReport, getStatusColor, capitalizeFirstLetter, getDate, getDaysSince, collectCommandAnalytics, apiDateToTimestamp, updateResults };
+const getRandomColor = (stringInput) => {
+    const h = [...stringInput].reduce((acc, char) => {
+        return char.charCodeAt(0) + ((acc << 5) - acc);
+    }, 0),
+        s = 95, l = 35 / 100,
+        a = s * Math.min(l, 1 - l) / 100,
+        f = n => {
+            const k = (n + h / 30) % 12,
+                color = l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
+            return Math.round(255 * color).toString(16).padStart(2, '0');
+        };
+    return `#${f(0)}${f(8)}${f(4)}`;
+}
+
+module.exports = { getTime, toxicityReport, getStatusColor, capitalizeFirstLetter, getDate, getDaysSince, collectCommandAnalytics, apiDateToTimestamp, updateResults, getRandomColor };

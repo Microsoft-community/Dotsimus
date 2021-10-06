@@ -28,7 +28,7 @@ const Sentry = require('@sentry/node'),
   fetch = require('request-promise-native'),
   db = require('./db'),
   perspective = require('./api/perspective'),
-  { getTime, collectCommandAnalytics } = require('./utils'),
+  { getRandomColor, collectCommandAnalytics } = require('./utils'),
   fs = require('fs'),
   commandFiles = fs.readdirSync('./src/features/commands/').filter(file => file.endsWith('.js')),
   buttonFiles = fs.readdirSync('./src/features/commands/buttons/').filter(file => file.endsWith('.js')),
@@ -96,7 +96,7 @@ const refreshServersConfigListing = () => {
   serversConfig = serversConfigStore;
 }
 // let watchedKeywordsCollection = db.getWatchedKeywords(),
- let activeUsersCollection = [];
+let activeUsersCollection = [];
 
 client.on('ready', () => {
   console.info(chalk.green(`Logged in as ${client.user.tag}!`));
@@ -210,6 +210,7 @@ client.on('messageCreate', message => {
                 )
                 .setThumbnail(message.author.displayAvatarURL({ dynamic: true }))
                 .setFooter(`Stop tracking with /watch remove command in ${server.name} server.`)
+                .setColor(getRandomColor(guild.members.cache.get(watchedKeywordsGuild.userId).displayName));
               user.send((message.channel.permissionsFor(watchedKeywordsGuild.userId).has(Permissions.FLAGS.KICK_MEMBERS) || message.channel.permissionsFor(watchedKeywordsGuild.userId).has(Permissions.FLAGS.BAN_MEMBERS)) ? { embeds: [trackingNoticeMod] } : { embeds: [trackingNoticeMod] }).catch(error => {
                 console.info(`Could not send DM to ${watchedKeywordsGuild.userId}, tracking is being disabled.`);
                 db.removeWatchedKeyword(watchedKeywordsGuild.userId, server.id).then(resp => {
