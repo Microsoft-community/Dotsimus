@@ -169,7 +169,7 @@ module.exports = {
                             )
                             .setImage(quickChartClient.getUrl());
 
-                        interaction.editReply({ embeds: [resultsEmbed] });
+                        interaction.editReply({ embeds: [resultsEmbed], ephemeral: true });
                     }).catch(err => {
                         const ohSimusAsset = new MessageAttachment('./src/assets/images/ohsimus.png');
                         interaction.editReply({ content: "Something went wrong.", ephemeral: true, files: [ohSimusAsset] });
