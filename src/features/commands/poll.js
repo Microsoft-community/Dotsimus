@@ -70,7 +70,7 @@ module.exports = {
             });
         }
 
-        await interaction.deferReply({ephemeral: true});
+        await interaction.deferReply( {ephemeral: (interaction.options._subcommand === "list" ? true : false)} );
         switch (interaction.options._subcommand) {
             case "create":
                 const multipleAnswersAllowed = interaction.options.getBoolean('allow-multiple-answers', true);
