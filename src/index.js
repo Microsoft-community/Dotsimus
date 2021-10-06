@@ -210,7 +210,7 @@ client.on('messageCreate', message => {
                 )
                 .setThumbnail(message.author.displayAvatarURL({ dynamic: true }))
                 .setFooter(`Stop tracking with /watch remove command in ${server.name} server.`)
-                .setColor(getRandomColor(guild.members.cache.get(watchedKeywordsGuild.userId).displayName));
+                .setColor(getRandomColor(guild.members.cache.get(message.author.id).displayName));
               user.send((message.channel.permissionsFor(watchedKeywordsGuild.userId).has(Permissions.FLAGS.KICK_MEMBERS) || message.channel.permissionsFor(watchedKeywordsGuild.userId).has(Permissions.FLAGS.BAN_MEMBERS)) ? { embeds: [trackingNoticeMod] } : { embeds: [trackingNoticeMod] }).catch(error => {
                 console.info(`Could not send DM to ${watchedKeywordsGuild.userId}, tracking is being disabled.`);
                 db.removeWatchedKeyword(watchedKeywordsGuild.userId, server.id).then(resp => {
