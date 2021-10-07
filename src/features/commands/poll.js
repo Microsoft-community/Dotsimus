@@ -133,8 +133,7 @@ module.exports = {
                 db.getPolls(interaction.guild.id).then(polls => {
                     if (!polls.length) {
                         interaction.editReply({
-                            content: 'There are no polls in this server.',
-                            ephemeral: true
+                            content: 'There are no polls in this server.'
                         });
                         return;
                     }
@@ -167,7 +166,7 @@ module.exports = {
                             )
                             .setImage(quickChartClient.getUrl());
 
-                        interaction.editReply({ embeds: [resultsEmbed], ephemeral: true });
+                        interaction.editReply({ embeds: [resultsEmbed] });
                     }).catch(err => {
                         const ohSimusAsset = new MessageAttachment('./src/assets/images/ohsimus.png');
                         interaction.editReply({ content: "Something went wrong.", files: [ohSimusAsset] });
