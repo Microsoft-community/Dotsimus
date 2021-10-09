@@ -126,4 +126,16 @@ const getRandomColor = (stringInput) => {
     return `#${f(0)}${f(8)}${f(4)}`;
 }
 
-module.exports = { getTime, toxicityReport, getStatusColor, capitalizeFirstLetter, getDate, getDaysSince, collectCommandAnalytics, apiDateToTimestamp, updateResults, getRandomColor };
+class ArraySet extends Set {
+    add (array) {
+        super.add(array.toString());
+    }
+    has (array) {
+        return super.has(array.toString());
+    }
+    delete (array) {
+        return super.delete(array.toString());
+    }
+}
+
+module.exports = { getTime, toxicityReport, getStatusColor, capitalizeFirstLetter, getDate, getDaysSince, collectCommandAnalytics, apiDateToTimestamp, updateResults, getRandomColor, ArraySet};
