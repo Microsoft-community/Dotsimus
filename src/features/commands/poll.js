@@ -120,7 +120,7 @@ module.exports = {
                     const poll = polls[0].polls,
                         listEmbed = new MessageEmbed()
                             .setColor('#0099ff')
-                            .setTitle(`Created polls (${title.length})`)
+                            .setTitle(`Created polls (${poll.length})`)
                             .setDescription(poll.map((pollArr) => `⦿ [${pollArr.pollTitle}](https://strawpoll.com/${pollArr.pollId}/r) - ${pollArr.pollId}`).join('\n'));
                     interaction.editReply({
                         embeds: [listEmbed],
