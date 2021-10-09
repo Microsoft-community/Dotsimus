@@ -126,6 +126,9 @@ const getRandomColor = (stringInput) => {
     return `#${f(0)}${f(8)}${f(4)}`;
 }
 
+const generateRandomHexColor = () => {
+    return "#" + Math.floor(Math.random() * 16777215).toString(16).padEnd(6, '0');
+};
 class ArraySet extends Set {
     add (array) {
         super.add(array.toString());
@@ -138,4 +141,4 @@ class ArraySet extends Set {
     }
 }
 
-module.exports = { getTime, toxicityReport, getStatusColor, capitalizeFirstLetter, getDate, getDaysSince, collectCommandAnalytics, apiDateToTimestamp, updateResults, getRandomColor, ArraySet};
+module.exports = { getTime, toxicityReport, getStatusColor, capitalizeFirstLetter, getDate, getDaysSince, collectCommandAnalytics, apiDateToTimestamp, updateResults, getRandomColor, generateRandomHexColor, ArraySet};
