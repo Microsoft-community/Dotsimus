@@ -1,8 +1,7 @@
 const { SlashCommandBuilder } = require('@discordjs/builders'),
     { MessageEmbed } = require('discord.js'),
-    { fetchRules } = require('./../../api/discord-gating');
-
-
+    { fetchRules } = require('./../../api/discord-gating'),
+    stringToBoolean = (string) => string == 'false' ? false : !!string;
 
 module.exports = {
     type: 'slash',
@@ -24,12 +23,25 @@ module.exports = {
                 .addStringOption(option =>
                     option.setName('keyword')
                         .setDescription('Type in keyword.')
-                        .setRequired(true)))
+                        .setRequired(true)
+                )
+                .addStringOption(option =>
+                    option.setName('visibility')
+                        .setDescription('Allows you to choose whether message is visible to everyone or just to you.')
+                        .setRequired(false)
+                        .addChoice('Private', 'true')
+                        .addChoice('Public', 'false')))
         .addSubcommand(subcommand =>
             subcommand
                 .setName('all')
                 // setDefaultPermission(true) waiting for this to be merged
-                .setDescription('Shows all of the community rules and guidelines.')),
+                .setDescription('Shows all of the community rules and guidelines.')
+                .addStringOption(option =>
+                    option.setName('visibility')
+                        .setDescription('Allows you to choose whether message is visible to everyone or just to you.')
+                        .setRequired(false)
+                        .addChoice('Private', 'true')
+                        .addChoice('Public', 'false'))),
     execute: async function (client, interaction) {
         const fetchedRules = await fetchRules(interaction.guildId).then(data => data)
         if (fetchedRules === 0) {
@@ -65,6 +77,7 @@ module.exports = {
                     }
                     break;
                 case 'search':
+                    console.log(interaction.options);
                     const findRule = (rule, term) => {
                         term = term.toLowerCase();
                         if (rule.value.toLowerCase().search(term) !== -1 || rule.name.toLowerCase().search(term) !== -1) {
@@ -80,7 +93,8 @@ module.exports = {
                             .addFields(getSearchResults);
                         interaction.reply({
                             type: 4,
-                            embeds: [foundRules]
+                            embeds: [foundRules],
+                            ephemeral: stringToBoolean(interaction.options._hoistedOptions[1]?.value ?? false)
                         })
                     } else {
                         interaction.reply({
@@ -94,13 +108,12 @@ module.exports = {
                     const rulesAll = fetchedRules.form_fields[0].values.map((rule, index) => ({ name: 'Rule ' + (index + 1), value: rule })),
                         rulesEmbed = new MessageEmbed()
                             .setTitle(`${client.guilds.cache.get(interaction.guildId).name} rules`)
-                            .setDescription(fetchedRules.description ?? 'No description provided.')
                             .setColor('#e4717a')
-                            .setFooter('Last updated: ' + new Date(fetchedRules.version).toUTCString())
+                            .setFooter('Last updated: ' + new Date(fetchedRules.version).toUTCString(), client.guilds.cache.get(interaction.guildId).iconURL())
                             .addFields(rulesAll);
                     interaction.reply({
                         embeds: [rulesEmbed],
-                        ephemeral: true
+                        ephemeral: stringToBoolean(interaction.options._hoistedOptions[0]?.value ?? true)
                     }).catch(error => {
                         interaction.reply({
                             ephemeral: true,
