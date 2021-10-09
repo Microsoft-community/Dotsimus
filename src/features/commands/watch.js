@@ -94,7 +94,7 @@ module.exports = {
                                     listEmbed = new MessageEmbed()
                                         .setColor('#0099ff')
                                         .setTitle('Your tracked keywords for this server')
-                                        .setDescription(list.map((keyword) => `⦿ ${keyword} \n`).join(''))
+                                        .setDescription(list.map((keyword) => `⦿ ${keyword} \n`).join('') + `⦿ ${trackingWord}`)
                                         .setFooter(`${list.length === 5 ? 
                                             'You cannot track more than 5 keywords.' : 
                                             `You can track ${5 - list.length} more ${list.length >= 4 ? 'keyword' : 'keywords'}.`}\n❗️Direct messages must be enabled for this feature to work.`);
