@@ -29,7 +29,7 @@ const Sentry = require('@sentry/node'),
   fetch = require('request-promise-native'),
   db = require('./db'),
   perspective = require('./api/perspective'),
-  { getRandomColor, collectCommandAnalytics, ArraySet}  = require('./utils'),
+  { getRandomColor, collectCommandAnalytics, ArraySet } = require('./utils'),
   fs = require('fs'),
   commandFiles = fs.readdirSync('./src/features/commands/').filter(file => file.endsWith('.js')),
   buttonFiles = fs.readdirSync('./src/features/commands/buttons/').filter(file => file.endsWith('.js')),
@@ -109,6 +109,25 @@ client.on('ready', () => {
 });
 const commandsCooldownSet = new ArraySet();
 client.on('interactionCreate', async interaction => {
+  dmButtonsRow = new MessageActionRow()
+    .addComponents(
+      new MessageButton()
+        .setLabel('Join Dotsimus Server')
+        .setURL('https://discord.gg/XAFXecKFRG')
+        .setStyle('LINK'),
+      new MessageButton()
+        .setLabel('Get Dotsimus')
+        .setURL('https://discord.com/oauth2/authorize?client_id=731190736996794420&permissions=17247366359&redirect_uri=https%3A%2F%2Fdotsimus.com&response_type=code&scope=bot%20identify%20applications.commands')
+        .setStyle('LINK')
+    )
+
+  if (interaction.guildId === null) return interaction.reply({
+    content: 'Oh snap! Commands are only available within servers. You can test commands freely on Dotsimus server.',
+    ephemeral: true,
+    files: [ohSimusAsset],
+    components: [dmButtonsRow]
+  });
+  
   if (commandsCooldownSet.has([interaction.user.id, interaction.commandName])) return interaction.reply({
     content: 'Oh snap! You have already used this action or command in the last 5 seconds.',
     ephemeral: true,
