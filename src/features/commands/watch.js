@@ -89,8 +89,8 @@ module.exports = {
                     }
                     try {
                         db.watchKeyword(interaction.user.id, interaction.guild.id, trackingWord).then(resp => {
-                            refreshWatchedCollection().then(resp => db.getWatchedKeywords(interaction.user.id, interaction.guild.id).then(keywords => {
-                                const list = keywords[0].watchedWords.length > 5 ? keywords[0].watchedWords.slice(1) : keywords[0].watchedWords,
+                            refreshWatchedCollection().then(resp => db.getWatchedKeywords(interaction.user.id, interaction.guild.id).then(async keywords => {
+                                const list = await keywords[0].watchedWords.length > 5 ? keywords[0].watchedWords.slice(1) : keywords[0].watchedWords,
                                     listEmbed = new MessageEmbed()
                                         .setColor('#0099ff')
                                         .setTitle('Your tracked keywords for this server')
