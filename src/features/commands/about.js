@@ -61,9 +61,8 @@ module.exports = {
                         .addFields(
                             { name: 'Dotsimus servers', value: `${guilds.size}`, inline: true },
                             { name: 'Dotsimus users', value: `${new Intl.NumberFormat().format(addUpJSONData(guilds.map(guild => guild.memberCount)))}`, inline: true },
-                            { name: 'Slash commands', value: 'You can see available slash commands and their use by typing `/` in the chat.', inline: false },
-                            { name: '!repeat', value: 'Admin only command which repeats what you say. \nUsage: `!repeat <phrase>`' },
-                            { name: '!dotprefix', value: 'Changes bot prefix. \nUsage: `!dotprefix <prefix>`' }
+                            { name: 'Bot commands', value: 'You can see available commands and their use by typing `/` in the chat.', inline: false },
+                            { name: 'Dotsimus website', value: 'https://Dotsimus.com', inline: false }
                         );
                 if (process.env.DEVELOPMENT !== 'true') api.postStats({
                     serverCount: guilds.size
