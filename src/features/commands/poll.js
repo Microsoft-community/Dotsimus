@@ -1,16 +1,17 @@
-const { apiDateToTimestamp, updateResults } = require("../../utils"),
- {
-    MessageActionRow,
-    MessageButton,
-    MessageEmbed,
-    MessageAttachment
-} = require('discord.js'),
+const { apiDateToTimestamp, updateResults, generateRandomHexColor } = require("../../utils"),
+    {
+        MessageActionRow,
+        MessageButton,
+        MessageEmbed,
+        MessageAttachment
+    } = require('discord.js'),
     {
         SlashCommandBuilder
     } = require('@discordjs/builders'),
     db = require('../../db'),
     strawpoll = require('../../api/strawpoll'),
     QuickChart = require('quickchart-js');
+
 
 module.exports = {
     type: 'slash',
@@ -53,8 +54,8 @@ module.exports = {
                 .setDescription('Displays results of a poll.')
                 .addStringOption(option => option.setName("poll-id").setDescription("The poll ID to get results from.").setRequired(true))),
     async execute (client, interaction) {
-        const pollTitle = interaction.options.getString("title");
-        const pollChoices = [interaction.options.getString("choice-a"), interaction.options.getString("choice-b"), interaction.options.getString("choice-c"), interaction.options.getString("choice-d"), interaction.options.getString("choice-e")].filter((a) => a);
+        const pollTitle = interaction.options.getString("title"),
+            pollChoices = [interaction.options.getString("choice-a"), interaction.options.getString("choice-b"), interaction.options.getString("choice-c"), interaction.options.getString("choice-d"), interaction.options.getString("choice-e")].filter((a) => a);
 
         if (!interaction.guild) {
             interaction.reply({ content: 'You can only use this command in servers!', ephemeral: true });
@@ -76,7 +77,7 @@ module.exports = {
                 const multipleAnswersAllowed = interaction.options.getBoolean('allow-multiple-answers', true);
                 strawpoll.createStrawpoll(pollTitle, pollChoices, multipleAnswersAllowed).then(response => {
                     const publicPollEmbed = new MessageEmbed()
-                        .setColor("#0099ff")
+                        .setColor(generateRandomHexColor())
                         .setTitle(`Poll: ${pollTitle}`)
                         .addField("Choices", pollChoices.map(choice => `⦿ ${choice}: **0**`).join('\n'))
                         .addField("Last refresh", `<t:${apiDateToTimestamp(Date.now())}:R>`)
@@ -99,7 +100,7 @@ module.exports = {
                             components: [Buttons]
                         });
                     });
-                    let time = 15; 
+                    let time = 15;
                     const timeValue = setInterval((interval) => {
                         updateResults(interaction, publicPollEmbed)
                         time = time - 1;
@@ -120,7 +121,7 @@ module.exports = {
                     }
                     const title = polls[0].polls,
                         listEmbed = new MessageEmbed()
-                            .setColor('#0099ff')
+                            .setColor(generateRandomHexColor())
                             .setTitle(`Created polls (${title.length})`)
                             .setDescription(title.map((pollTitle) => `⦿ [${pollTitle.split(':')[0]}](https://strawpoll.com/${pollTitle.split(':')[1]}/r) - ${pollTitle.split(':')[1]}`).join('\n'));
                     interaction.editReply({
@@ -160,7 +161,7 @@ module.exports = {
                         quickChartClient.setBackgroundColor("#ffffff");
 
                         const resultsEmbed = new MessageEmbed()
-                            .setColor("#0099ff")
+                            .setColor(generateRandomHexColor())
                             .setTitle('Poll results')
                             .addFields(
                                 { name: 'Owner', value: `<@${polls[0].userId}>` },
