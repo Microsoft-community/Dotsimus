@@ -514,7 +514,7 @@ client.on('messageCreate', message => {
         break;
       case 'repeat':
       case 'dotpeat':
-        if (user.isAdmin) {
+        if (message.author.id === process.env.OWNER) {
           message.delete({ reason: "Command initiation message." }).catch(() => {
             console.info(
               `Could not delete message ${message.content} | ${message.id}.`
