@@ -88,9 +88,8 @@ module.exports = {
                         return;
                     }
                     try {
-                        db.watchKeyword(interaction.user.id, interaction.guild.id, trackingWord).then(resp => {
-                            refreshWatchedCollection().then(resp => db.getWatchedKeywords(interaction.user.id, interaction.guild.id).then(async keywords => {
-                                const list = await keywords[0].watchedWords.length > 5 ? keywords[0].watchedWords.slice(1) : keywords[0].watchedWords,
+                        db.watchKeyword(interaction.user.id, interaction.guild.id, trackingWord).then(async keywords => {
+                                const list = await keywords.watchedWords.length > 5 ? keywords.watchedWords.slice(1) : keywords.watchedWords,
                                     listEmbed = new MessageEmbed()
                                         .setColor('#0099ff')
                                         .setTitle('Your tracked keywords for this server')
@@ -99,11 +98,10 @@ module.exports = {
                                             'You cannot track more than 5 keywords.' : 
                                             `You can track ${5 - list.length} more ${list.length >= 4 ? 'keyword' : 'keywords'}.`}\n❗️Direct messages must be enabled for this feature to work.`);
                                 interaction.reply({
-                                    content: `\`${trackingWord}\` keyword tracking is set up successfully on this server.`,
+                                    content: `\`${trackingWord}\` keyword tracking is enabled successfully on this server!`,
                                     embeds: [listEmbed],
-                                    ephemeral: true,
+                                    ephemeral: true
                                 })
-                            }).then(refreshWatchedCollection()))
                         })
 
                     } catch (error) {
@@ -169,7 +167,7 @@ module.exports = {
                 break;
             case "list":
                 db.getWatchedKeywords(interaction.user.id, interaction.guild.id).then(keywords => {
-                    if (!keywords.length || !keywords[0].watchedWords.length) {
+                    if (keywords.length === 0) {
                         interaction.reply({
                             content: 'You aren\'t tracking any keywords for this server. Track keywords by using the /watch command!',
                             ephemeral: true
