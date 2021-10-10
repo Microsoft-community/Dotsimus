@@ -77,7 +77,6 @@ module.exports = {
                     }
                     break;
                 case 'search':
-                    console.log(interaction.options);
                     const findRule = (rule, term) => {
                         term = term.toLowerCase();
                         if (rule.value.toLowerCase().search(term) !== -1 || rule.name.toLowerCase().search(term) !== -1) {
