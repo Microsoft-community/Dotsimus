@@ -13,7 +13,9 @@ module.exports = {
                 .setDescription('Type in amount of messages that you want to remove.')
                 .setRequired(true)),
     async execute (client, interaction) {
-        await interaction.deferReply();
+        await interaction.deferReply({
+            ephemeral: true
+        });
         if (!interaction.member.permissions.has(Permissions.FLAGS.MANAGE_MESSAGES))
             return interaction.editReply({
                 content: 'Oh snap! You don\'t have sufficient permissions to execute this command.',
