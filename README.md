@@ -12,6 +12,7 @@ DEVELOPMENT=false
 SENTRY_DSN=SENTRY_KEY
 OWNER=BOT_OWNER_ID
 STRAWPOLL_KEY=STRAWPOLL_API_KEY
+DEV_GUILD=DEVELOPMENT_GUILD_ID
 ```
 
 2. Add bot to your server https://discord.com/oauth2/authorize?&client_id=YOUR_CLIENT_ID_HERE&scope=bot&permissions=0

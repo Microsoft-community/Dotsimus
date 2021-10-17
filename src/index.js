@@ -36,8 +36,6 @@ const Sentry = require('@sentry/node'),
   { REST } = require('@discordjs/rest'),
   { Routes } = require('discord-api-types/v9'),
   commandsArray = [],
-  devClientId = '866222923919392798',
-  devGuildId = '866222604338593813';
 
 for (const file of commandFiles) {
   const command = require(`./features/commands/${file}`);
@@ -94,7 +92,7 @@ client.on('ready', async () => {
     console.info('Started refreshing application slash commands.');
 
     if(process.env.DEVELOPMENT) {
-      client.guilds.cache.get(process.env.HOME_GUILD).commands.set(commandsArray);
+      client.guilds.cache.get(process.env.DEV_GUILD).commands.set(commandsArray);
     } else {
       client.application.commands.set(commandsArray);
     }
