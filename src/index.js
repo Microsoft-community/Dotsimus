@@ -1,10 +1,8 @@
 const {
   Client,
-  Intents,
   Collection,
   MessageEmbed,
   MessageActionRow,
-  Options,
   Permissions,
   MessageButton,
   MessageAttachment
@@ -38,28 +36,13 @@ const Sentry = require('@sentry/node'),
   { REST } = require('@discordjs/rest'),
   { Routes } = require('discord-api-types/v9'),
   commandsArray = [],
-  devClientId = '793068568601165875',
-  devGuildId = '280600603741257728';
+  devClientId = '866222923919392798',
+  devGuildId = '866222604338593813';
 
 for (const file of commandFiles) {
   const command = require(`./features/commands/${file}`);
   if (command.type !== 'button' || command.type !== 'selectMenu') commandsArray.push(command.data.toJSON());
 }
-
-const rest = new REST({ version: '9' }).setToken(process.env.DEVELOPMENT !== 'true' ? process.env.BOT_TOKEN : process.env.BOT_TOKEN_DEV);
-
-(async () => {
-  try {
-    console.info('Started refreshing application slash commands.');
-    await rest.put(
-      process.env.DEVELOPMENT !== 'true' ? Routes.applicationCommands('731190736996794420') : Routes.applicationGuildCommands(devClientId, devGuildId),
-      { body: commandsArray },
-    );
-    console.info('Successfully reloaded application slash commands.');
-  } catch (error) {
-    console.error(error);
-  }
-})();
 
 client.commands = new Collection();
 commandFiles.map(file => {
@@ -100,13 +83,28 @@ const refreshServersConfigListing = () => {
 // let watchedKeywordsCollection = db.getWatchedKeywords(),
 let activeUsersCollection = [];
 
-client.on('ready', () => {
+client.on('ready', async () => {
   console.info(chalk.green(`Logged in as ${client.user.tag}!`));
   client.user.setActivity(`Dotsimus.com`, { type: 'WATCHING' });
   refreshServersConfigListing()
   // client.api.applications('731190736996794420').guilds('553939036490956801').commands('792118637808058408').delete()
   // client.api.applications('731190736996794420').guilds('553939036490956801').commands.get().then(data => console.log(data))
+
+  try {
+    console.info('Started refreshing application slash commands.');
+
+    if(process.env.DEVELOPMENT) {
+      client.guilds.cache.get(process.env.HOME_GUILD).commands.set(commandsArray);
+    } else {
+      client.application.commands.set(commandsArray);
+    }
+
+    console.info('Successfully reloaded application slash commands.');
+  } catch (error) {
+    console.error(error);
+  }
 });
+
 const commandsCooldownSet = new ArraySet();
 client.on('interactionCreate', async interaction => {
   dmButtonsRow = new MessageActionRow()

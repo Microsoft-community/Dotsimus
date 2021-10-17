@@ -16,14 +16,13 @@
     "@sentry/node": "6.13.2",
     "@top-gg/sdk": "^3.1.2",
     "async-mutex": "^0.3.2",
+    "axios": "^0.23.0",
     "canvas": "^2.8.0",
     "chalk": "^4.1.2",
     "discord-api-types": "^0.23.1",
     "discord.js": "^13.2.0",
     "dotenv": "^10.0.0",
     "mongoose": "^5.13.7",
-    "quickchart-js": "^1.4.2",
-    "request": "^2.88.2",
-    "request-promise-native": "^1.0.9"
+    "quickchart-js": "^1.4.2"
   }
 }
