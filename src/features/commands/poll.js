@@ -169,7 +169,8 @@ module.exports = {
                         interaction.editReply({ embeds: [resultsEmbed] });
                     }).catch(err => {
                         const ohSimusAsset = new MessageAttachment('./src/assets/images/ohsimus.png');
-                        interaction.editReply({ content: "Something went wrong.", files: [ohSimusAsset] });
+                        interaction.deleteReply()
+                        interaction.followUp({ content: "Something went wrong.", ephemeral: true,  files: [ohSimusAsset] });
                     });
                 });
                 break;
