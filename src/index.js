@@ -35,7 +35,7 @@ const Sentry = require('@sentry/node'),
   ohSimusAsset = new MessageAttachment('./src/assets/images/ohsimus.png'),
   { REST } = require('@discordjs/rest'),
   { Routes } = require('discord-api-types/v9'),
-  commandsArray = [],
+  commandsArray = [];
 
 for (const file of commandFiles) {
   const command = require(`./features/commands/${file}`);
