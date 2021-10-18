@@ -9,6 +9,11 @@ async function createStrawpoll(title, choicesArray, multipleAnsAllowed) {
                     'answers': choicesArray,
                     'ma': multipleAnsAllowed
                 }
+            },
+            {
+                headers: {
+                    'API-KEY': process.env.STRAWPOLL_KEY ?? ''
+                }
             }
         );
 
@@ -20,7 +25,12 @@ async function createStrawpoll(title, choicesArray, multipleAnsAllowed) {
 
 async function getStrawpollResults(pollId) {
     try {
-        const result = await axios.get(`https://strawpoll.com/api/poll/${pollId}`);
+        const result = await axios.get(`https://strawpoll.com/api/poll/${pollId}`, {
+            headers: {
+                'API-KEY': process.env.STRAWPOLL_API_KEY ?? ''
+            }
+        });
+        
         return { pollAnswersArray: result.data.content.poll.poll_answers }
     } catch (e) {
         console.error(e)
