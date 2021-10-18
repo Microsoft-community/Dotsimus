@@ -24,7 +24,6 @@ const {
 //   client = new Discord.Client({ partials: ['MESSAGE', "USER", 'REACTION'], intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES] }),
 const Sentry = require('@sentry/node'),
   chalk = require('chalk'),
-  fetch = require('request-promise-native'),
   db = require('./db'),
   perspective = require('./api/perspective'),
   { getRandomColor, collectCommandAnalytics, ArraySet } = require('./utils'),
