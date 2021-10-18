@@ -1,5 +1,3 @@
-const fetch = require('request-promise-native');
-const axios = require('axios');
 const { Routes } = require('discord-api-types/v9');
 const { REST } = require('@discordjs/rest');
 
