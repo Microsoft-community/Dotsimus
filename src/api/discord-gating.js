@@ -3,7 +3,6 @@ const { REST } = require('@discordjs/rest');
 
 // ~15mins caching would be great, wouldn't it?
 // it'd also be kinda neat if this could be done with discord.js rest and routes
-// update: nvm
 async function fetchRules(guildID) {
     const rest = new REST({ version: '9' }).setToken(process.env.DEVELOPMENT !== 'true' ? process.env.BOT_TOKEN : process.env.BOT_TOKEN_DEV);
 
