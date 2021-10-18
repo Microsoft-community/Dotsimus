@@ -70,7 +70,7 @@ module.exports = {
             });
         }
 
-        await interaction.deferReply();
+        await interaction.deferReply( {ephemeral: (interaction.options._subcommand === "list" ? true : false)} );
         switch (interaction.options._subcommand) {
             case "create":
                 const multipleAnswersAllowed = interaction.options.getBoolean('allow-multiple-answers', true);
@@ -113,8 +113,7 @@ module.exports = {
                 db.getPolls(interaction.guild.id).then(polls => {
                     if (!polls.length) {
                         interaction.editReply({
-                            content: 'There are no polls in this server.',
-                            ephemeral: true
+                            content: 'There are no polls in this server.'
                         });
                         return;
                     }
@@ -124,8 +123,7 @@ module.exports = {
                             .setDescription(poll.map((pollArr) => `⦿ [${pollArr.pollTitle}](https://strawpoll.com/${pollArr.pollId}/r) - ${pollArr.pollId}`).join('\n'));
                             .setColor(generateRandomHexColor())
                     interaction.editReply({
-                        embeds: [listEmbed],
-                        ephemeral: true,
+                        embeds: [listEmbed]
                     })
                 });
                 break;
@@ -135,8 +133,7 @@ module.exports = {
                 db.getPolls(interaction.guild.id).then(polls => {
                     if (!polls.length) {
                         interaction.editReply({
-                            content: 'There are no polls in this server.',
-                            ephemeral: true
+                            content: 'There are no polls in this server.'
                         });
                         return;
                     }
@@ -173,7 +170,8 @@ module.exports = {
                         interaction.editReply({ embeds: [resultsEmbed] });
                     }).catch(err => {
                         const ohSimusAsset = new MessageAttachment('./src/assets/images/ohsimus.png');
-                        interaction.editReply({ content: "Something went wrong.", ephemeral: true, files: [ohSimusAsset] });
+                        interaction.deleteReply()
+                        interaction.followUp({ content: "Something went wrong.", ephemeral: true,  files: [ohSimusAsset] });
                     });
                 });
                 break;
