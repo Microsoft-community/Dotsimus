@@ -291,7 +291,7 @@ client.on('messageCreate', message => {
           }).then(async () => {
             if (role) member.roles.add(role);
             const infractionMessageResponse = role ? 'Message has been flagged for review, awaiting moderation response.' : 'Message has been flagged for a review, ⚠ user is not muted.',
-              hardCodedApplePerms = (data) => data.roles.cache.has('332343869163438080'),
+              hardCodedApplePerms = (data) => (data.roles.cache.has('332343869163438080') && data.user.id !== '207177968722640897' && data.user.id !== '174602493890789377'),
               channelMembersWithAccess = await client.guilds.cache.get(server.id).channels.fetch(alert.channelId).then(channel => (channel.members.filter((member) => ((member.permissions.has(Permissions.FLAGS.KICK_MEMBERS) || hardCodedApplePerms(member)) && member.presence !== null && member.presence?.status !== 'offline' && member.user?.bot === false)))),
               channelMembersWithAccessAll = await client.guilds.cache.get(server.id).channels.fetch(alert.channelId).then(channel => (channel.members.filter((member) => ((member.permissions.has(Permissions.FLAGS.KICK_MEMBERS) || hardCodedApplePerms(member)) && member.user?.bot === false)))),
               serverThreads = await client.guilds.cache.get(server.id).channels.fetch(alert.channelId).then((threads) => threads.threads),
