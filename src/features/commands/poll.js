@@ -74,7 +74,7 @@ module.exports = {
         switch (interaction.options._subcommand) {
             case "create":
                 const multipleAnswersAllowed = interaction.options.getBoolean('allow-multiple-answers', true);
-                strawpoll.createStrawpoll(pollTitle, pollChoices, multipleAnswersAllowed).then(response => {
+                strawpoll.createStrawpoll(pollTitle, pollChoices, multipleAnswersAllowed, interaction.member).then(response => {
                     const publicPollEmbed = new MessageEmbed()
                         .setColor(generateRandomHexColor())
                         .setTitle(`Poll: ${pollTitle}`)
@@ -150,11 +150,9 @@ module.exports = {
                         }
 
                         quickChartClient.setConfig({
-                            type: 'horizontalBar',
+                            type: 'pie',
                             data: { labels: answers, datasets: [{ label: 'Votes', data: votes }] },
                         });
-
-                        quickChartClient.setWidth(500 + (Math.max(...votes) * 100));
 
                         quickChartClient.setBackgroundColor("#ffffff");
 
@@ -162,9 +160,11 @@ module.exports = {
                             .setColor(generateRandomHexColor())
                             .setTitle('Poll results')
                             .addFields(
+                                { name: 'Owner', value: (resp.description !== null ? `<@${resp.description.split(' - ')[1]}> (${resp.description.split(' - ')[1]})` : 'Unknown') },
                                 { name: 'Votes', value: stringEmbed },
                                 { name: 'Votes chart', value: `[Chart image link](${quickChartClient.getUrl()})` }
                             )
+                            .setFooter(`Poll ID: ${resp.pollId}`, interaction.guild.iconURL({ format: "webp" }))
                             .setImage(quickChartClient.getUrl());
 
                         interaction.editReply({ embeds: [resultsEmbed] });
