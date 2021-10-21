@@ -120,8 +120,8 @@ module.exports = {
                     const poll = polls[0].polls,
                         listEmbed = new MessageEmbed()
                             .setTitle(`Created polls (${poll.length})`)
-                            .setDescription(poll.map((pollArr) => `⦿ [${pollArr.pollTitle}](https://strawpoll.com/${pollArr.pollId}/r) - ${pollArr.pollId}`).join('\n'));
-                            .setColor(generateRandomHexColor())
+                            .setDescription(poll.map((pollArr) => `⦿ [${pollArr.pollTitle}](https://strawpoll.com/${pollArr.pollId}/r) - ${pollArr.pollId}`).join('\n'))
+                            .setColor(generateRandomHexColor());
                     interaction.editReply({
                         embeds: [listEmbed]
                     })
