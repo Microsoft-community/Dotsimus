@@ -37,14 +37,16 @@ type: 'slash',
         }, true).then(toxicity => {
             const messageToxicity = toxicity.toxicity
             if (!isNaN(messageToxicity)) {
+                const embedColor = (toxicity.toxicity >= 0.60 ? "#ff0000" : "#5fd980");
                 const embedResponse = new MessageEmbed()
-                    .setColor('#ffbd2e')
+                    .setColor(embedColor)
                     .addFields(
-                        { name: 'Message', value: `||${interaction.options._hoistedOptions[0].value.slice(0, 1020)}||` },
+                        { name: 'Message', value: (toxicity.toxicity >= 0.60 ? `||${interaction.options._hoistedOptions[0].value.slice(0, 1020)}||` : `${interaction.options._hoistedOptions[0].value.slice(0, 1020)}`) },
                         { name: 'Probability', value: `**Toxicity:** ${toxicity.toxicity} \n**Insult:** ${toxicity.insult}` },
                         { name: 'Dotsimus combined probability', value: `${toxicity.combined}` }
                     );
-                if(toxicity.toxicity >= 0.60) {
+
+                if (toxicity.toxicity >= 0.60) {
                     interaction.reply({
                         content: `Are you sure that you want to share this content? It might be seen as inappropriate by the moderation team.`,
                         embeds: [embedResponse],
@@ -55,7 +57,6 @@ type: 'slash',
                     interaction.reply({
                         type: 4,
                         embeds: [embedResponse],
-                        
                     })
                 }
             } else {

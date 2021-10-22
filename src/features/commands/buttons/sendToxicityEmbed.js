@@ -13,7 +13,7 @@ module.exports = {
             })
         }
         const embedResponse = new MessageEmbed()
-            .setColor('#ffbd2e')
+            .setColor('#ff0000')
             .addFields(interaction.message.embeds[0].fields)
             .setTimestamp()
             .setFooter(`${interaction.user.tag} | ${interaction.user.id}`, interaction.user.displayAvatarURL())
