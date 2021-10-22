@@ -14,18 +14,17 @@ type: 'slash',
                 .setRequired(true)
         ),
     async execute (client, interaction) {
-
         const Buttons = new MessageActionRow()
-        .addComponents(
-            new MessageButton()
-                .setCustomId(`sendToxicityEmbed`)
-                .setLabel(`Send anyways`)
-                .setStyle(`DANGER`),
-            new MessageButton()
-                .setCustomId(`hideToxicityEmbed`)
-                .setLabel(`Dont send`)
-                .setStyle(`SECONDARY`)
-        )
+            .addComponents(
+                new MessageButton()
+                    .setCustomId(`sendToxicityEmbed`)
+                    .setLabel(`Send anyways`)
+                    .setStyle(`DANGER`),
+                new MessageButton()
+                    .setCustomId(`hideToxicityEmbed`)
+                    .setLabel(`Dont send`)
+                    .setStyle(`SECONDARY`)
+            )
 
         perspective.getToxicity(interaction.options._hoistedOptions[0].value, {
             channel: {
