@@ -51,7 +51,7 @@ const getDaysSince = (current, previous) => {
     return Math.round(elapsed / msPerDay);
 }
 
-const collectCommandAnalytics = async (commandName, subCommandName) => {
+const collectCommandAnalytics = async (componentType, commandName, subCommandName) => {
     const updateAnalytics = (fileName, data) => {
         fs.writeFile(fileName, JSON.stringify(data, null, 2), function (err) {
             if (err) console.log('error', err);
@@ -66,7 +66,7 @@ const collectCommandAnalytics = async (commandName, subCommandName) => {
         updateAnalytics('./events.json', parsedAnalytics);
     } else {
         parsedAnalytics.push({
-            type: 'command',
+            type: componentType,
             name: commandName,
             used: 1,
             lastUsed: +new Date
@@ -81,7 +81,7 @@ const collectCommandAnalytics = async (commandName, subCommandName) => {
         } else {
             if (subCommandName === undefined) return
             parsedAnalytics.push({
-                type: 'subCommand',
+                type: componentType,
                 name: `${commandName} ${subCommandName}`,
                 used: 1,
                 lastUsed: +new Date

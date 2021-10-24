@@ -7,6 +7,7 @@ const {
   Options,
   Permissions,
   MessageButton,
+  MessageSelectMenu,
   MessageAttachment
 } = require('discord.js'),
   client = new Client(
@@ -139,9 +140,10 @@ client.on('interactionCreate', async interaction => {
   try {
     if (interaction.isSelectMenu()) {
       client.commands.get(interaction.customId)?.execute(client, interaction)
+      process.env.DEVELOPMENT !== 'true' ? collectCommandAnalytics(interaction.componentType, interaction.customId, interaction.values[0]) : ''
     }
     !interaction.isButton() ? client.commands.get(interaction.commandName)?.execute(client, interaction, activeUsersCollection) : client.commands.get(interaction.customId)?.execute(client, interaction, activeUsersCollection);
-    if (process.env.DEVELOPMENT !== 'true') !interaction.isButton() ? collectCommandAnalytics(interaction.commandName, interaction.options?._subcommand) : collectCommandAnalytics(interaction.customId);
+    if (process.env.DEVELOPMENT !== 'true') !interaction.isButton() ? collectCommandAnalytics(interaction.type, interaction.commandName, interaction.options?._subcommand) : collectCommandAnalytics(interaction.componentType, interaction.customId);
   } catch (error) {
     console.error(error);
   }
@@ -325,23 +327,37 @@ client.on('messageCreate', message => {
               })
               const reportActions = new MessageActionRow()
                 .addComponents(
-                  new MessageButton()
-                    .setCustomId('reportApprovalAction')
-                    .setLabel('Approve')
-                    .setStyle('SUCCESS'),
-                  new MessageButton()
-                    .setCustomId('reportApprovalUnmuteAction')
-                    .setLabel('Approve & unmute')
-                    .setStyle('SUCCESS'),
-                  new MessageButton()
-                    .setCustomId('reportRejectionAction')
-                    .setLabel('Reject & unmute')
-                    .setStyle('SECONDARY'),
-                  new MessageButton()
-                    .setCustomId('reportApprovalActionBan')
-                    .setLabel('Ban')
-                    .setStyle('DANGER')
-                    .setDisabled(true)
+                  new MessageSelectMenu()
+                    .setCustomId('investigationDropdown')
+                    .setPlaceholder('Choose investigation action')
+                    .addOptions(
+                      [
+                        {
+                          label: 'Mute & approve report',
+                          description: 'User stays muted, their message removed, adds infraction.',
+                          value: 'reportApprovalAction',
+                          emoji: '✅'
+                        },
+                        {
+                          label: 'Unmute & approve report',
+                          description: 'User gets unmuted, their message removed, infraction added.',
+                          value: 'reportApprovalUnmuteAction',
+                          emoji: '☑️'
+                        },
+                        {
+                          label: 'Unmute & reject report',
+                          description: 'User gets unmuted, their message reinstated.',
+                          value: 'reportRejectionAction',
+                          emoji: '❌'
+                        },
+                        {
+                          label: 'Ban & approve report',
+                          description: 'User gets banned, their message removed, infraction added.',
+                          value: 'reportApprovalBanAction',
+                          emoji: '🔨'
+                        }
+                      ]
+                    )
                 );
               if (messages[1]) investigationEmbed.addField(
                 `Second message (Toxicity: ${Math.round(Number(messages[1].values.toxicity) * 100)}%, Insult: ${Math.round(Number(messages[1].values.insult) * 100)}%)`,
