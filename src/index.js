@@ -139,9 +139,10 @@ client.on('interactionCreate', async interaction => {
   try {
     if (interaction.isSelectMenu()) {
       client.commands.get(interaction.customId)?.execute(client, interaction)
+      process.env.DEVELOPMENT !== 'true' ? collectCommandAnalytics(interaction.componentType, interaction.customId, interaction.values[0]) : ''
     }
     !interaction.isButton() ? client.commands.get(interaction.commandName)?.execute(client, interaction, activeUsersCollection) : client.commands.get(interaction.customId)?.execute(client, interaction, activeUsersCollection);
-    if (process.env.DEVELOPMENT !== 'true') !interaction.isButton() ? collectCommandAnalytics(interaction.commandName, interaction.options?._subcommand) : collectCommandAnalytics(interaction.customId);
+    if (process.env.DEVELOPMENT !== 'true') !interaction.isButton() ? collectCommandAnalytics(interaction.type, interaction.commandName, interaction.options?._subcommand) : collectCommandAnalytics(interaction.componentType, interaction.customId);
   } catch (error) {
     console.error(error);
   }
