@@ -169,8 +169,8 @@ module.exports = {
                         console.error(err);
                     })
                     sendNoticesAndArchiveThread(
-                        'Message removed, report verified by the moderation team.',
                         null,
+                        reportRejectionEphemeralMsg,
                         [reinstatedMessage]
                     );
                     updatedEmbed = interaction.message.embeds[0]
