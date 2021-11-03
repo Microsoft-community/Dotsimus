@@ -38,7 +38,7 @@ module.exports = {
                                 .setTitle(actionOutcome)
                                 .addField('Message', interaction.message.embeds[0].fields[0].value)
                                 .addField('User', interaction.message.embeds[0].fields.filter(field => field.name === 'User').map(field => field.value)[0])
-                                .setDescription(`Approved by <@${interaction.member.id}>`);
+                                .setDescription(`Moderated by <@${interaction.member.id}>`);
                         channel.send({ embeds: [investigationNotice], components: [investigationNoticeButtons] }).catch(console.error);
                     }
                     sendMessageToChannel(alert.channelId);
