@@ -1,10 +1,8 @@
 const {
   Client,
-  Intents,
   Collection,
   MessageEmbed,
   MessageActionRow,
-  Options,
   Permissions,
   MessageButton,
   MessageSelectMenu,
@@ -27,8 +25,8 @@ const {
 //   client = new Discord.Client({ partials: ['MESSAGE', "USER", 'REACTION'], intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES] }),
 const Sentry = require('@sentry/node'),
   chalk = require('chalk'),
-  fetch = require('request-promise-native'),
   db = require('./db'),
+  axios = require('axios'),
   perspective = require('./api/perspective'),
   { getRandomColor, collectCommandAnalytics, ArraySet } = require('./utils'),
   fs = require('fs'),
@@ -38,29 +36,12 @@ const Sentry = require('@sentry/node'),
   ohSimusAsset = new MessageAttachment('./src/assets/images/ohsimus.png'),
   { REST } = require('@discordjs/rest'),
   { Routes } = require('discord-api-types/v9'),
-  commandsArray = [],
-  devClientId = '793068568601165875',
-  devGuildId = '280600603741257728';
+  commandsArray = [];
 
 for (const file of commandFiles) {
   const command = require(`./features/commands/${file}`);
   if (command.type !== 'button' || command.type !== 'selectMenu') commandsArray.push(command.data.toJSON());
 }
-
-const rest = new REST({ version: '9' }).setToken(process.env.DEVELOPMENT !== 'true' ? process.env.BOT_TOKEN : process.env.BOT_TOKEN_DEV);
-
-(async () => {
-  try {
-    console.info('Started refreshing application slash commands.');
-    await rest.put(
-      process.env.DEVELOPMENT !== 'true' ? Routes.applicationCommands('731190736996794420') : Routes.applicationGuildCommands(devClientId, devGuildId),
-      { body: commandsArray },
-    );
-    console.info('Successfully reloaded application slash commands.');
-  } catch (error) {
-    console.error(error);
-  }
-})();
 
 client.commands = new Collection();
 commandFiles.map(file => {
@@ -101,13 +82,28 @@ const refreshServersConfigListing = () => {
 // let watchedKeywordsCollection = db.getWatchedKeywords(),
 let activeUsersCollection = [];
 
-client.on('ready', () => {
+client.on('ready', async () => {
   console.info(chalk.green(`Logged in as ${client.user.tag}!`));
   client.user.setActivity(`Dotsimus.com`, { type: 'WATCHING' });
   refreshServersConfigListing()
   // client.api.applications('731190736996794420').guilds('553939036490956801').commands('792118637808058408').delete()
   // client.api.applications('731190736996794420').guilds('553939036490956801').commands.get().then(data => console.log(data))
+
+  try {
+    console.info('Started refreshing application slash commands.');
+
+    if (process.env.DEVELOPMENT) {
+      client.guilds.cache.get(process.env.DEV_GUILD).commands.set(commandsArray);
+    } else {
+      client.application.commands.set(commandsArray);
+    }
+
+    console.info('Successfully reloaded application slash commands.');
+  } catch (error) {
+    console.error(error);
+  }
 });
+
 const commandsCooldownSet = new ArraySet();
 client.on('interactionCreate', async interaction => {
   dmButtonsRow = new MessageActionRow()
@@ -128,7 +124,7 @@ client.on('interactionCreate', async interaction => {
     files: [ohSimusAsset],
     components: [dmButtonsRow]
   });
-  
+
   if (commandsCooldownSet.has([interaction.user.id, interaction.commandName])) return interaction.reply({
     content: 'Oh snap! You have already used this action or command in the last 5 seconds.',
     ephemeral: true,
@@ -265,7 +261,8 @@ client.on('messageCreate', message => {
   })
   if (server.isPremium && !(message.member.permissions.has(Permissions.FLAGS.KICK_MEMBERS) || message.member.permissions.has(Permissions.FLAGS.BAN_MEMBERS) || message.member.roles.cache.has('332343869163438080')) || process.env.DEVELOPMENT === 'true') {
     getToxicity(message.content, message, false).then(toxicity => {
-      // console.info(`${getTime()} #${message.channel.name} ${message.author.username}: ${message.content} | ${chalk.red((Number(toxicity.toxicity) * 100).toFixed(2))} ${chalk.red((Number(toxicity.insult) * 100).toFixed(2))}`)
+      if (!toxicity.isSupportedLanguage) return;
+      // console.info(`#${message.channel.name} ${message.author.username}: ${message.content} | ${chalk.red((Number(toxicity.toxicity) * 100).toFixed(2))} ${chalk.red((Number(toxicity.insult) * 100).toFixed(2))}`)
       const messageToxicity = toxicity.toxicity;
       const alerts = async (messages) => {
         // alerts.filter(a => toxicity.toxicity >= a.threshold || toxicity.combined >= .80) removed filters temp
@@ -613,22 +610,23 @@ client.on('messageCreate', message => {
 
     if (!sanitizedMessage.startsWith(server.prefix) && !sanitizedMessage.startsWith('>') && sanitizedMessage.length !== 0) {
       try {
-        const result = await fetch({
-          method: 'POST',
-          uri: `https://commentanalyzer.googleapis.com/v1alpha1/comments:analyze?key=${process.env.PERSPECTIVE_KEY}`,
-          body: {
-            comment: {
-              text: sanitizedMessage,
-              type: 'PLAIN_TEXT'
-            },
-            languages: ['en'],
-            requestedAttributes: { SEVERE_TOXICITY: {}, INSULT: {} },
-            doNotStore: dataCollection,
-            communityId: `${server.name}/${message.channel.name}`
+        const result = await axios.post(`https://commentanalyzer.googleapis.com/v1alpha1/comments:analyze?key=${process.env.PERSPECTIVE_KEY}`, {
+          comment: {
+            text: sanitizedMessage,
+            type: 'PLAIN_TEXT'
           },
-          json: true
+          languages: ['en'],
+          requestedAttributes: { SEVERE_TOXICITY: {}, INSULT: {} },
+          doNotStore: dataCollection,
+          communityId: `${server.name}/${message.channel.name}`
         })
-        return { toxicity: result.attributeScores.SEVERE_TOXICITY.summaryScore.value, insult: result.attributeScores.INSULT.summaryScore.value, combined: (result.attributeScores.SEVERE_TOXICITY.summaryScore.value + result.attributeScores.INSULT.summaryScore.value) / 2 }
+        // console.log(result.data);
+        return {
+          toxicity: result.data.attributeScores.SEVERE_TOXICITY.summaryScore.value,
+          insult: result.data.attributeScores.INSULT.summaryScore.value,
+          combined: (result.data.attributeScores.SEVERE_TOXICITY.summaryScore.value + result.data.attributeScores.INSULT.summaryScore.value) / 2,
+          isSupportedLanguage: result.data.detectedLanguages.filter(language => language === 'en').length > 0
+        }
       } catch (e) {
         console.error(e)
         return { toxicity: NaN, insult: NaN, combined: NaN }
