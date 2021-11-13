@@ -1,5 +1,4 @@
 const { default: axios } = require('axios');
-// const fetch = require('request-promise-native');
 
 async function createStrawpoll (title, choicesArray, multipleAnsAllowed, member) {
     try {
