@@ -620,12 +620,11 @@ client.on('messageCreate', message => {
           doNotStore: dataCollection,
           communityId: `${server.name}/${message.channel.name}`
         })
-        // console.log(result.data);
         return {
           toxicity: result.data.attributeScores.SEVERE_TOXICITY.summaryScore.value,
           insult: result.data.attributeScores.INSULT.summaryScore.value,
           combined: (result.data.attributeScores.SEVERE_TOXICITY.summaryScore.value + result.data.attributeScores.INSULT.summaryScore.value) / 2,
-          isSupportedLanguage: result.data.detectedLanguages.filter(language => language === 'en').length > 0
+          isSupportedLanguage: result.data?.detectedLanguages?.filter(language => language === 'en').length > 0
         }
       } catch (e) {
         console.error(e)
