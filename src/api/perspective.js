@@ -1,4 +1,4 @@
-const fetch = require('request-promise-native');
+const axios = require('axios');
 
 async function getToxicity (rawMessage, message, dataCollection) {
     const getSanitizedEmojis = new RegExp(/<((!?\d+)|(:.+?:\d+))>/g),
@@ -12,10 +12,8 @@ async function getToxicity (rawMessage, message, dataCollection) {
 
     if (!sanitizedMessage.startsWith(message.server.prefix) && !sanitizedMessage.startsWith('>') && sanitizedMessage.length !== 0) {
         try {
-            const result = await fetch({
-                method: 'POST',
-                uri: `https://commentanalyzer.googleapis.com/v1alpha1/comments:analyze?key=${process.env.PERSPECTIVE_KEY}`,
-                body: {
+            const result = await axios.post(`https://commentanalyzer.googleapis.com/v1alpha1/comments:analyze?key=${process.env.PERSPECTIVE_KEY}`,
+                {
                     comment: {
                         text: sanitizedMessage,
                         type: 'PLAIN_TEXT'
@@ -24,10 +22,10 @@ async function getToxicity (rawMessage, message, dataCollection) {
                     requestedAttributes: { SEVERE_TOXICITY: {}, INSULT: {} },
                     doNotStore: dataCollection,
                     communityId: `${message.server.name}/${message.channel.name}`
-                },
-                json: true
-            })
-            return { toxicity: result.attributeScores.SEVERE_TOXICITY.summaryScore.value, insult: result.attributeScores.INSULT.summaryScore.value, combined: (result.attributeScores.SEVERE_TOXICITY.summaryScore.value + result.attributeScores.INSULT.summaryScore.value) / 2 }
+                }
+            );
+
+            return { toxicity: result.data.attributeScores.SEVERE_TOXICITY.summaryScore.value, insult: result.data.attributeScores.INSULT.summaryScore.value, combined: (result.data.attributeScores.SEVERE_TOXICITY.summaryScore.value + result.data.attributeScores.INSULT.summaryScore.value) / 2 }
         } catch (e) {
             console.error(e)
             return { toxicity: NaN, insult: NaN, combined: NaN }
@@ -39,22 +37,18 @@ async function getToxicity (rawMessage, message, dataCollection) {
 
 async function sendFeedback (attribute, comment, suggestedScore, messageContext) {
     const requestBody = {
-        method: 'POST',
-        uri: `https://commentanalyzer.googleapis.com/v1alpha1/comments:suggestscore?key=${process.env.PERSPECTIVE_KEY}`,
-        body: {
-            comment: {
-                text: comment,
-                type: 'PLAIN_TEXT'
-            },
-            attributeScores: {},
-            languages: ['en'],
-            communityId: `${messageContext.channel.guild.name}/${messageContext.channel.name}`
+        comment: {
+            text: comment,
+            type: 'PLAIN_TEXT'
         },
-        json: true
-    };
+        attributeScores: {},
+        languages: ['en'],
+        communityId: `${messageContext.channel.guild.name}/${messageContext.channel.name}`
+    }
+
     switch (attribute) {
         case 'toxicity':
-            requestBody.body.attributeScores = Object.assign(requestBody.body.attributeScores, {
+            requestBody.attributeScores = Object.assign(requestBody.attributeScores, {
                 "TOXICITY": {
                     "summaryScore": {
                         "value": suggestedScore
@@ -63,7 +57,7 @@ async function sendFeedback (attribute, comment, suggestedScore, messageContext)
             })
             break;
         case 'insult':
-            requestBody.body.attributeScores = Object.assign(requestBody.body.attributeScores, {
+            requestBody.attributeScores = Object.assign(requestBody.attributeScores, {
                 "INSULT": {
                     "summaryScore": {
                         "value": suggestedScore
@@ -76,7 +70,7 @@ async function sendFeedback (attribute, comment, suggestedScore, messageContext)
             break;
     }
     try {
-        const feedbackRequest = await fetch(requestBody)
+        const feedbackRequest = await axios.post(`https://commentanalyzer.googleapis.com/v1alpha1/comments:suggestscore?key=${process.env.PERSPECTIVE_KEY}`, requestBody);
         return 'Feedback submitted successfully.'
     } catch (e) {
         console.error(e)

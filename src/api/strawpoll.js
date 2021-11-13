@@ -1,25 +1,23 @@
-const fetch = require('request-promise-native');
+const axios = require('axios');
 
-async function createStrawpoll(title, choicesArray, multipleAnsAllowed, member) {
+async function createStrawpoll(title, choicesArray, multipleAnsAllowed) {
     try {
-        const result = await fetch({
-            method: 'POST',
-            uri: `https://strawpoll.com/api/poll`,
-            body: {
-                "poll": {
-                    "title": title,
-                    "answers": choicesArray,
-                    "ma": multipleAnsAllowed,
-                    "description": `Created by @${member.user.tag} - ${member.user.id}`
+        const result = await axios.post(`https://strawpoll.com/api/poll`,
+            {
+                'poll': {
+                    'title': title,
+                    'answers': choicesArray,
+                    'ma': multipleAnsAllowed
                 }
             },
-            json: true,
-            headers: {
-                'Content-Type': 'application/json',
-            	'API-KEY': process.env.STRAWPOLL_KEY
+            {
+                headers: {
+                    'API-KEY': process.env.STRAWPOLL_KEY ?? ''
+                }
             }
-        })
-        return { pollId: result.content_id }
+        );
+
+        return { pollId: result.data.content_id }
     } catch (e) {
         console.error(e)
     }
@@ -27,16 +25,13 @@ async function createStrawpoll(title, choicesArray, multipleAnsAllowed, member) 
 
 async function getStrawpollResults(pollId) {
     try {
-        const result = await fetch({
-            method: 'GET',
-            uri: `https://strawpoll.com/api/poll/${pollId}`,
-            json: true,
+        const result = await axios.get(`https://strawpoll.com/api/poll/${pollId}`, {
             headers: {
-                'Content-Type': 'application/json',
-            	'API-KEY': process.env.STRAWPOLL_KEY
+                'API-KEY': process.env.STRAWPOLL_API_KEY ?? ''
             }
         });
-        return { pollId: result.content.id, pollAnswersArray: result.content.poll.poll_answers, description: result.content.poll.poll_info.description }
+        
+        return { pollAnswersArray: result.data.content.poll.poll_answers }
     } catch (e) {
         console.error(e)
     }
