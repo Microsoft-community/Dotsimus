@@ -12,7 +12,6 @@ const { apiDateToTimestamp, updateResults, generateRandomHexColor } = require(".
     strawpoll = require('../../api/strawpoll'),
     QuickChart = require('quickchart-js');
 
-
 module.exports = {
     type: 'slash',
     data: new SlashCommandBuilder()
@@ -75,14 +74,14 @@ module.exports = {
         switch (interaction.options._subcommand) {
             case "create":
                 const multipleAnswersAllowed = interaction.options.getBoolean('allow-multiple-answers', true);
-                strawpoll.createStrawpoll(pollTitle, pollChoices, multipleAnswersAllowed).then(response => {
+                strawpoll.createStrawpoll(pollTitle, pollChoices, multipleAnswersAllowed, interaction.member).then(response => {
                     const publicPollEmbed = new MessageEmbed()
                         .setColor(generateRandomHexColor())
                         .setTitle(`Poll: ${pollTitle}`)
                         .addField("Choices", pollChoices.map(choice => `⦿ ${choice}: **0**`).join('\n'))
                         .addField("Last refresh", `<t:${apiDateToTimestamp(Date.now())}:R>`)
                         .setFooter(`Poll ID: ${response.pollId}`, interaction.guild.iconURL({ format: "webp" }));
-                    db.createPoll(interaction.member.user.id, interaction.guild.id, `${pollTitle}:${response.pollId}`).then(resp => {
+                    db.createPoll(interaction.guild.id, { "pollId": response.pollId, "pollTitle": pollTitle, "pollCreatorId": interaction.member.user.id, "pollCreatedTimestamp": Date.now().toString() }).then(resp => {
                         const Buttons = new MessageActionRow()
                             .addComponents(
                                 new MessageButton()
@@ -118,11 +117,11 @@ module.exports = {
                         });
                         return;
                     }
-                    const title = polls[0].polls,
+                    const poll = polls[0].polls,
                         listEmbed = new MessageEmbed()
-                            .setColor(generateRandomHexColor())
-                            .setTitle(`Created polls (${title.length})`)
-                            .setDescription(title.map((pollTitle) => `⦿ [${pollTitle.split(':')[0]}](https://strawpoll.com/${pollTitle.split(':')[1]}/r) - ${pollTitle.split(':')[1]}`).join('\n'));
+                            .setTitle(`Created polls (${poll.length})`)
+                            .setDescription(poll.map((pollArr) => `⦿ [${pollArr.pollTitle}](https://strawpoll.com/${pollArr.pollId}/r) - ${pollArr.pollId}`).join('\n'))
+                            .setColor(generateRandomHexColor());
                     interaction.editReply({
                         embeds: [listEmbed]
                     })
@@ -147,11 +146,11 @@ module.exports = {
                         for (let i = 0; i < resp.pollAnswersArray.length; i++) {
                             answers.push(resp.pollAnswersArray[i].answer);
                             votes.push(resp.pollAnswersArray[i].votes);
-                            stringEmbed += `${resp.pollAnswersArray[i].answer}: ${resp.pollAnswersArray[i].votes}\n`;
+                            stringEmbed += `${resp.pollAnswersArray[i].answer}: **${resp.pollAnswersArray[i].votes}**\n`;
                         }
 
                         quickChartClient.setConfig({
-                            type: 'horizontalBar',
+                            type: 'pie',
                             data: { labels: answers, datasets: [{ label: 'Votes', data: votes }] },
                         });
 
@@ -161,10 +160,11 @@ module.exports = {
                             .setColor(generateRandomHexColor())
                             .setTitle('Poll results')
                             .addFields(
-                                { name: 'Owner', value: `<@${polls[0].userId}>` },
+                                { name: 'Owner', value: (resp.description !== null ? `<@${resp.description.split(' - ')[1]}> (${resp.description.split(' - ')[1]})` : 'Unknown') },
                                 { name: 'Votes', value: stringEmbed },
                                 { name: 'Votes chart', value: `[Chart image link](${quickChartClient.getUrl()})` }
                             )
+                            .setFooter(`Poll ID: ${resp.pollId}`, interaction.guild.iconURL({ format: "webp" }))
                             .setImage(quickChartClient.getUrl());
 
                         interaction.editReply({ embeds: [resultsEmbed] });

@@ -354,14 +354,13 @@ module.exports = {
       return false;
     }
   },
-  createPoll: async function (userId, serverId, pollTitle) {
-    const query = { userId, serverId }
+  createPoll: async function (serverId, pollDetailsArray) {
+    const query = { serverId }
     try {
       return new Promise((resolve, reject) => {
         Poll.findOneAndUpdate(query, {
           'serverId': serverId,
-          'userId': userId,
-          $push: { 'polls': pollTitle }
+          $push: { 'polls': pollDetailsArray }
         }, {
           upsert: true
         }, (error, data) => {

@@ -1,6 +1,6 @@
 const fetch = require('request-promise-native');
 
-async function createStrawpoll(title, choicesArray, multipleAnsAllowed) {
+async function createStrawpoll(title, choicesArray, multipleAnsAllowed, member) {
     try {
         const result = await fetch({
             method: 'POST',
@@ -9,7 +9,8 @@ async function createStrawpoll(title, choicesArray, multipleAnsAllowed) {
                 "poll": {
                     "title": title,
                     "answers": choicesArray,
-                    "ma": multipleAnsAllowed
+                    "ma": multipleAnsAllowed,
+                    "description": `Created by @${member.user.tag} - ${member.user.id}`
                 }
             },
             json: true,
@@ -35,7 +36,7 @@ async function getStrawpollResults(pollId) {
             	'API-KEY': process.env.STRAWPOLL_KEY
             }
         });
-        return { pollAnswersArray: result.content.poll.poll_answers }
+        return { pollId: result.content.id, pollAnswersArray: result.content.poll.poll_answers, description: result.content.poll.poll_info.description }
     } catch (e) {
         console.error(e)
     }
