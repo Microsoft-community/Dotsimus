@@ -26,6 +26,7 @@ const {
 const Sentry = require('@sentry/node'),
   chalk = require('chalk'),
   db = require('./db'),
+  axios = require('axios'),
   perspective = require('./api/perspective'),
   { getRandomColor, collectCommandAnalytics, ArraySet } = require('./utils'),
   fs = require('fs'),
@@ -91,7 +92,7 @@ client.on('ready', async () => {
   try {
     console.info('Started refreshing application slash commands.');
 
-    if(process.env.DEVELOPMENT) {
+    if (process.env.DEVELOPMENT) {
       client.guilds.cache.get(process.env.DEV_GUILD).commands.set(commandsArray);
     } else {
       client.application.commands.set(commandsArray);
@@ -123,7 +124,7 @@ client.on('interactionCreate', async interaction => {
     files: [ohSimusAsset],
     components: [dmButtonsRow]
   });
-  
+
   if (commandsCooldownSet.has([interaction.user.id, interaction.commandName])) return interaction.reply({
     content: 'Oh snap! You have already used this action or command in the last 5 seconds.',
     ephemeral: true,
@@ -609,22 +610,23 @@ client.on('messageCreate', message => {
 
     if (!sanitizedMessage.startsWith(server.prefix) && !sanitizedMessage.startsWith('>') && sanitizedMessage.length !== 0) {
       try {
-        const result = await fetch({
-          method: 'POST',
-          uri: `https://commentanalyzer.googleapis.com/v1alpha1/comments:analyze?key=${process.env.PERSPECTIVE_KEY}`,
-          body: {
-            comment: {
-              text: sanitizedMessage,
-              type: 'PLAIN_TEXT'
-            },
-            languages: ['en'],
-            requestedAttributes: { SEVERE_TOXICITY: {}, INSULT: {} },
-            doNotStore: dataCollection,
-            communityId: `${server.name}/${message.channel.name}`
+        const result = await axios.post(`https://commentanalyzer.googleapis.com/v1alpha1/comments:analyze?key=${process.env.PERSPECTIVE_KEY}`, {
+          comment: {
+            text: sanitizedMessage,
+            type: 'PLAIN_TEXT'
           },
-          json: true
+          languages: ['en'],
+          requestedAttributes: { SEVERE_TOXICITY: {}, INSULT: {} },
+          doNotStore: dataCollection,
+          communityId: `${server.name}/${message.channel.name}`
         })
-        return { toxicity: result.attributeScores.SEVERE_TOXICITY.summaryScore.value, insult: result.attributeScores.INSULT.summaryScore.value, combined: (result.attributeScores.SEVERE_TOXICITY.summaryScore.value + result.attributeScores.INSULT.summaryScore.value) / 2 }
+        // console.log(result.data);
+        return {
+          toxicity: result.data.attributeScores.SEVERE_TOXICITY.summaryScore.value,
+          insult: result.data.attributeScores.INSULT.summaryScore.value,
+          combined: (result.data.attributeScores.SEVERE_TOXICITY.summaryScore.value + result.data.attributeScores.INSULT.summaryScore.value) / 2,
+          isSupportedLanguage: result.data.detectedLanguages.filter(language => language === 'en').length > 0
+        }
       } catch (e) {
         console.error(e)
         return { toxicity: NaN, insult: NaN, combined: NaN }
