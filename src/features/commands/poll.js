@@ -155,12 +155,16 @@ module.exports = {
                         });
 
                         quickChartClient.setBackgroundColor("#ffffff");
+                        
+                        const splitResult = resp.description.split(' - ');
+                        const lastIndex = splitResult.length - 1;
+                        const userId = splitResult[lastIndex];
 
                         const resultsEmbed = new MessageEmbed()
                             .setColor(generateRandomHexColor())
                             .setTitle('Poll results')
                             .addFields(
-                                { name: 'Owner', value: (resp.description !== null ? `<@${resp.description.split(' - ')[1]}> (${resp.description.split(' - ')[1]})` : 'Unknown') },
+                                { name: 'Owner', value: (resp.description !== null ? `<@${userId}> (${userId})` : 'Unknown') },
                                 { name: 'Votes', value: stringEmbed },
                                 { name: 'Votes chart', value: `[Chart image link](${quickChartClient.getUrl()})` }
                             )
