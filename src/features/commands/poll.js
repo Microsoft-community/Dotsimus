@@ -70,7 +70,7 @@ module.exports = {
             });
         }
 
-        await interaction.deferReply( {ephemeral: (interaction.options._subcommand === "list" ? true : false)} );
+        await interaction.deferReply({ ephemeral: (interaction.options._subcommand === "list" ? true : false) });
         switch (interaction.options._subcommand) {
             case "create":
                 const multipleAnswersAllowed = interaction.options.getBoolean('allow-multiple-answers', true);
@@ -155,27 +155,25 @@ module.exports = {
                         });
 
                         quickChartClient.setBackgroundColor("#ffffff");
-                        
-                        const splitResult = resp.description.split(' - ');
-                        const lastIndex = splitResult.length - 1;
-                        const userId = splitResult[lastIndex];
 
-                        const resultsEmbed = new MessageEmbed()
-                            .setColor(generateRandomHexColor())
-                            .setTitle('Poll results')
-                            .addFields(
-                                { name: 'Owner', value: (resp.description !== null ? `<@${userId}> (${userId})` : 'Unknown') },
-                                { name: 'Votes', value: stringEmbed },
-                                { name: 'Votes chart', value: `[Chart image link](${quickChartClient.getUrl()})` }
-                            )
-                            .setFooter(`Poll ID: ${resp.pollId}`, interaction.guild.iconURL({ format: "webp" }))
-                            .setImage(quickChartClient.getUrl());
+                        const splitResult = resp.description.split(' '),
+                            userId = splitResult.at(-1),
+                            resultsEmbed = new MessageEmbed()
+                                .setColor(generateRandomHexColor())
+                                .setTitle('Poll results')
+                                .addFields(
+                                    { name: 'Owner', value: (resp.description !== null ? `<@${userId}> (${userId})` : 'Unknown') },
+                                    { name: 'Votes', value: stringEmbed },
+                                    { name: 'Votes chart', value: `[Chart image link](${quickChartClient.getUrl()})` }
+                                )
+                                .setFooter(`Poll ID: ${resp.pollId}`, interaction.guild.iconURL({ format: "webp" }))
+                                .setImage(quickChartClient.getUrl());
 
                         interaction.editReply({ embeds: [resultsEmbed] });
                     }).catch(err => {
                         const ohSimusAsset = new MessageAttachment('./src/assets/images/ohsimus.png');
                         interaction.deleteReply()
-                        interaction.followUp({ content: "Something went wrong.", ephemeral: true,  files: [ohSimusAsset] });
+                        interaction.followUp({ content: "Something went wrong.", ephemeral: true, files: [ohSimusAsset] });
                     });
                 });
                 break;
