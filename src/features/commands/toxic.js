@@ -3,7 +3,6 @@ const { SlashCommandBuilder } = require('@discordjs/builders'),
     perspective = require('../../api/perspective');
 
 module.exports = {
-type: 'slash',
     type: 'slash',
     data: new SlashCommandBuilder()
         .setName('toxic')
@@ -14,18 +13,17 @@ type: 'slash',
                 .setRequired(true)
         ),
     async execute (client, interaction) {
-
         const Buttons = new MessageActionRow()
-        .addComponents(
-            new MessageButton()
-                .setCustomId(`sendToxicityEmbed`)
-                .setLabel(`Send anyways`)
-                .setStyle(`DANGER`),
-            new MessageButton()
-                .setCustomId(`hideToxicityEmbed`)
-                .setLabel(`Dont send`)
-                .setStyle(`SECONDARY`)
-        )
+            .addComponents(
+                new MessageButton()
+                    .setCustomId(`sendToxicityEmbed`)
+                    .setLabel(`Send anyways`)
+                    .setStyle(`DANGER`),
+                new MessageButton()
+                    .setCustomId(`hideToxicityEmbed`)
+                    .setLabel(`Dont send`)
+                    .setStyle(`SECONDARY`)
+            )
 
         perspective.getToxicity(interaction.options._hoistedOptions[0].value, {
             channel: {
@@ -37,14 +35,16 @@ type: 'slash',
         }, true).then(toxicity => {
             const messageToxicity = toxicity.toxicity
             if (!isNaN(messageToxicity)) {
-                const embedResponse = new MessageEmbed()
-                    .setColor('#ffbd2e')
-                    .addFields(
-                        { name: 'Message', value: `||${interaction.options._hoistedOptions[0].value.slice(0, 1020)}||` },
-                        { name: 'Probability', value: `**Toxicity:** ${toxicity.toxicity} \n**Insult:** ${toxicity.insult}` },
-                        { name: 'Dotsimus combined probability', value: `${toxicity.combined}` }
-                    );
-                if(toxicity.toxicity >= 0.60) {
+                const embedColor = (toxicity.toxicity >= 0.60 ? "#ff0000" : "#5fd980"),
+                    embedResponse = new MessageEmbed()
+                        .setColor(embedColor)
+                        .addFields(
+                            { name: 'Message', value: (toxicity.toxicity >= 0.60 ? `||${interaction.options._hoistedOptions[0].value.slice(0, 1020)}||` : `${interaction.options._hoistedOptions[0].value.slice(0, 1020)}`) },
+                            { name: 'Probability', value: `**Toxicity:** ${toxicity.toxicity} \n**Insult:** ${toxicity.insult}` },
+                            { name: 'Dotsimus combined probability', value: `${toxicity.combined}` }
+                        );
+
+                if (toxicity.toxicity >= 0.60) {
                     interaction.reply({
                         content: `Are you sure that you want to share this content? It might be seen as inappropriate by the moderation team.`,
                         embeds: [embedResponse],
@@ -55,7 +55,6 @@ type: 'slash',
                     interaction.reply({
                         type: 4,
                         embeds: [embedResponse],
-                        
                     })
                 }
             } else {
