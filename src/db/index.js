@@ -103,7 +103,6 @@ module.exports = {
           return reject(error)
         }
         resolve(data)
-        console.log(data);
       })
     }).catch(e => {
       console.error(e)
