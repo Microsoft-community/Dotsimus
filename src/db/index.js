@@ -109,6 +109,13 @@ module.exports = {
       throw 'Failed to add to user\'s balance.'
     })
   },
+  getUserBalance: cachify(async function (userId) {
+    if (userId) {
+      return await addBalance.find({ userId: userId }).lean()
+    } else {
+      return await addBalance.find({}).lean();
+    }
+  }),
   getWatchedKeywords: cachify(async function (userId, serverId) {
     if (userId && serverId) {
       return await WatchKeyword.find({ userId, serverId }).lean()
