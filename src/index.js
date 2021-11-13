@@ -431,7 +431,7 @@ client.on('messageCreate', message => {
         }))
       }
 
-      if (toxicity.combined <= 1) {
+      if (toxicity.combined <= 0.1) {
         if (dotCoinCooldown.filter(userActivity => (userActivity.userId === user.id)).length === 0) {
           dotCoinCooldown.push({
             userId: user.id,
