@@ -260,7 +260,7 @@ client.on('messageCreate', message => {
   })
   if (server.isPremium && !(message.member.permissions.has(Permissions.FLAGS.KICK_MEMBERS) || message.member.permissions.has(Permissions.FLAGS.BAN_MEMBERS) || message.member.roles.cache.has('332343869163438080')) || process.env.DEVELOPMENT === 'true') {
     getToxicity(message.content, message, false).then(toxicity => {
-      // console.info(`${getTime()} #${message.channel.name} ${message.author.username}: ${message.content} | ${chalk.red((Number(toxicity.toxicity) * 100).toFixed(2))} ${chalk.red((Number(toxicity.insult) * 100).toFixed(2))}`)
+      // console.info(`#${message.channel.name} ${message.author.username}: ${message.content} | ${chalk.red((Number(toxicity.toxicity) * 100).toFixed(2))} ${chalk.red((Number(toxicity.insult) * 100).toFixed(2))}`)
       const messageToxicity = toxicity.toxicity;
       const alerts = async (messages) => {
         // alerts.filter(a => toxicity.toxicity >= a.threshold || toxicity.combined >= .80) removed filters temp
