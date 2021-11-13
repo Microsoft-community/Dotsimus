@@ -80,7 +80,8 @@ const refreshServersConfigListing = () => {
   serversConfig = serversConfigStore;
 }
 // let watchedKeywordsCollection = db.getWatchedKeywords(),
-let activeUsersCollection = [];
+let activeUsersCollection = [],
+  dotCoinCooldown = [];
 
 client.on('ready', async () => {
   console.info(chalk.green(`Logged in as ${client.user.tag}!`));
@@ -164,6 +165,13 @@ setInterval(function () {
     return timestamp < userActivity.timestamp + (3000 * 60);
   });
 }, 30000);
+
+setInterval(function () {
+  let timestamp = Date.now();
+  dotCoinCooldown = dotCoinCooldown.filter(function (userBalanceUpdate) {
+    return timestamp < userBalanceUpdate.timestamp + (10000 * 60);
+  });
+}, 100000);
 
 // client.on('messageReactionAdd', (reaction, user) => {
 //   console.log(`${user.username}: added "${reaction.emoji.name}".`);
@@ -421,6 +429,18 @@ client.on('messageCreate', message => {
             })
           })
         }))
+      }
+
+      if (toxicity.combined <= 1) {
+        if (dotCoinCooldown.filter(userActivity => (userActivity.userId === user.id)).length === 0) {
+          dotCoinCooldown.push({
+            userId: user.id,
+            timestamp: Date.now()
+          });
+          const dotCoinAmount = [0, 0.1, 0.2, 0.3, 1],
+            randomValue = Math.floor(Math.random() * dotCoinAmount.length);
+          db.addToBalance(message.author.id, dotCoinAmount[randomValue]);
+        }
       }
 
       if ((((messageToxicity >= .85 || toxicity.insult >= .95) && user.isNew) || (messageToxicity >= .85 || toxicity.combined >= .85))) {
