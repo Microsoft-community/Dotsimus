@@ -93,7 +93,7 @@ client.on('ready', async () => {
   try {
     console.info('Started refreshing application slash commands.');
 
-    if (process.env.DEVELOPMENT) {
+    if (process.env.DEVELOPMENT === 'true') {
       client.guilds.cache.get(process.env.DEV_GUILD).commands.set(commandsArray);
     } else {
       client.application.commands.set(commandsArray);
