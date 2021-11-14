@@ -27,13 +27,12 @@ module.exports = {
                 .setDescription('Disables all premium features.')),
     async execute(_, interaction) {
         if (!interaction.guild) {
-            interaction.reply({ content: 'You can only use this command in servers!', ephemeral: true });
-            return;
+            return interaction.reply({ content: 'You can only use this command in servers!', ephemeral: true });
         }
 
         if (!interaction.member.permissions.has(Permissions.FLAGS.ADMINISTRATOR)) {
             const ohSimusAsset = new MessageAttachment('./src/assets/images/ohsimus.png');
-            interaction.reply({
+            return interaction.reply({
                 content: 'Oh snap! You don\'t have sufficient permissions to execute this command.',
                 files: [ohSimusAsset],
                 ephemeral: true
