@@ -64,11 +64,11 @@ module.exports = {
                     })
             }
         } catch (e) {
+            console.log(e);
             return interaction.reply({
                 content: `Unfortunately, an error occured: \"${e.message}\"`,
                 ephemeral: true
-            })
-            console.log(e);
+            });
         }
     }
 }
