@@ -265,6 +265,18 @@ module.exports = {
       })
     })
   }),
+  deleteAllAlerts: async function(serverId) {
+    const query = JSON.parse(JSON.stringify({
+      serverId
+    }))
+
+    Alert.remove(query, error => {
+      if (error) {
+        return reject(error);
+      }
+      resolve();
+    })
+  },
   deleteAlerts: async function (serverId, roleId, userId, threshold, channelId, dryRun = false) {
     const mentionType = roleId ? 'role' : 'user'
     const mentionId = roleId ? roleId : userId
