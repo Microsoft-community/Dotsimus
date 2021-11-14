@@ -11,7 +11,6 @@ module.exports = {
         .setDescription('??? ??? ???'),
     async execute (client, interaction) {
         db.getUserBalance(interaction.user.id).then(async (userInfo) => {
-            console.log(userInfo, userInfo.length === 0, userInfo.length);
             if (userInfo.length === 0) {
                 return interaction.reply({ content: 'Currently you have no Dotcoins.', ephemeral: true });
             } else {
