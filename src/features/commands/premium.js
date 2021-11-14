@@ -68,6 +68,7 @@ module.exports = {
                 content: `Unfortunately, an error occured: \"${e.message}\"`,
                 ephemeral: true
             })
+            console.log(e);
         }
     }
 }
