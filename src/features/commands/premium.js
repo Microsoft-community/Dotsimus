@@ -70,7 +70,7 @@ module.exports = {
         } catch (e) {
             console.log(e);
             return interaction.reply({
-                content: `Unfortunately, an error occured: \"${e.message}\"`,
+                content: `Unfortunately, an error occured."`,
                 ephemeral: true
             });
         }
