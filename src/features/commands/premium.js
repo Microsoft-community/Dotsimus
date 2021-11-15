@@ -52,6 +52,10 @@ module.exports = {
                 case "configure":
                     const role = interaction.options.getRole("role"), channel = interaction.options.getChannel("channel");
                     await db.saveAlert(interaction.guild.id, role.id, undefined, 0.6, channel.id);
+                    await channel.send({
+                        content: `This channel has been setup for Dotsimus reports.\n**Muted role**: <@&${role.id}>.`,
+                        allowedMentions: { parse: [] }
+                    })
                     return interaction.reply({
                         content: "Configuration successful!",
                         ephemeral: true
