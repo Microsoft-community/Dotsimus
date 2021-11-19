@@ -7,7 +7,7 @@ module.exports = {
     type: 'selectMenu',
     description: 'Executes actions that get picked within investigation dropdown.',
     async execute (client, interaction) {
-        if (interaction.member.permissions.serialize().KICK_MEMBERS || interaction.member.permissions.serialize().BAN_MEMBERS || interaction.member.roles.cache.some(role => role.id === '332343869163438080')) {
+        if (interaction.member.permissions.serialize().KICK_MEMBERS || interaction.member.permissions.serialize().BAN_MEMBERS || interaction.member.roles.cache.some(role => role.id === '332343869163438080') || interaction.member.roles.cache.some(role => role.id === '352519899048050688')) {
             const removedMessageInfo = interaction.message.embeds[0].footer.text.split(/ +/g),
                 sendNoticesAndArchiveThread = (publicActionNotice, privateActionNotice, privateActionNoticeEmbed) => client.guilds.cache.get(interaction.guildId).channels
                     .fetch(removedMessageInfo[0]).then(
@@ -38,7 +38,7 @@ module.exports = {
                                 .setTitle(actionOutcome)
                                 .addField('Message', interaction.message.embeds[0].fields[0].value)
                                 .addField('User', interaction.message.embeds[0].fields.filter(field => field.name === 'User').map(field => field.value)[0])
-                                .setDescription(`Approved by <@${interaction.member.id}>`);
+                                .setDescription(`Moderated by <@${interaction.member.id}>`);
                         channel.send({ embeds: [investigationNotice], components: [investigationNoticeButtons] }).catch(console.error);
                     }
                     sendMessageToChannel(alert.channelId);
@@ -169,8 +169,8 @@ module.exports = {
                         console.error(err);
                     })
                     sendNoticesAndArchiveThread(
-                        'Message removed, report verified by the moderation team.',
                         null,
+                        reportRejectionEphemeralMsg,
                         [reinstatedMessage]
                     );
                     updatedEmbed = interaction.message.embeds[0]

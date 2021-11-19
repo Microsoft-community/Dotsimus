@@ -8,11 +8,12 @@ const Sentry = require('@sentry/node'),
   watchKeywordSchema = require('./schemas/watchKeywordSchema'),
   blockedReportSchema = require('./schemas/blockedReport'),
   pollSchema = require('./schemas/pollSchema');
+const addBalanceSchema = require('./schemas/addBalanceSchema');
 
 if (process.env.DEVELOPMENT !== 'true') Sentry.init({ dsn: process.env.SENTRY_DSN });
 
 const initialize = new Promise((resolve, reject) => {
-  mongoose.connect(process.env.DEVELOPMENT !== 'true' ? process.env.DB_HOST : process.env.DB_HOST_DEV, { useUnifiedTopology: true, useNewUrlParser: true, useFindAndModify: false }, function (error, response) {
+  mongoose.connect(process.env.DEVELOPMENT !== 'true' ? process.env.DB_HOST : process.env.DB_HOST_DEV, { useUnifiedTopology: true, useNewUrlParser: true }, function (error, response) {
     if (error) {
       throw new Error(`Error connecting to mongo database: ${error}`)
     } else {
@@ -25,11 +26,13 @@ const Alert = mongoose.model('Alert', alertSchema),
   AdminRole = mongoose.model('AdminRole', adminRoleSchema),
   ServersConfig = mongoose.model('ServersConfig', serversConfigSchema),
   SaveMessage = mongoose.model('userInfractions', saveMessageSchema),
+  addBalance = mongoose.model('usersBalance', addBalanceSchema),
   WatchKeyword = mongoose.model('watchedKeywords', watchKeywordSchema),
   BlockedReport = mongoose.model('blockedReport', blockedReportSchema),
-  Poll = mongoose.model('Polls', pollSchema)
+  Poll = mongoose.model('Polls', pollSchema),
   TTL = 30 * 1000,
   cache = new Map();
+
 const cachify = (originalFn) => {
   return async (...args) => {
     let fnCache = cache.get(originalFn)
@@ -92,6 +95,27 @@ module.exports = {
       throw 'Failed to add a toxicity record.'
     })
   },
+  addToBalance: function (userId, amount) {
+    return new Promise((resolve, reject) => {
+      addBalance.findOneAndUpdate({ userId: userId }, { $inc: { balance: amount } }, { upsert: true }, (error, data) => {
+        if (error) {
+          console.error(error)
+          return reject(error)
+        }
+        resolve(data)
+      })
+    }).catch(e => {
+      console.error(e)
+      throw 'Failed to add to user\'s balance.'
+    })
+  },
+  getUserBalance: cachify(async function (userId) {
+    if (userId) {
+      return await addBalance.find({ userId: userId }).lean()
+    } else {
+      return await addBalance.find({}).lean();
+    }
+  }),
   getWatchedKeywords: cachify(async function (userId, serverId) {
     if (userId && serverId) {
       return await WatchKeyword.find({ userId, serverId }).lean()
@@ -312,10 +336,11 @@ module.exports = {
         throw 'Failed to update or add an alert'
       })
   },
-  saveBlockedReportUser: async function(guildId, userId, username) {
+  saveBlockedReportUser: async function (guildId, userId, username) {
     try {
       const filter = { userId };
-      const result = await BlockedReport.findOneAndUpdate(filter, { $setOnInsert: {
+      const result = await BlockedReport.findOneAndUpdate(filter, {
+        $setOnInsert: {
           serverId: guildId,
           userId,
           username
@@ -323,14 +348,14 @@ module.exports = {
       }, {
         upsert: true,
       });
-  
+
       console.log(result);
-    } catch(e) {
+    } catch (e) {
       console.error(e);
       throw 'Failed to block the user.';
     }
   },
-  deleteBlockedReportUser: async function(guildId, userId) {
+  deleteBlockedReportUser: async function (guildId, userId) {
     try {
       const result = await BlockedReport.deleteMany({
         serverId: guildId,
@@ -338,30 +363,29 @@ module.exports = {
       });
 
       console.log(result);
-    } catch(e) {
+    } catch (e) {
       console.error(e);
       throw 'Failed to unblock the user.';
     }
   },
-  usedPreventedFromReport: async function(guildId, userId) {
+  usedPreventedFromReport: async function (guildId, userId) {
     try {
       const result = await BlockedReport.find({
         serverId: guildId,
         userId
       });
       return result.length > 0;
-    } catch(e) {
+    } catch (e) {
       return false;
     }
   },
-  createPoll: async function (userId, serverId, pollTitle) {
-    const query = { userId, serverId }
+  createPoll: async function (serverId, pollDetailsArray) {
+    const query = { serverId }
     try {
       return new Promise((resolve, reject) => {
         Poll.findOneAndUpdate(query, {
           'serverId': serverId,
-          'userId': userId,
-          $push: { 'polls': pollTitle }
+          $push: { 'polls': pollDetailsArray }
         }, {
           upsert: true
         }, (error, data) => {

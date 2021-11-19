@@ -10,8 +10,8 @@ module.exports = {
         try {
             updateResults(interaction, interaction.message.embeds[0])
             interaction.reply({
-                    content: '☑️ Poll refreshed succesfully.',
-                    ephemeral: true
+                content: '☑️ Poll refreshed succesfully.',
+                ephemeral: true
             });
         } catch (error) {
             console.error(error);
