@@ -36,7 +36,7 @@ module.exports = {
             }
             const ohSimusAsset = new MessageAttachment('./src/assets/images/ohsimus.png');
             interaction.reply({
-                content: 'Oh snap! You don\'t have sufficient permissions to ban this user.',
+                content: 'Oh snap! Dotsimus does not have sufficient permissions to ban this user.\nCheck whether the bot has enough permissions and try again.',
                 files: [ohSimusAsset],
                 ephemeral: true
             });
