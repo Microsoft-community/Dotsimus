@@ -17,8 +17,8 @@ module.exports = {
                 .setRequired(false)
         ),
     async execute (client, interaction) {
-        const user = interaction.options.getUser('user');
-        const ohSimusAsset = new MessageAttachment('./src/assets/images/ohsimus.png');
+        const user = interaction.options.getUser('user'), 
+              ohSimusAsset = new MessageAttachment('./src/assets/images/ohsimus.png');
 
         if (interaction.guild.id === '150662382874525696') {
             return interaction.reply({
