@@ -19,6 +19,15 @@ module.exports = {
     async execute (client, interaction) {
         const user = interaction.options.getUser('user');
 
+        if (interaction.guild.id === '150662382874525696') {
+            const ohSimusAsset = new MessageAttachment('./src/assets/images/ohsimus.png');
+            return interaction.reply({
+                content: 'Oh snap! This feature is currently disabled by the moderation team.',
+                files: [ohSimusAsset],
+                ephemeral: true
+            });
+        }
+        
         if (!interaction.member.permissions.has(Permissions.FLAGS.BAN_MEMBERS)) {
             const ohSimusAsset = new MessageAttachment('./src/assets/images/ohsimus.png');
             interaction.reply({
