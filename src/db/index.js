@@ -269,12 +269,10 @@ module.exports = {
     const query = JSON.parse(JSON.stringify({
       serverId
     }))
-
-    Alert.remove(query, error => {
+    Alert.deleteOne(query, (error) => {
       if (error) {
         return reject(error);
       }
-      resolve();
     })
   },
   deleteAlerts: async function (serverId, roleId, userId, threshold, channelId, dryRun = false) {
