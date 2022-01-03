@@ -57,8 +57,7 @@ module.exports = {
                             .setColor('#0099ff')
                             .setTitle('Dotsimus Reports')
                             .setDescription(`This channel has been setup for Dotsimus reports.`)
-                            .addField('Muted role', `<@&${role.id}>`, false)],
-                        allowedMentions: { parse: [] }
+                            .addField('Muted role', `<@&${role.id}>`, false)]
                     })
                     return interaction.reply({
                         content: "Configuration successful!",
