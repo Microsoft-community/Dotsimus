@@ -35,49 +35,7 @@ module.exports = {
                         .setDescription('Select user to remove timeout.')
                         .setRequired(true)
                 )
-        )
-        .addSubcommand(subcommand =>
-            subcommand
-                .setName('list')
-                .setDescription('Lists all timeouts.')
-        )
-        .addSubcommand(subcommand =>
-            subcommand
-                .setName('list-user')
-                .setDescription('Lists all timeouts from a user.')
-                .addUserOption(option =>
-                    option.setName('user')
-                        .setDescription('Select user to list timeouts.')
-                        .setRequired(true)
-                )
-        )
-        .addSubcommand(subcommand =>
-            subcommand
-                .setName('list-all')
-                .setDescription('Lists all timeouts from all guilds.')
-        )
-        .addSubcommand(subcommand =>
-            subcommand
-                .setName('list-all-user')
-                .setDescription('Lists all timeouts from a user from all guilds.')
-                .addUserOption(option =>
-                    option.setName('user')
-                        .setDescription('Select user to list timeouts.')
-                        .setRequired(true)
-                )
-        )
-        .addSubcommand(subcommand => subcommand
-            .setName('ping')
-            .setDescription('Shows bots latency.'))
-        .addSubcommand(subcommand => subcommand
-            .setName('restart')
-            .setDescription('⚠️ [Owner command] Restarts the bot.'))
-        .addSubcommand(subcommand => subcommand
-            .setName('usage')
-            .setDescription('Shows how many times commands were used and when they were used last.'))
-        .addSubcommand(subcommand => subcommand
-            .setName('submit-a-review')
-            .setDescription('Explains the importance of reviews and guides on where to submit one.')),
+        ),
     async execute (client, interaction) {
         switch (interaction.options._subcommand) {
             case 'add':
