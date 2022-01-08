@@ -19,8 +19,8 @@
     "axios": "^0.24.0",
     "canvas": "^2.8.0",
     "chalk": "^4.1.2",
-    "discord-api-types": "^0.26.0",
-    "discord.js": "^13.4.0",
+    "discord-api-types": "^0.26.1",
+    "discord.js": "^13.5.1",
     "dotenv": "^10.0.0",
     "mongoose": "^6.0.12",
     "quickchart-js": "^1.4.2"
