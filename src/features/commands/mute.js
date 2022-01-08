@@ -84,7 +84,7 @@ module.exports = {
                             .setTitle('You have been unmuted')
                             .setDescription(`You have been unmuted on ${interaction.guild.name}.`)
                             .setColor('#00ff00')
-                        );
+                        ).catch(() => { });
                     }).catch(async () => {
                         await interaction.editReply({
                             content: 'Something went horribly wrong, check whether bot has required permissions enabled.',
