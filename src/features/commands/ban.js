@@ -54,7 +54,7 @@ module.exports = {
     },
 }
 
-var banUser = (user, interaction) => {
+const banUser = (user, interaction) => {
     const reason = interaction.options.get('reason')?.value ?? "No reason specified";
     user.send({ content: `You have been banned from ${interaction.guild.name} for **${reason}**.` });
     interaction.guild.members.ban(user, { reason: interaction.options.getString('reason')?.value }).then(() => {
