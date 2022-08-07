@@ -1,6 +1,10 @@
-const { SlashCommandBuilder } = require('@discordjs/builders'),
-    { MessageEmbed } = require('discord.js'),
-    { fetchRules } = require('./../../api/discord-gating'),
+const {
+    SlashCommandBuilder
+} = require('@discordjs/builders'), {
+        MessageEmbed
+    } = require('discord.js'), {
+        fetchRules
+    } = require('./../../api/discord-gating'),
     stringToBoolean = (string) => string == 'false' ? false : !!string;
 
 module.exports = {
@@ -10,38 +14,50 @@ module.exports = {
         .setDescription('Allows you to guide new users through rules without hitting them with a wall of text.')
         .addSubcommand(subcommand =>
             subcommand
-                .setName('rule')
-                .setDescription('Shows selected rule.')
-                .addIntegerOption(option =>
-                    option.setName('number')
-                        .setDescription('Type in rule number.')
-                        .setRequired(true)))
+            .setName('rule')
+            .setDescription('Shows selected rule.')
+            .addIntegerOption(option =>
+                option.setName('number')
+                .setDescription('Type in rule number.')
+                .setRequired(true)))
         .addSubcommand(subcommand =>
             subcommand
-                .setName('search')
-                .setDescription('Searches for rule with provided keyword.')
-                .addStringOption(option =>
-                    option.setName('keyword')
-                        .setDescription('Type in keyword.')
-                        .setRequired(true)
-                )
-                .addStringOption(option =>
-                    option.setName('visibility')
-                        .setDescription('Allows you to choose whether message is visible to everyone or just to you.')
-                        .setRequired(false)
-                        .addChoice('Private', 'true')
-                        .addChoice('Public', 'false')))
+            .setName('search')
+            .setDescription('Searches for rule with provided keyword.')
+            .addStringOption(option =>
+                option.setName('keyword')
+                .setDescription('Type in keyword.')
+                .setRequired(true)
+            )
+            .addStringOption(option =>
+                option.setName('visibility')
+                .setDescription('Allows you to choose whether message is visible to everyone or just to you.')
+                .setRequired(false)
+                .addChoices({
+                    name: 'Private',
+                    value: 'true'
+                }, {
+                    name: 'Public',
+                    value: 'false'
+                })
+            ))
         .addSubcommand(subcommand =>
             subcommand
-                .setName('all')
-                // setDefaultPermission(true) waiting for this to be merged
-                .setDescription('Shows all of the community rules and guidelines.')
-                .addStringOption(option =>
-                    option.setName('visibility')
-                        .setDescription('Allows you to choose whether message is visible to everyone or just to you.')
-                        .setRequired(false)
-                        .addChoice('Private', 'true')
-                        .addChoice('Public', 'false'))),
+            .setName('all')
+            // setDefaultPermission(true) waiting for this to be merged
+            .setDescription('Shows all of the community rules and guidelines.')
+            .addStringOption(option =>
+                option.setName('visibility')
+                .setDescription('Allows you to choose whether message is visible to everyone or just to you.')
+                .setRequired(false)
+                .addChoices({
+                    name: 'Private',
+                    value: 'true'
+                }, {
+                    name: 'Public',
+                    value: 'false'
+                })
+            )),
     execute: async function (client, interaction) {
         const fetchedRules = await fetchRules(interaction.guildId).then(data => data)
         if (fetchedRules === 0) {
@@ -55,11 +71,15 @@ module.exports = {
             switch (interaction.options._subcommand) {
                 case 'rule':
                     if (interaction.options._hoistedOptions[0].value === 69) {
-                        interaction.reply({ content: 'nice' })
+                        interaction.reply({
+                            content: 'nice'
+                        })
                         return;
                     }
                     if (interaction.options._hoistedOptions[0].value === 420) {
-                        interaction.reply({ content: 'hahah, weed weed' })
+                        interaction.reply({
+                            content: 'hahah, weed weed'
+                        })
                         return;
                     }
                     if (interaction.options._hoistedOptions[0].value > 0 && interaction.options._hoistedOptions[0].value <= fetchedRules.form_fields[0].values.length) {
@@ -67,7 +87,10 @@ module.exports = {
                             .setTitle(`Rule ${interaction.options._hoistedOptions[0].value}`)
                             .setDescription(fetchedRules.form_fields[0].values[interaction.options._hoistedOptions[0].value - 1])
                             .setColor('#e4717a')
-                        interaction.reply({ type: 4, embeds: [ruleEmbed] })
+                        interaction.reply({
+                            type: 4,
+                            embeds: [ruleEmbed]
+                        })
                     } else {
                         interaction.reply({
                             type: 4,
@@ -78,13 +101,16 @@ module.exports = {
                     break;
                 case 'search':
                     const findRule = (rule, term) => {
-                        term = term.toLowerCase();
-                        if (rule.value.toLowerCase().search(term) !== -1 || rule.name.toLowerCase().search(term) !== -1) {
-                            return true;
-                        }
-                        return false;
-                    },
-                        embedCollection = fetchedRules.form_fields[0].values.map((rule, index) => ({ name: 'Rule ' + (index + 1), value: rule })),
+                            term = term.toLowerCase();
+                            if (rule.value.toLowerCase().search(term) !== -1 || rule.name.toLowerCase().search(term) !== -1) {
+                                return true;
+                            }
+                            return false;
+                        },
+                        embedCollection = fetchedRules.form_fields[0].values.map((rule, index) => ({
+                            name: 'Rule ' + (index + 1),
+                            value: rule
+                        })),
                         getSearchResults = embedCollection.filter(rule => findRule(rule, interaction.options._hoistedOptions[0].value));
                     if (getSearchResults.length !== 0) {
                         const foundRules = new MessageEmbed()
@@ -104,12 +130,15 @@ module.exports = {
                     }
                     break;
                 case 'all':
-                    const rulesAll = fetchedRules.form_fields[0].values.map((rule, index) => ({ name: 'Rule ' + (index + 1), value: rule })),
+                    const rulesAll = fetchedRules.form_fields[0].values.map((rule, index) => ({
+                            name: 'Rule ' + (index + 1),
+                            value: rule
+                        })),
                         rulesEmbed = new MessageEmbed()
-                            .setTitle(`${client.guilds.cache.get(interaction.guildId).name} rules`)
-                            .setColor('#e4717a')
-                            .setFooter('Last updated: ' + new Date(fetchedRules.version).toUTCString(), client.guilds.cache.get(interaction.guildId).iconURL())
-                            .addFields(rulesAll);
+                        .setTitle(`${client.guilds.cache.get(interaction.guildId).name} rules`)
+                        .setColor('#e4717a')
+                        .setFooter('Last updated: ' + new Date(fetchedRules.version).toUTCString(), client.guilds.cache.get(interaction.guildId).iconURL())
+                        .addFields(rulesAll);
                     interaction.reply({
                         embeds: [rulesEmbed],
                         ephemeral: stringToBoolean(interaction.options._hoistedOptions[0]?.value ?? true)
@@ -127,4 +156,3 @@ module.exports = {
         }
     }
 };
-

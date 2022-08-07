@@ -1,6 +1,9 @@
-const { SlashCommandBuilder } = require('@discordjs/builders'),
-    wait = require('util').promisify(setTimeout),
-    { MessageAttachment } = require('discord.js');
+const {
+    SlashCommandBuilder
+} = require('@discordjs/builders'),
+    wait = require('util').promisify(setTimeout), {
+        MessageAttachment
+    } = require('discord.js');
 
 
 module.exports = {
@@ -10,11 +13,17 @@ module.exports = {
         .setDescription('Resolve any argument with a flip of a coin.')
         .addStringOption(option =>
             option.setName('side')
-                .setDescription('Pick coin side.')
-                .setRequired(true)
-                .addChoice('Head', 'head')
-                .addChoice('Tails', 'tails')),
-    async execute (client, interaction) {
+            .setDescription('Pick coin side.')
+            .setRequired(true)
+            .addChoices({
+                name: 'Head',
+                value: 'head'
+            }, {
+                name: 'Tails',
+                value: 'tails'
+            })
+        ),
+    async execute(client, interaction) {
         if (interaction.guild.id === '150662382874525696') {
             const ohSimusAsset = new MessageAttachment('./src/assets/images/ohsimus.png');
             return interaction.reply({
