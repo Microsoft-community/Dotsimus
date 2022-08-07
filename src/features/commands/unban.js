@@ -1,4 +1,5 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
+const { MessageAttachment } = require('discord.js');
 
 module.exports = {
     type: 'slash',
@@ -11,7 +12,8 @@ module.exports = {
                 .setRequired(true)
         ),
     async execute (client, interaction) {
-        const userSnowflake = interaction.options.getUser('user');
+        const userSnowflake = interaction.options.getUser('user'), 
+              ohSimusAsset = new MessageAttachment('./src/assets/images/ohsimus.png');
         if (interaction.member.permissions.serialize().BAN_MEMBERS) {
             const isUserBanned = await interaction.guild.bans.fetch({ user: userSnowflake, cache: false }).catch(() => false);
             if (isUserBanned) {
@@ -30,10 +32,10 @@ module.exports = {
 
         } else {
             interaction.reply({
-                type: 4,
-                ephemeral: true,
-                content: `You don't have required permissions to use this command.`
-            })
+                content: 'Oh snap! You don\'t have sufficient permissions to unban this user.',
+                files: [ohSimusAsset],
+                ephemeral: true
+            });
         }
     },
 }
